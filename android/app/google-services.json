@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "354613334193",
+    "project_id": "fundacion-dfb97",
+    "storage_bucket": "fundacion-dfb97.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:354613334193:android:38c519700c6be74fe29290",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhWuGVqHHP_45-pUkSYoFkawlekEnvUdc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:354613334193:android:c9804159ce2eae93e29290",
+        "android_client_info": {
+          "package_name": "com.example.pedidos_fundacion"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhWuGVqHHP_45-pUkSYoFkawlekEnvUdc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
