@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-Color primary = const Color(0xFF0894F1);
-Color secondary = const Color(0xFF0055FF);
-Color tertiary = const Color(0xFF5f82dd);
-Color quaternary = const Color.fromARGB(255, 242, 187, 5);
-Color white = const Color(0xFFF2F2F2);
+const Color primary = Color(0xFF0894F1);
+const Color secondary = Color(0xFF0055FF);
+const Color tertiary = Color(0xFF5F82DD);
+const Color quaternary = Color(0xFFF2BB05);
+const Color white = Color(0xFFFFFFFF);
+const Color dark = Color(0xFF212121);
 
 BoxDecoration backgroundDecoration = BoxDecoration(
   gradient: LinearGradient(
