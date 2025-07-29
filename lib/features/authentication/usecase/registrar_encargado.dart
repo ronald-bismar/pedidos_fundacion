@@ -8,7 +8,7 @@ class RegisterCoordinatorUseCase {
 
   Future<Result> execute(Coordinator coordinator) async {
     try {
-      // Check if the coordinator already exists by email or DNI
+      // Check if the coordinator already exists by email
       final emailExists = await coordinatorRepository.existsByEmail(
         coordinator.email,
       );
