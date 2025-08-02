@@ -32,4 +32,8 @@ class CoordinatorMapper {
       'role': coordinator.role,
     };
   }
+
+  static Map<String, dynamic> toJsonPhoto(Coordinator coordinator) {
+    return {'idPhoto': coordinator.idPhoto};
+  }
 }

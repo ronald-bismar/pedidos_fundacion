@@ -1,12 +1,13 @@
 class Photo {
   String id;
   String name;
-  String url;
+  String urlRemote;
+  String urlLocal;
 
-  Photo({required this.id, this.name = '', this.url = ''});
+  Photo({required this.id, this.name = '', this.urlRemote = '', this.urlLocal = ''});
 
   @override
   String toString() {
-    return 'PhotoUser{id: $id, name: $name, email: $url}';
+    return 'PhotoUser{id: $id, name: $name, email: $urlRemote, location: $urlLocal}';
   }
 }

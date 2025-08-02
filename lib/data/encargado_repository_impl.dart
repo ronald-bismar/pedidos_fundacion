@@ -1,12 +1,17 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/mappers/encargado_mapper.dart';
+import 'package:pedidos_fundacion/core/services/image_storage.dart';
+import 'package:pedidos_fundacion/core/services/upload_image.dart';
+import 'package:pedidos_fundacion/core/utils/uuid.dart';
 import 'package:pedidos_fundacion/data/preferences_usuario.dart';
 import 'package:pedidos_fundacion/di/services_provider.dart';
 import 'package:pedidos_fundacion/domain/entities/encargado.dart';
+import 'package:pedidos_fundacion/domain/entities/foto.dart';
 import 'package:pedidos_fundacion/domain/repositories/encargado_repository.dart';
 
 final coordinatorRepoProvider = Provider(
@@ -84,6 +89,10 @@ class CoordinatorRepositoryImpl implements CoordinatorRepository {
           .then((userCredential) {
             log('Usuario creado exitosamente: ${userCredential.user?.uid}');
 
+            coordinator = coordinator.copyWith(
+              id: userCredential.user?.uid ?? UUID.generateUUID(),
+            );
+
             firestoreService
                 .collection('coordinators')
                 .doc(coordinator.id)
@@ -95,6 +104,43 @@ class CoordinatorRepositoryImpl implements CoordinatorRepository {
     } catch (e) {
       log('Error saving coordinator: $e');
       return Future.value(false);
+    }
+  }
+
+  @override
+  Future<Photo?> registerPhoto(File image) async {
+    final urlRemote = await UploadImage.saveImage(image);
+    if (urlRemote != null) {
+      final urlLocal = await ImageStorageLocal.saveImageLocally(
+        image,
+        'profile_photo',
+      );
+
+      final photo = Photo(
+        id: UUID.generateUUID(),
+        name: 'profile_photo',
+        urlRemote: urlRemote,
+        urlLocal: urlLocal,
+      );
+      return photo;
+    }
+    return null;
+  }
+  
+  @override
+  Future<void> updatePhotoCoordinator(Coordinator coordinator, Photo photo) {
+    try {
+      final updatedCoordinator = coordinator.copyWith(idPhoto: photo.id);
+      return firestoreService
+          .collection('coordinators')
+          .doc(coordinator.id)
+          .update(CoordinatorMapper.toJsonPhoto(updatedCoordinator))
+          .then((_) {
+            preferencesUsuario.savePreferencesCoordinator(updatedCoordinator);
+          });
+    } catch (e) {
+      log('Error updating coordinator photo: $e');
+      return Future.error('Failed to update coordinator photo');
     }
   }
 }

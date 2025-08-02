@@ -1,4 +1,4 @@
-class Cargo {
+class Role {
   static const String tutor = 'Tutor';
   static const String admin = 'Administrador RP';
   static const String patrocinador = 'Patrocinador';

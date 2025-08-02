@@ -1,73 +1,102 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/utils/change_screen.dart';
 import 'package:pedidos_fundacion/core/widgets/background.dart';
 import 'package:pedidos_fundacion/core/widgets/boton_ancho.dart';
 import 'package:pedidos_fundacion/core/widgets/logo.dart';
+import 'package:pedidos_fundacion/core/widgets/progress_indicator.dart';
+import 'package:pedidos_fundacion/core/widgets/snackbar.dart';
 import 'package:pedidos_fundacion/core/widgets/text_button_custom.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
+import 'package:pedidos_fundacion/domain/entities/encargado.dart';
+import 'package:pedidos_fundacion/features/authentication/presentation/providers/register_photo_notifier.dart';
+import 'package:pedidos_fundacion/features/authentication/presentation/providers/register_photo_state.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/screens/generate_user_password_screen.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/widgets/profile_image_picker.dart';
 
-class ImageProfileScreen extends StatefulWidget {
-  // final Encargado encargado;
-  const ImageProfileScreen({
-    super.key,
-    // required this.encargado
-  });
+class ImageProfileScreen extends ConsumerStatefulWidget {
+  final Coordinator coordinator;
+  const ImageProfileScreen({super.key, required this.coordinator});
 
   @override
-  State<ImageProfileScreen> createState() => _ImageProfileScreenState();
+  ConsumerState<ImageProfileScreen> createState() => _ImageProfileScreenState();
 }
 
-class _ImageProfileScreenState extends State<ImageProfileScreen> {
+class _ImageProfileScreenState extends ConsumerState<ImageProfileScreen> {
   File? _selectedImage;
 
   @override
   Widget build(BuildContext context) {
-    return backgroundScreen(
-      Container(
-        padding: const EdgeInsets.symmetric(vertical: 40),
-        height: MediaQuery.of(context).size.height,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            const Logo(),
-            title('Foto de Presentación'),
-            ProfileImagePicker(
-              onImageSelected: (File? image) {
-                _selectedImage = image;
-              },
-            ),
+    ref.listen<RegisterPhotoState>(registerPhotoProvider, (previous, next) {
+      if (next is RegisterSuccess) {
+        cambiarPantalla(
+          context,
+          GenerateUserPasswordScreen(coordinator: widget.coordinator),
+        );
+      } else if (next is RegisterFailure) {
+        MySnackBar.error(context, next.error);
+      }
+    });
 
+    final registerPhotoState = ref.watch(registerPhotoProvider);
+
+    return backgroundScreen(
+      SizedBox(
+        height: MediaQuery.of(context).size.height,
+        child: Stack(
+          children: [
             Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                BotonAncho(
-                  text: "Registrar",
-                  onPressed: () async {
-                    cambiarPantalla(context, GenerateUserPasswordScreen());
+                const Logo(),
+                title('Foto de Presentación'),
+                ProfileImagePicker(
+                  onImageSelected: (File? image) {
+                    _selectedImage = image;
                   },
-                  marginVertical: 0,
-                  backgroundColor: white,
-                  textColor: dark,
-                  paddingHorizontal: 60,
                 ),
-                TextButtonCustom(
-                  text: "Omitir",
-                  onPressed: () => {
-                    cambiarPantalla(context, GenerateUserPasswordScreen()),
-                  },
-                  marginVertical: 0,
-                  textColor: dark,
+
+                Column(
+                  children: [
+                    BotonAncho(
+                      text: "Registrar",
+                      onPressed: () async => _handleRegister(),
+                      marginVertical: 0,
+                      backgroundColor: white,
+                      textColor: dark,
+                      paddingHorizontal: 60,
+                    ),
+                    TextButtonCustom(
+                      text: "Omitir",
+                      onPressed: () => {
+                        cambiarPantalla(
+                          context,
+                          GenerateUserPasswordScreen(
+                            coordinator: widget.coordinator,
+                          ),
+                        ),
+                      },
+                      marginVertical: 0,
+                      textColor: dark,
+                    ),
+                  ],
                 ),
               ],
             ),
+            if (registerPhotoState is RegisterLoading) const LoadingIndicator(),
           ],
         ),
       ),
     );
+  }
+
+  void _handleRegister() {
+    ref
+        .read(registerPhotoProvider.notifier)
+        .registerPhoto(photo: _selectedImage, coordinator: widget.coordinator);
   }
 }

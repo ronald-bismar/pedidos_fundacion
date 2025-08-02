@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/results/result_global.dart';
 import 'package:pedidos_fundacion/domain/entities/encargado.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/providers/register_state.dart';
-import 'package:pedidos_fundacion/features/authentication/usecase/registrar_encargado.dart';
+import 'package:pedidos_fundacion/features/authentication/usecases/registrar_encargado.dart';
 
 final registerProvider = StateNotifierProvider<RegisterNotifier, RegisterState>(
   (ref) => RegisterNotifier(ref.watch(registerCoordinatorProvider)),

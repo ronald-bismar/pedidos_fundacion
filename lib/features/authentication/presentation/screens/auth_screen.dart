@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/constants/cargos.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/utils/change_screen.dart';
-import 'package:pedidos_fundacion/core/widgets/boton_ancho.dart';
-import 'package:pedidos_fundacion/core/widgets/background.dart';
-import 'package:pedidos_fundacion/core/widgets/logo.dart';
 import 'package:pedidos_fundacion/core/widgets/alert_dialog_options.dart';
+import 'package:pedidos_fundacion/core/widgets/background.dart';
+import 'package:pedidos_fundacion/core/widgets/boton_ancho.dart';
+import 'package:pedidos_fundacion/core/widgets/logo.dart';
+import 'package:pedidos_fundacion/core/widgets/progress_indicator.dart';
+import 'package:pedidos_fundacion/core/widgets/snackbar.dart';
 import 'package:pedidos_fundacion/core/widgets/textfield.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
 import 'package:pedidos_fundacion/domain/entities/encargado.dart';
@@ -28,6 +30,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController profesionController = TextEditingController();
   String cargoSelected = "";
+  late Coordinator coordinator;
 
   @override
   void dispose() {
@@ -41,36 +44,18 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Escuchar los cambios de estado
     ref.listen<RegisterState>(registerProvider, (previous, next) {
       if (next is RegisterSuccess) {
-        // Mostrar mensaje de éxito y navegar
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.message), backgroundColor: Colors.green),
-        );
-        cambiarPantalla(context, LocationPostScreen());
+        cambiarPantalla(context, LocationPostScreen(coordinator: coordinator));
       } else if (next is RegisterFailure) {
-        // Mostrar mensaje de error
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.error), backgroundColor: Colors.red),
-        );
+        MySnackBar.error(context, next.error);
       }
     });
 
     final registerState = ref.watch(registerProvider);
 
-    if (registerState is RegisterLoading) {
-      return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 60),
-        child: const CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(white),
-        ),
-      );
-    }
-
     return backgroundScreen(
-      Container(
-        padding: const EdgeInsets.symmetric(vertical: 40),
+      SizedBox(
         height: MediaQuery.of(context).size.height,
         child: Stack(
           children: [
@@ -125,7 +110,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                               cargoSelected = cargo;
                             });
                           },
-                          items: Cargo.values,
+                          items: Role.values,
                           icon: Icons.admin_panel_settings,
                           messageInfo: 'Cargo',
                         ),
@@ -144,16 +129,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 _buildRegisterButton(),
               ],
             ),
-            if (registerState is RegisterLoading)
-              Container(
-                color: Colors.black54,
-                width: double.infinity,
-                height: double.infinity,
-                alignment: Alignment.center,
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(white),
-                ),
-              ),
+            if (registerState is RegisterLoading) const LoadingIndicator(),
           ],
         ),
       ),
@@ -172,56 +148,19 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   void _handleRegister() {
+    // Cerrar el teclado si está abierto
+    FocusScope.of(context).unfocus();
+
     // Validaciones básicas
-    if (_validateForm()) {
-      final coordinator = Coordinator(
-        id: '',
-        dni: cedulaController.text.trim(),
-        name: nombreController.text.trim(),
-        lastName: apellidoController.text.trim(),
-        email: emailController.text.trim(),
-        role: cargoSelected,
-        profession: profesionController.text.trim(),
-      );
-
-      // Llamar al método del notifier
-      ref
-          .read(registerProvider.notifier)
-          .registerUser(coordinator: coordinator);
-    }
-  }
-
-  bool _validateForm() {
-    if (cedulaController.text.trim().isEmpty) {
-      _showErrorMessage('Por favor ingresa tu cédula de identidad');
-      return false;
-    }
-    if (nombreController.text.trim().isEmpty) {
-      _showErrorMessage('Por favor ingresa tu nombre');
-      return false;
-    }
-    if (apellidoController.text.trim().isEmpty) {
-      _showErrorMessage('Por favor ingresa tus apellidos');
-      return false;
-    }
-    if (emailController.text.trim().isEmpty) {
-      _showErrorMessage('Por favor ingresa tu email');
-      return false;
-    }
-    if (cargoSelected.isEmpty) {
-      _showErrorMessage('Por favor selecciona un cargo');
-      return false;
-    }
-    if (profesionController.text.trim().isEmpty) {
-      _showErrorMessage('Por favor ingresa tu profesión');
-      return false;
-    }
-    return true;
-  }
-
-  void _showErrorMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    coordinator = Coordinator(
+      dni: cedulaController.text.trim(),
+      name: nombreController.text.trim(),
+      lastName: apellidoController.text.trim(),
+      email: emailController.text.trim(),
+      role: cargoSelected,
+      profession: profesionController.text.trim(),
     );
+
+    ref.read(registerProvider.notifier).registerUser(coordinator: coordinator);
   }
 }

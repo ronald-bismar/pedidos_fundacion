@@ -14,6 +14,8 @@ class Coordinator extends User {
     String username = '',
     String password = '',
     String phone = '',
+    String location = '',
+    bool active = true,
     this.profession = '',
     this.role = '',
   }) : super(
@@ -26,6 +28,8 @@ class Coordinator extends User {
          username,
          password,
          phone,
+         location,
+         active,
        );
 
   String get idCoordinator => id;
@@ -33,5 +37,37 @@ class Coordinator extends User {
   @override
   String toString() {
     return 'Coordinator{profession: $profession, role: $role, ${super.toString()}}';
+  }
+
+  Coordinator copyWith({
+    String? id,
+    String? dni,
+    String? name,
+    String? lastName,
+    String? email,
+    String? idPhoto,
+    String? username,
+    String? password,
+    String? phone,
+    String? location,
+    bool? active,
+    String? profession,
+    String? role,
+  }) {
+    return Coordinator(
+      id: id ?? this.id,
+      dni: dni ?? this.dni,
+      name: name ?? this.name,
+      lastName: lastName ?? this.lastName,
+      email: email ?? this.email,
+      idPhoto: idPhoto ?? this.idPhoto,
+      username: username ?? this.username,
+      password: password ?? this.password,
+      phone: phone ?? this.phone,
+      location: location ?? this.location,
+      active: active ?? this.active,
+      profession: profession ?? this.profession,
+      role: role ?? this.role,
+    );
   }
 }

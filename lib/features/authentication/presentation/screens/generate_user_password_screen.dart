@@ -8,10 +8,13 @@ import 'package:pedidos_fundacion/core/widgets/subtitle.dart';
 import 'package:pedidos_fundacion/core/widgets/text_normal.dart';
 import 'package:pedidos_fundacion/core/widgets/textfield.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
+import 'package:pedidos_fundacion/core/widgets/toast.dart';
+import 'package:pedidos_fundacion/domain/entities/encargado.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/screens/welcome_screen.dart';
 
 class GenerateUserPasswordScreen extends StatelessWidget {
-  const GenerateUserPasswordScreen({super.key});
+  final Coordinator coordinator;
+  const GenerateUserPasswordScreen({super.key, required this.coordinator});
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +54,7 @@ class GenerateUserPasswordScreen extends StatelessWidget {
               child: Column(
                 children: [
                   TextFieldCustom(
-                    label: "Usuario generado",
+                    label: coordinator.username,
                     controller: usuarioController,
                     prefixIcon: Icons.person,
                     textInputType: TextInputType.emailAddress,
@@ -59,7 +62,7 @@ class GenerateUserPasswordScreen extends StatelessWidget {
                     readOnly: true,
                   ),
                   TextFieldCustom(
-                    label: "Contraseña generada",
+                    label: coordinator.password,
                     controller: contrasenaController,
                     prefixIcon: Icons.lock,
                     textInputType: TextInputType.visiblePassword,
@@ -78,6 +81,7 @@ class GenerateUserPasswordScreen extends StatelessWidget {
             BotonAncho(
               text: "Enviar email de confirmación",
               onPressed: () async {
+                MyToast.showToast('Volviendo al menú principal');
                 cambiarPantalla(context, WelcomeScreen());
               },
               marginVertical: 0,
