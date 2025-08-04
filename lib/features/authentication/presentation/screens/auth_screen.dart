@@ -13,7 +13,7 @@ import 'package:pedidos_fundacion/core/widgets/textfield.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
 import 'package:pedidos_fundacion/domain/entities/encargado.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/providers/register_notifier.dart';
-import 'package:pedidos_fundacion/features/authentication/presentation/providers/register_state.dart';
+import 'package:pedidos_fundacion/features/authentication/presentation/states/register_state.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/screens/location_post_screen.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
@@ -46,7 +46,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   Widget build(BuildContext context) {
     ref.listen<RegisterState>(registerProvider, (previous, next) {
       if (next is RegisterSuccess) {
-        cambiarPantalla(context, LocationPostScreen(coordinator: coordinator));
+        coordinator = coordinator.copyWith(id: next.data);
+
+        cambiarPantallaConNuevaPila(
+          context,
+          LocationPostScreen(coordinator: coordinator),
+        );
       } else if (next is RegisterFailure) {
         MySnackBar.error(context, next.error);
       }
@@ -79,15 +84,17 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                         label: "Nombre",
                         controller: nombreController,
                         marginVertical: 8,
+                        textCapitalization: TextCapitalization.words,
                         prefixIcon: Icons.person,
                         textInputType: TextInputType.name,
                       ),
                       TextFieldCustom(
                         label: "Apellidos",
                         controller: apellidoController,
+                        marginVertical: 8,
+                        textCapitalization: TextCapitalization.words,
                         prefixIcon: Icons.person_2_outlined,
                         textInputType: TextInputType.name,
-                        marginVertical: 8,
                       ),
                       TextFieldCustom(
                         label: "Email",
@@ -159,6 +166,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       email: emailController.text.trim(),
       role: cargoSelected,
       profession: profesionController.text.trim(),
+      active: false,
     );
 
     ref.read(registerProvider.notifier).registerUser(coordinator: coordinator);

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/results/result_global.dart';
 import 'package:pedidos_fundacion/domain/entities/encargado.dart';
-import 'package:pedidos_fundacion/features/authentication/presentation/providers/register_photo_state.dart';
+import 'package:pedidos_fundacion/features/authentication/presentation/states/register_photo_state.dart';
 import 'package:pedidos_fundacion/features/authentication/usecases/registrar_foto_presentacion.dart';
 
 final registerPhotoProvider =

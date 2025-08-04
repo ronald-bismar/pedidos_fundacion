@@ -4,8 +4,8 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
-class UploadImage {
-  UploadImage();
+class UploadImageRemote {
+  UploadImageRemote();
 
   static Future<String?> saveImage(File? image) async {
     final url = Uri.parse('https://api.cloudinary.com/v1_1/dt5rqpa84/upload');
@@ -32,7 +32,6 @@ class UploadImage {
         log('Error response: $responseString');
       }
     } catch (e) {
-      // Log any exceptions that are thrown
       log('Exception occurred: $e');
     }
     return null;

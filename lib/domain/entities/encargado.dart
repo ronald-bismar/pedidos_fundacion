@@ -15,6 +15,7 @@ class Coordinator extends User {
     String password = '',
     String phone = '',
     String location = '',
+    DateTime? updateAt,
     bool active = true,
     this.profession = '',
     this.role = '',
@@ -29,6 +30,7 @@ class Coordinator extends User {
          password,
          phone,
          location,
+         updateAt ?? DateTime.now(),
          active,
        );
 
@@ -50,6 +52,7 @@ class Coordinator extends User {
     String? password,
     String? phone,
     String? location,
+    DateTime? updateAt,
     bool? active,
     String? profession,
     String? role,
@@ -65,6 +68,7 @@ class Coordinator extends User {
       password: password ?? this.password,
       phone: phone ?? this.phone,
       location: location ?? this.location,
+      updateAt: updateAt ?? this.updateAt,
       active: active ?? this.active,
       profession: profession ?? this.profession,
       role: role ?? this.role,

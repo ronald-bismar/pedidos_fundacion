@@ -13,7 +13,7 @@ import 'package:pedidos_fundacion/core/widgets/text_button_custom.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
 import 'package:pedidos_fundacion/domain/entities/encargado.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/providers/register_photo_notifier.dart';
-import 'package:pedidos_fundacion/features/authentication/presentation/providers/register_photo_state.dart';
+import 'package:pedidos_fundacion/features/authentication/presentation/states/register_photo_state.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/screens/generate_user_password_screen.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/widgets/profile_image_picker.dart';
 
@@ -34,7 +34,7 @@ class _ImageProfileScreenState extends ConsumerState<ImageProfileScreen> {
       if (next is RegisterSuccess) {
         cambiarPantalla(
           context,
-          GenerateUserPasswordScreen(coordinator: widget.coordinator),
+          GenerateUserPasswordScreen(coordinatorId: widget.coordinator.id),
         );
       } else if (next is RegisterFailure) {
         MySnackBar.error(context, next.error);
@@ -46,7 +46,9 @@ class _ImageProfileScreenState extends ConsumerState<ImageProfileScreen> {
     return backgroundScreen(
       SizedBox(
         height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
         child: Stack(
+          alignment: Alignment.center,
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -76,7 +78,7 @@ class _ImageProfileScreenState extends ConsumerState<ImageProfileScreen> {
                         cambiarPantalla(
                           context,
                           GenerateUserPasswordScreen(
-                            coordinator: widget.coordinator,
+                            coordinatorId: widget.coordinator.id,
                           ),
                         ),
                       },

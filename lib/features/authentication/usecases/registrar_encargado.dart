@@ -57,8 +57,13 @@ class RegisterCoordinatorUseCase {
 
       final coordinatorWithPassword = generateUserPasswordUseCase(coordinator);
       // Save the new coordinator
-      await coordinatorRepository.saveCoordinator(coordinatorWithPassword);
-      return Result.success('Coordinator registered successfully');
+      final String? coordinatorId = await coordinatorRepository
+          .registerCoordinator(coordinatorWithPassword);
+
+      if (coordinatorId == null || coordinatorId.isEmpty) {
+        return Result.failure('Failed to register coordinator');
+      }
+      return Result.success(coordinatorId);
     } catch (e) {
       return Result.failure('Failed to register coordinator: $e');
     }

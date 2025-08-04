@@ -12,8 +12,8 @@ final validateDataUseCaseProvider = Provider(
 class ValidateDataCoordinatorUseCase {
   //Records (Dart 3.0+)
   (bool isValid, String? message) call(Coordinator coordinator) {
-    if (coordinator.dni.trim().isEmpty) {
-      return (false, 'Por favor ingresa tu cédula de identidad');
+    if (!validateDni(coordinator.dni.trim())) {
+      return (false, 'La cedula de identidad no es válida');
     }
     if (coordinator.name.trim().isEmpty) {
       return (false, 'Por favor ingresa tu nombre');
@@ -21,8 +21,8 @@ class ValidateDataCoordinatorUseCase {
     if (coordinator.lastName.trim().isEmpty) {
       return (false, 'Por favor ingresa tus apellidos');
     }
-    if (!isValidEmail(coordinator.email.trim())) {
-      return (false, 'Por favor ingresa un email válido');
+    if (!validateEmail(coordinator.email.trim())) {
+      return (false, 'El correo electrónico no es válido');
     }
     if (coordinator.role.trim().isEmpty) {
       return (false, 'Por favor selecciona un cargo');
@@ -33,10 +33,18 @@ class ValidateDataCoordinatorUseCase {
     return (true, null);
   }
 
-  bool isValidEmail(String email) {
+  bool validateEmail(String email) {
     final emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
     );
     return emailRegex.hasMatch(email);
+  }
+
+  bool validateDni(String dni) {
+    final cleanedDni = dni.trim();
+
+    return cleanedDni.length >= 6 &&
+        RegExp(r'^[a-zA-Z0-9]+$').hasMatch(cleanedDni) &&
+        RegExp(r'\d').hasMatch(cleanedDni);
   }
 }

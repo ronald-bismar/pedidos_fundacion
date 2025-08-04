@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/results/result_global.dart';
 import 'package:pedidos_fundacion/domain/entities/encargado.dart';
-import 'package:pedidos_fundacion/features/authentication/presentation/providers/register_state.dart';
+import 'package:pedidos_fundacion/features/authentication/presentation/states/register_state.dart';
 import 'package:pedidos_fundacion/features/authentication/usecases/registrar_encargado.dart';
 
 final registerProvider = StateNotifierProvider<RegisterNotifier, RegisterState>(
@@ -21,7 +21,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
       final Result result = await registerCoordinator(coordinator);
 
       if (result.isSuccess) {
-        state = RegisterSuccess(result.data ?? 'Registration successful');
+        state = RegisterSuccess(result.data);
       } else {
         state = RegisterFailure(result.error ?? 'Unknown error occurred');
       }

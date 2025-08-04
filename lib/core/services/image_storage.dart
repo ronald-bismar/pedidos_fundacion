@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
-class ImageStorageLocal {
+class UploadImageLocal {
   static Future<String> saveImageLocally(
     File tempImage,
     String nameImage,

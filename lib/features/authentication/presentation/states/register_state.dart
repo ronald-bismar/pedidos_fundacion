@@ -7,9 +7,9 @@ class RegisterInitial extends RegisterState {}
 class RegisterLoading extends RegisterState {}
 
 class RegisterSuccess extends RegisterState {
-  final String message;
+  final String data;
 
-  const RegisterSuccess(this.message);
+  const RegisterSuccess(this.data);
 }
 
 class RegisterFailure extends RegisterState {
