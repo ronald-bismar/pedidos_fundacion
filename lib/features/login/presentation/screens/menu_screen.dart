@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
+import 'package:pedidos_fundacion/core/utils/change_screen.dart';
 import 'package:pedidos_fundacion/core/widgets/logo.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
+import 'package:pedidos_fundacion/features/authentication/presentation/screens/auth_screen.dart';
+import 'package:pedidos_fundacion/features/login/presentation/widgets/image_user_profile.dart';
 import 'package:pedidos_fundacion/features/login/presentation/widgets/item_menu_card.dart';
 import 'package:pedidos_fundacion/features/login/presentation/widgets/items_menu.dart';
 
@@ -11,12 +14,20 @@ class MenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final listItems = [
-      ItemMenu(title: 'Pedidos', icon: Icons.list),
-      ItemMenu(title: 'Entregas', icon: Icons.delivery_dining),
-      ItemMenu(title: 'Historial de Entregas', icon: Icons.history),
-      ItemMenu(title: 'Personal', icon: Icons.person),
-      ItemMenu(title: 'Beneficiarios', icon: Icons.group),
-      ItemMenu(title: 'Reportes', icon: Icons.report),
+      ItemMenu(title: 'Pedidos', icon: Icons.list, screen: AuthScreen()),
+      ItemMenu(
+        title: 'Entregas',
+        icon: Icons.delivery_dining,
+        screen: AuthScreen(),
+      ),
+      ItemMenu(
+        title: 'Historial de Entregas',
+        icon: Icons.history,
+        screen: AuthScreen(),
+      ),
+      ItemMenu(title: 'Personal', icon: Icons.person, screen: AuthScreen()),
+      ItemMenu(title: 'Beneficiarios', icon: Icons.group, screen: AuthScreen()),
+      ItemMenu(title: 'Reportes', icon: Icons.report, screen: AuthScreen()),
     ];
     return Scaffold(
       body: Container(
@@ -68,8 +79,13 @@ class MenuScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          const Logo(widthLogo: 180, heightLogo: 70),
-          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Logo(widthLogo: 140, heightLogo: 70),
+              ImageUserProfile(),
+            ],
+          ),
           title('MENU PRINCIPAL'),
           Expanded(
             child: GridView.builder(
@@ -80,7 +96,11 @@ class MenuScreen extends StatelessWidget {
               ),
               itemCount: listItems.length,
               itemBuilder: (context, index) {
-                return itemMenu(listItems[index], index);
+                return itemMenu(
+                  listItems[index],
+                  index,
+                  () => cambiarPantalla(context, listItems[index].screen),
+                );
               },
             ),
           ),

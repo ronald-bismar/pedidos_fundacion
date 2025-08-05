@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/utils/change_screen.dart';
 import 'package:pedidos_fundacion/core/widgets/background.dart';
 import 'package:pedidos_fundacion/core/widgets/boton_ancho.dart';
 import 'package:pedidos_fundacion/core/widgets/logo.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
-import 'package:pedidos_fundacion/features/login/presentation/screens/login_screen.dart';
+import 'package:pedidos_fundacion/features/login/presentation/screens/menu_screen.dart';
+import 'package:pedidos_fundacion/presentation/user_application_provider.dart';
 
-class WelcomeSecondScreen extends StatelessWidget {
+class WelcomeSecondScreen extends ConsumerStatefulWidget {
   const WelcomeSecondScreen({super.key});
 
+  @override
+  ConsumerState<WelcomeSecondScreen> createState() =>
+      _WelcomeSecondScreenState();
+}
+
+class _WelcomeSecondScreenState extends ConsumerState<WelcomeSecondScreen> {
   @override
   Widget build(BuildContext context) {
     return backgroundScreen(
@@ -42,7 +50,10 @@ class WelcomeSecondScreen extends StatelessWidget {
             BotonAncho(
               text: "Empezar",
               onPressed: () async {
-                cambiarPantalla(context, LoginScreen());
+                final coordinator = ref.watch(userApplicationProvider.notifier);
+
+                coordinator.setActive();
+                cambiarPantalla(context, MenuScreen());
               },
               marginVertical: 0,
               marginHorizontal: 0,
