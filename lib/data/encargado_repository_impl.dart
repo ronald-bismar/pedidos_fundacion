@@ -216,4 +216,48 @@ class CoordinatorRepositoryImpl implements CoordinatorRepository {
       log('Error updating coordinator photo: $e');
     }
   }
+
+  @override
+  Future<({String name, String? urlPhoto, bool isLocal})> getNameAndPhoto(
+    Coordinator coordinator,
+  ) async {
+    final String firstName = coordinator.name.split(' ')[0];
+    final String firstLastName = coordinator.lastName.split(' ')[0];
+    final nameLastName = '$firstName $firstLastName';
+
+    final hasInternet = await NetworkUtils.hasRealInternet();
+    if (hasInternet) {
+      final Photo? photo = await photoRemoteDataSource.getPhoto(
+        coordinator.idPhoto,
+      );
+      if (photo != null) {
+        log('url photo : local: ${photo.urlLocal} remote: ${photo.urlRemote}');
+        return (name: nameLastName, urlPhoto: photo.urlRemote, isLocal: false);
+      } else {
+        return (
+          name: nameLastName,
+          urlPhoto: await getUrlLocalPhoto(coordinator),
+          isLocal: true,
+        );
+      }
+    } else {
+      return (
+        name: nameLastName,
+        urlPhoto: await getUrlLocalPhoto(coordinator),
+        isLocal: true,
+      );
+    }
+  }
+
+  Future<String?> getUrlLocalPhoto(Coordinator coordinator) async {
+    final Photo? photo = await photoLocalDataSource.getPhoto(
+      coordinator.idPhoto,
+    );
+
+    if (photo != null) {
+      return photo.urlLocal;
+    } else {
+      return null;
+    }
+  }
 }

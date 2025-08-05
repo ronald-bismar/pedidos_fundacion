@@ -9,12 +9,13 @@ import 'package:pedidos_fundacion/core/widgets/boton_ancho.dart';
 import 'package:pedidos_fundacion/core/widgets/logo.dart';
 import 'package:pedidos_fundacion/core/widgets/progress_indicator.dart';
 import 'package:pedidos_fundacion/core/widgets/snackbar.dart';
+import 'package:pedidos_fundacion/core/widgets/subtitle.dart';
 import 'package:pedidos_fundacion/core/widgets/textfield.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
 import 'package:pedidos_fundacion/domain/entities/encargado.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/providers/register_notifier.dart';
-import 'package:pedidos_fundacion/features/authentication/presentation/states/register_state.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/screens/location_post_screen.dart';
+import 'package:pedidos_fundacion/features/authentication/presentation/states/register_state.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -69,7 +70,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 const Logo(),
-                title('REGISTRO DE USUARIO'),
+                Column(
+                  children: [
+                    title('REGISTRO DE NUEVO USUARIO'),
+                    subTitle(
+                      'Solicite los datos al nuevo usuario',
+                      textColor: dark,
+                    ),
+                  ],
+                ),
                 Container(
                   alignment: Alignment.center,
                   child: Column(

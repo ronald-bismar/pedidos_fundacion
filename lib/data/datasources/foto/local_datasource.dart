@@ -75,4 +75,18 @@ class PhotoLocalDataSource {
       log('Error inserting Photo: $e');
     }
   }
+
+  Future<Photo?> getPhoto(String id) async {
+    Database database = await _dbHelper.openDB();
+    final List<Map<String, dynamic>> cMap = await database.query(
+      tableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (cMap.isNotEmpty) {
+      return Photo.fromMap(cMap.first);
+    }
+    return null;
+  }
 }

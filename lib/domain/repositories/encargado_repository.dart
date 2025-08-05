@@ -13,4 +13,7 @@ abstract class CoordinatorRepository {
   void updateLocationCoordinator(Coordinator coordinator);
   Future<Coordinator?> login(String user, String password);
   void updateActiveCoordinator(Coordinator coordinator);
+  Future<({String name, String? urlPhoto, bool isLocal})> getNameAndPhoto(
+    Coordinator coordinator,
+  );
 }
