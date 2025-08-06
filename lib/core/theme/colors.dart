@@ -9,8 +9,9 @@ const Color dark = Color(0xFF212121);
 
 BoxDecoration backgroundDecoration = BoxDecoration(
   gradient: LinearGradient(
-    colors: [primary, secondary],
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
+    colors: [primary, secondary.withOpacity(0.8)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    stops: [0.6, 1.0],
   ),
 );
