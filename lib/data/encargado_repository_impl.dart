@@ -31,7 +31,7 @@ final coordinatorRepoProvider = Provider(
 class CoordinatorRepositoryImpl implements CoordinatorRepository {
   final FirebaseAuth firebaseAuth;
   final CoordinatorRemoteDataSource coordinatorRemoteDataSource;
-  final CoordinatorLocalDatasource coordinatorLocalDatasource;
+  final CoordinatorLocalDataSource coordinatorLocalDatasource;
   final PhotoLocalDataSource photoLocalDataSource;
   final PhotoRemoteDataSource photoRemoteDataSource;
   final PreferencesUsuario preferencesUsuario;

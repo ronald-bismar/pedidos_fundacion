@@ -2,6 +2,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart';
+import 'package:pedidos_fundacion/data/datasources/beneficiario/local_datasource.dart';
 import 'package:pedidos_fundacion/data/datasources/encargado/local_datasource.dart';
 import 'package:pedidos_fundacion/data/datasources/foto/local_datasource.dart';
 import 'package:sqflite/sqflite.dart';
@@ -19,7 +20,8 @@ class DatabaseHelper {
       join(await getDatabasesPath(), databaseName),
       version: databaseVersion,
       onCreate: (db, version) async {
-        await db.execute(CoordinatorLocalDatasource.coordinators);
+        await db.execute(CoordinatorLocalDataSource.coordinators);
+        await db.execute(BeneficiaryLocalDataSource.beneficiaries);
         await db.execute(PhotoLocalDataSource.photos);
       },
     );

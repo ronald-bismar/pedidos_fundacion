@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/features/login/presentation/screens/login_screen.dart';
 
@@ -18,6 +19,21 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Pedidos Fundación',
+      // Configurar localización, NECESARIA PARA QUE LOS WIDGETS MUESTREN TEXTO LOCAL EN WIDGETS DE TIEMPO
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+
+      // Idiomas soportados
+      supportedLocales: const [
+        Locale('es', 'ES'), // Español
+        Locale('en', 'US'), // Inglés (fallback)
+      ],
+
+      // Idioma por defecto
+      locale: const Locale('es', 'ES'),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),

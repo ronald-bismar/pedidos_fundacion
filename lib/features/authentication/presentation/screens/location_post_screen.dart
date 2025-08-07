@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pedidos_fundacion/core/constants/cargos.dart';
-import 'package:pedidos_fundacion/core/constants/grupos.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/utils/change_screen.dart';
-import 'package:pedidos_fundacion/core/utils/places.dart';
 import 'package:pedidos_fundacion/core/widgets/alert_dialog_options.dart';
 import 'package:pedidos_fundacion/core/widgets/autocomplete_textfield.dart';
 import 'package:pedidos_fundacion/core/widgets/background.dart';
@@ -15,6 +12,9 @@ import 'package:pedidos_fundacion/core/widgets/title.dart';
 import 'package:pedidos_fundacion/domain/entities/encargado.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/providers/update_location_provider.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/screens/image_profile_screen.dart';
+import 'package:pedidos_fundacion/toDataDynamic/cargos.dart';
+import 'package:pedidos_fundacion/toDataDynamic/grupos.dart';
+import 'package:pedidos_fundacion/toDataDynamic/places.dart';
 
 class LocationPostScreen extends ConsumerStatefulWidget {
   final Coordinator coordinator;
@@ -51,8 +51,9 @@ class _LocationPostScreenState extends ConsumerState<LocationPostScreen> {
                     label: "Lugar",
                     autocompleteOptions: places,
                     prefixIcon: Icons.location_on,
-                    textInputType: TextInputType.emailAddress,
+                    textInputType: TextInputType.name,
                     marginVertical: 8,
+                    textCapitalization: TextCapitalization.words,
                     onChanged: (value) => setState(() => locationValue = value),
                   ),
 

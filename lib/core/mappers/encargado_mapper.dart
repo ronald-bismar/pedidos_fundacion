@@ -46,10 +46,10 @@ class CoordinatorMapper {
   }
 
   static Map<String, dynamic> toJsonLocation(Coordinator coordinator) {
-    return {'location': coordinator.idPhoto, 'updateAt': DateTime.now()};
+    return {'location': coordinator.location, 'updateAt': DateTime.now()};
   }
 
     static Map<String, dynamic> toJsonActive(Coordinator coordinator) {
-    return {'active': coordinator.idPhoto, 'updateAt': DateTime.now()};
+    return {'active': coordinator.active, 'updateAt': DateTime.now()};
   }
 }

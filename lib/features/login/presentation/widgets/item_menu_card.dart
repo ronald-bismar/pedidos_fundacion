@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/features/login/presentation/widgets/items_menu.dart';
 
-Card itemMenu(ItemMenu item, int index, Function navigateScreen) {
-  return Card(
-    color: white,
-    child: GestureDetector(
-      onTap: () => navigateScreen(),
+GestureDetector itemMenu(ItemMenu item, int index, Function navigateScreen) {
+  return GestureDetector(
+    onTap: () => navigateScreen(),
+    child: Card(
+      color: white,
       child: Container(
         padding: const EdgeInsets.all(16.0),
         child: Column(

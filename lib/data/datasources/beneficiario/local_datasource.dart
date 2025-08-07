@@ -1,25 +1,25 @@
 import 'dart:developer';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pedidos_fundacion/core/mappers/encargado_mapper.dart';
+import 'package:pedidos_fundacion/core/mappers/beneficiario_mapper.dart';
 import 'package:pedidos_fundacion/data/datasources/db_helper.dart';
 import 'package:pedidos_fundacion/domain/entities/encargado.dart';
 import 'package:sqflite/sqflite.dart';
 
 // Date for comparison example: SELECT * FROM coordinators WHERE updateAt > '2023-01-01T00:00:00Z'
 
-final localDataSourceProvider = Provider<CoordinatorLocalDataSource>((ref) {
+final localDataSourceProvider = Provider<BeneficiaryLocalDataSource>((ref) {
   final dbHelper = ref.watch(databaseHelperProvider);
-  return CoordinatorLocalDataSource(dbHelper);
+  return BeneficiaryLocalDataSource(dbHelper);
 });
 
-class CoordinatorLocalDataSource {
+class BeneficiaryLocalDataSource {
   final DatabaseHelper _dbHelper;
-  static const String tableName = 'coordinators';
+  static const String tableName = 'beneficiaries';
 
-  CoordinatorLocalDataSource(this._dbHelper);
+  BeneficiaryLocalDataSource(this._dbHelper);
 
-  static String coordinators =
+  static String beneficiaries =
       'CREATE TABLE $tableName('
       'id TEXT PRIMARY KEY, '
       'dni TEXT, '
@@ -33,65 +33,67 @@ class CoordinatorLocalDataSource {
       'location TEXT DEFAULT "", '
       'updateAt TEXT DEFAULT "", '
       'active INTEGER DEFAULT 1, '
-      'profession TEXT DEFAULT "", '
-      'role TEXT DEFAULT ""'
+      'code TEXT DEFAULT "", '
+      'socialReasson TEXT DEFAULT "", '
+      'idGroup TEXT DEFAULT "", '
+      'birthdate TEXT DEFAULT ""'
       ')';
 
-  Future<void> insert(Coordinator c) async {
+  Future<void> insert(Beneficiary c) async {
     Database database = await _dbHelper.openDB();
     database.insert(
       tableName,
-      CoordinatorMapper.toJson(c),
+      BeneficiaryMapper.toJson(c),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  Future<List<Coordinator>> list(String id) async {
+  Future<List<Beneficiary>> listByGroup(String idGroup) async {
     Database database = await _dbHelper.openDB();
     final List<Map<String, dynamic>> cMap = await database.query(
       tableName,
-      where: 'id = ?',
-      whereArgs: [id],
+      where: 'idGroup = ?',
+      whereArgs: [idGroup],
     );
 
     return List.generate(
       cMap.length,
-      (i) => CoordinatorMapper.fromJson(cMap[i]),
+      (i) => BeneficiaryMapper.fromJson(cMap[i]),
     );
   }
 
-  Future<void> delete(Coordinator coordinator) async {
+  Future<void> delete(Beneficiary beneficiary) async {
     Database database = await _dbHelper.openDB();
     database.delete(tableName, where: 'id = ?', whereArgs: [coordinator.id]);
   }
 
-  Future<void> update(Coordinator coordinator) async {
+  Future<void> update(Beneficiary beneficiary) async {
     Database database = await _dbHelper.openDB();
     await database.insert(
       tableName,
-      CoordinatorMapper.toJson(coordinator),
+      BeneficiaryMapper.toJson(beneficiary),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  Future<void> insertOrUpdate(List<Coordinator> coordinators) async {
+  Future<void> insertOrUpdate(List<Beneficiary> beneficiaries) async {
     try {
       final Database db = await _dbHelper.openDB();
       Batch batch = db.batch();
-      for (var m in coordinators) {
+      for (var m in beneficiaries) {
         batch.insert(
           tableName,
-          CoordinatorMapper.toJson(m),
+          BeneficiaryMapper.toJson(m),
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
       }
       await batch.commit(noResult: true);
     } catch (e) {
-      log('Error inserting Coordinator: $e');
+      log('Error inserting Beneficiary: $e');
     }
   }
 
-  Future<Coordinator?> getCoordinator(String id) async {
+  Future<Beneficiary?> getBeneficiary(String id) async {
     Database database = await _dbHelper.openDB();
     final List<Map<String, dynamic>> cMap = await database.query(
       tableName,
@@ -100,22 +102,22 @@ class CoordinatorLocalDataSource {
     );
 
     if (cMap.isNotEmpty) {
-      return CoordinatorMapper.fromJson(cMap.first);
+      return BeneficiaryMapper.fromJson(cMap.first);
     }
     return null;
   }
 
-  void updateLocation(Coordinator coordinator) {
-    _updateLocationAsync(coordinator.id, coordinator.location).catchError((
+  void updateLocation(Beneficiary beneficiary) {
+    _updateLocationAsync(beneficiary.id, beneficiary.location).catchError((
       error,
     ) {
-      log('Error updating coordinator location locally: $error');
+      log('Error updating beneficiary location locally: $error');
     });
   }
 
   // Método privado que hace el trabajo real
   Future<void> _updateLocationAsync(
-    String coordinatorId,
+    String beneficiaryId,
     String location,
   ) async {
     try {
@@ -124,36 +126,36 @@ class CoordinatorLocalDataSource {
         tableName,
         {'location': location, 'updateAt': DateTime.now().toIso8601String()},
         where: 'id = ?',
-        whereArgs: [coordinatorId],
+        whereArgs: [beneficiaryId],
       );
-      log('Location updated locally for coordinator: $coordinatorId');
+      log('Location updated locally for beneficiary: $beneficiaryId');
     } catch (e) {
-      log('Error updating coordinator location: $e');
+      log('Error updating beneficiary location: $e');
       // No throw Exception aquí - solo log
     }
   }
 
-  void updateActive(Coordinator coordinator) {
-    _updateActiveAsync(coordinator.id, coordinator.active).catchError((
+  void updateActive(Beneficiary beneficiary) {
+    _updateActiveAsync(beneficiary.id, beneficiary.active).catchError((
       error,
     ) {
-      log('Error updating coordinator active locally: $error');
+      log('Error updating beneficiary active locally: $error');
     });
   }
 
   // Método privado que hace el trabajo real
-  Future<void> _updateActiveAsync(String coordinatorId, bool active) async {
+  Future<void> _updateActiveAsync(String beneficiaryId, bool active) async {
     try {
       Database database = await _dbHelper.openDB();
       await database.update(
         tableName,
         {'active': active, 'updateAt': DateTime.now().toIso8601String()},
         where: 'id = ?',
-        whereArgs: [coordinatorId],
+        whereArgs: [beneficiaryId],
       );
-      log('Active updated locally for coordinator: $coordinatorId');
+      log('Active updated locally for beneficiary: $beneficiaryId');
     } catch (e) {
-      log('Error updating coordinator active: $e');
+      log('Error updating beneficiary active: $e');
       // No throw Exception aquí - solo log
     }
   }
