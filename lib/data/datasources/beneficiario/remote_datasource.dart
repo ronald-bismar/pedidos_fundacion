@@ -2,85 +2,89 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pedidos_fundacion/core/mappers/encargado_mapper.dart';
+import 'package:pedidos_fundacion/core/mappers/beneficiario_mapper.dart';
 import 'package:pedidos_fundacion/di/services_provider.dart';
-import 'package:pedidos_fundacion/domain/entities/encargado.dart';
+import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
 
-final coordinatorDataSourceProvider = Provider<CoordinatorRemoteDataSource>((
-  ref,
-) {
-  final service = ref.watch(firestoreProvider);
-  return CoordinatorRemoteDataSource(service);
-});
+final beneficiaryRemoteDataSourceProvider =
+    Provider<BeneficiaryRemoteDataSource>((ref) {
+      final service = ref.watch(firestoreProvider);
+      return BeneficiaryRemoteDataSource(service);
+    });
 
-class CoordinatorRemoteDataSource {
+class BeneficiaryRemoteDataSource {
   final FirebaseFirestore service;
-  static const String _collection = 'coordinators';
+  static const String _collection = 'beneficiaries';
+  static const String _collectionLastCorrelative = 'lastCorrelative';
+  static const idLastCorrelative = '60b954de-4c6a-4616-bdbb-b601ebdb3c71';
 
-  CoordinatorRemoteDataSource(this.service);
+  //Reemplazar por el ultimo correlativo de la empresa
+  static const firstCorrelative = 1;
 
-  Future<void> insert(Coordinator coordinator) async {
+  BeneficiaryRemoteDataSource(this.service);
+
+  Future<void> insert(Beneficiary beneficiary) async {
     try {
       await service
           .collection(_collection)
-          .doc(coordinator.id)
-          .set(CoordinatorMapper.toJson(coordinator));
+          .doc(beneficiary.id)
+          .set(BeneficiaryMapper.toJson(beneficiary));
     } catch (e) {
       throw Exception('Error creating coordinator: $e');
     }
   }
 
-  Future<Coordinator?> getCoordinator(String coordinatorId) async {
+  Future<Beneficiary?> getBeneficiary(String beneficiaryId) async {
     try {
       final doc = await service
           .collection(_collection)
-          .doc(coordinatorId)
+          .doc(beneficiaryId)
           .get();
 
       if (doc.exists && doc.data() != null) {
-        return CoordinatorMapper.fromJson(doc.data()!);
+        return BeneficiaryMapper.fromJson(doc.data()!);
       }
       return null;
     } catch (e) {
-      throw Exception('Error getting coordinator by ID: $e');
+      throw Exception('Error getting beneficiary by ID: $e');
     }
   }
 
-  Future<List<Coordinator>> getAll() async {
+  Future<List<Beneficiary>> getAll() async {
     try {
       final querySnapshot = await service.collection(_collection).get();
 
       return querySnapshot.docs.map((doc) {
-        return CoordinatorMapper.fromJson(doc.data());
+        return BeneficiaryMapper.fromJson(doc.data());
       }).toList();
     } catch (e) {
-      throw Exception('Error getting all coordinators: $e');
+      throw Exception('Error getting all beneficiaries: $e');
     }
   }
 
-  Future<void> update(Coordinator coordinator) async {
+  Future<void> update(Beneficiary beneficiary) async {
     try {
       await service
           .collection(_collection)
-          .doc(coordinator.id)
-          .update(CoordinatorMapper.toJson(coordinator));
+          .doc(beneficiary.id)
+          .update(BeneficiaryMapper.toJson(beneficiary));
     } catch (e) {
-      throw Exception('Error updating coordinator: $e');
+      throw Exception('Error updating beneficiary: $e');
     }
   }
 
-  Future<void> delete(String coordinatorId) async {
+  Future<void> delete(String beneficiaryId) async {
     try {
-      await service.collection(_collection).doc(coordinatorId).delete();
+      await service.collection(_collection).doc(beneficiaryId).delete();
     } catch (e) {
-      throw Exception('Error deleting coordinator: $e');
+      throw Exception('Error deleting beneficiary: $e');
     }
   }
 
   Future<bool> existsByDni(String dni) {
     try {
       final snapshot = service
-          .collection('coordinators')
+          .collection(_collection)
           .where('dni', isEqualTo: dni)
           .get();
       return snapshot.then((value) => value.docs.isNotEmpty);
@@ -93,7 +97,7 @@ class CoordinatorRemoteDataSource {
   Future<bool> existsByEmail(String email) {
     try {
       final snapshot = service
-          .collection('coordinators')
+          .collection(_collection)
           .where('email', isEqualTo: email)
           .get();
       return snapshot.then((value) => value.docs.isNotEmpty);
@@ -103,29 +107,29 @@ class CoordinatorRemoteDataSource {
     }
   }
 
-  Future<void> updatePhotoId(Coordinator coordinator) async {
+  Future<void> updatePhotoId(Beneficiary beneficiary) async {
     try {
       await service
           .collection(_collection)
-          .doc(coordinator.id)
-          .update(CoordinatorMapper.toJsonPhoto(coordinator));
+          .doc(beneficiary.id)
+          .update(BeneficiaryMapper.toJsonPhoto(beneficiary));
     } catch (e) {
-      throw Exception('Error updating coordinator photo ID: $e');
+      throw Exception('Error updating beneficiary photo ID: $e');
     }
   }
 
-  void updateLocation(Coordinator coordinator) {
+  void updateLocation(Beneficiary beneficiary) {
     try {
       service
           .collection(_collection)
-          .doc(coordinator.id)
-          .update(CoordinatorMapper.toJsonLocation(coordinator));
+          .doc(beneficiary.id)
+          .update(BeneficiaryMapper.toJsonLocation(beneficiary));
     } catch (e) {
-      throw Exception('Error updating coordinator photo ID: $e');
+      throw Exception('Error updating beneficiary photo ID: $e');
     }
   }
 
-  Future<String?> getCoordinatorEmail(String username) async {
+  Future<String?> getBeneficiaryEmail(String username) async {
     try {
       final querySnapshot = await service
           .collection(_collection)
@@ -138,18 +142,75 @@ class CoordinatorRemoteDataSource {
       }
       return null;
     } catch (e) {
-      throw Exception('Error getting coordinator email: $e');
+      throw Exception('Error getting beneficiary email: $e');
     }
   }
 
-    void updateActive(Coordinator coordinator) {
+  void updateActive(Beneficiary beneficiary) {
     try {
       service
           .collection(_collection)
-          .doc(coordinator.id)
-          .update(CoordinatorMapper.toJsonActive(coordinator));
+          .doc(beneficiary.id)
+          .update(BeneficiaryMapper.toJsonActive(beneficiary));
     } catch (e) {
-      throw Exception('Error updating coordinator photo ID: $e');
+      throw Exception('Error updating beneficiary photo ID: $e');
+    }
+  }
+
+  void updateGroup(Beneficiary beneficiary, String idGroup) {
+    try {
+      beneficiary = beneficiary.copyWith(idGroup: idGroup);
+      service
+          .collection(_collection)
+          .doc(beneficiary.id)
+          .update(BeneficiaryMapper.toJsonGroup(beneficiary));
+    } catch (e) {
+      throw Exception('Error updating beneficiary photo ID: $e');
+    }
+  }
+
+  Future<List<Beneficiary>> getByGroup(String idGroup) async {
+    try {
+      final querySnapshot = await service
+          .collection(_collection)
+          .where('idGroup', isEqualTo: idGroup)
+          .get();
+
+      return querySnapshot.docs
+          .where((doc) => doc.exists)
+          .map((doc) => BeneficiaryMapper.fromJson(doc.data()))
+          .toList();
+    } catch (e) {
+      throw Exception('Error getting beneficiaries by group: $e');
+    }
+  }
+
+  Future<int?> getLastCorrelative() async {
+    try {
+      final querySnapshot = await service
+          .collection(_collectionLastCorrelative)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final doc = querySnapshot.docs.first;
+        return doc.data()['number'] as int?;
+      } else {
+        return firstCorrelative;
+      }
+    } catch (e) {
+      log('Error getting last correlative: $e');
+      return null;
+    }
+  }
+
+  Future<void> saveLastCorrelative(int codeCorrelative) async {
+    try {
+      await service
+          .collection(_collectionLastCorrelative)
+          .doc(idLastCorrelative)
+          .set({'prefix': 'BO', 'number': codeCorrelative});
+    } catch (e) {
+      log('Error saving correlative: $e');
     }
   }
 }

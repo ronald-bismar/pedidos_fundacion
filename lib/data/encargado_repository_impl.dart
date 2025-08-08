@@ -46,12 +46,20 @@ class CoordinatorRepositoryImpl implements CoordinatorRepository {
   });
 
   @override
-  Future<bool> existsByDni(String dni) {
+  Future<bool> existsByDni(String dni) async {
     try {
-      return coordinatorRemoteDataSource.existsByDni(dni);
+      // Primero verifica en local
+      final existDni = await coordinatorLocalDatasource.existByDni(dni);
+
+      if (existDni) {
+        return true;
+      }
+
+      // Si no existe localmente, verifica en remoto
+      return await coordinatorRemoteDataSource.existsByDni(dni);
     } catch (e) {
       log('Error checking DNI: $e');
-      return Future.value(false);
+      return false; // No necesitas Future.value(false)
     }
   }
 

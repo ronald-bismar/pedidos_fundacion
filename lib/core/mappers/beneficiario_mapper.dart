@@ -55,11 +55,15 @@ class BeneficiaryMapper {
     return {'location': beneficiary.location, 'updateAt': DateTime.now()};
   }
 
-    static Map<String, dynamic> toJsonActive(Beneficiary beneficiary) {
+  static Map<String, dynamic> toJsonActive(Beneficiary beneficiary) {
     return {'active': beneficiary.active, 'updateAt': DateTime.now()};
   }
 
   static Map<String, dynamic> toJsonCode(Beneficiary beneficiary) {
     return {'code': beneficiary.code, 'updateAt': DateTime.now()};
+  }
+
+    static Map<String, dynamic> toJsonGroup(Beneficiary beneficiary) {
+    return {'idGroup': beneficiary.active, 'updateAt': DateTime.now()};
   }
 }

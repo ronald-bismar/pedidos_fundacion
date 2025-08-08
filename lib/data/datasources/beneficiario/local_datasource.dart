@@ -3,12 +3,12 @@ import 'dart:developer';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/mappers/beneficiario_mapper.dart';
 import 'package:pedidos_fundacion/data/datasources/db_helper.dart';
-import 'package:pedidos_fundacion/domain/entities/encargado.dart';
+import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
 import 'package:sqflite/sqflite.dart';
 
 // Date for comparison example: SELECT * FROM coordinators WHERE updateAt > '2023-01-01T00:00:00Z'
 
-final localDataSourceProvider = Provider<BeneficiaryLocalDataSource>((ref) {
+final beneficiaryLocalDataSourceProvider = Provider<BeneficiaryLocalDataSource>((ref) {
   final dbHelper = ref.watch(databaseHelperProvider);
   return BeneficiaryLocalDataSource(dbHelper);
 });
@@ -64,7 +64,7 @@ class BeneficiaryLocalDataSource {
 
   Future<void> delete(Beneficiary beneficiary) async {
     Database database = await _dbHelper.openDB();
-    database.delete(tableName, where: 'id = ?', whereArgs: [coordinator.id]);
+    database.delete(tableName, where: 'id = ?', whereArgs: [beneficiary.id]);
   }
 
   Future<void> update(Beneficiary beneficiary) async {
@@ -131,19 +131,15 @@ class BeneficiaryLocalDataSource {
       log('Location updated locally for beneficiary: $beneficiaryId');
     } catch (e) {
       log('Error updating beneficiary location: $e');
-      // No throw Exception aquí - solo log
     }
   }
 
   void updateActive(Beneficiary beneficiary) {
-    _updateActiveAsync(beneficiary.id, beneficiary.active).catchError((
-      error,
-    ) {
+    _updateActiveAsync(beneficiary.id, beneficiary.active).catchError((error) {
       log('Error updating beneficiary active locally: $error');
     });
   }
 
-  // Método privado que hace el trabajo real
   Future<void> _updateActiveAsync(String beneficiaryId, bool active) async {
     try {
       Database database = await _dbHelper.openDB();
@@ -158,5 +154,17 @@ class BeneficiaryLocalDataSource {
       log('Error updating beneficiary active: $e');
       // No throw Exception aquí - solo log
     }
+  }
+
+    Future<bool> existByDni(String dni) async {
+    final Database database = await _dbHelper.openDB();
+    final result = await database.query(
+      tableName,
+      columns: ['dni'], 
+      where: 'dni = ?',
+      whereArgs: [dni],
+      limit: 1, // Solo necesitas saber si existe al menos uno
+    );
+    return result.isNotEmpty;
   }
 }

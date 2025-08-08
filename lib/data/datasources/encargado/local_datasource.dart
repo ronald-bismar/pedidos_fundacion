@@ -157,4 +157,15 @@ class CoordinatorLocalDataSource {
       // No throw Exception aquí - solo log
     }
   }
+Future<bool> existByDni(String dni) async {
+    final Database database = await _dbHelper.openDB();
+    final result = await database.query(
+      tableName,
+      columns: ['dni'], // Solo selecciona la columna necesaria
+      where: 'dni = ?',
+      whereArgs: [dni],
+      limit: 1, // Solo necesitas saber si existe al menos uno
+    );
+    return result.isNotEmpty;
+  }
 }
