@@ -155,16 +155,6 @@ class BeneficiaryRepositoryImpl extends BeneficiaryRepository {
   }
 
   @override
-  void updateLocationBeneficiary(Beneficiary beneficiary) {
-    try {
-      beneficiaryLocalDatasource.updateLocation(beneficiary);
-      beneficiaryLocalDatasource.updateLocation(beneficiary);
-    } catch (e) {
-      log('Error updating beneficiary photo: $e');
-    }
-  }
-
-  @override
   Future<void> updatePhotoBeneficiary(
     Beneficiary beneficiary,
     Photo photo,
@@ -208,6 +198,24 @@ class BeneficiaryRepositoryImpl extends BeneficiaryRepository {
       await beneficiaryRemoteDataSource.saveLastCorrelative(codeCorrelative);
     } catch (e) {
       log('Error saving las correlative: $e');
+    }
+  }
+
+  @override
+  Future<bool> updateLocationAndPhone(Beneficiary beneficiary) async {
+    try {
+
+      //Solo lo lanzamos al guardado remoto sin esperar respuesta
+      beneficiaryRemoteDataSource.updateLocationAndPhone(beneficiary);
+
+      return await beneficiaryLocalDatasource.updateLocationAndPhone(
+        beneficiary.id,
+        beneficiary.location,
+        beneficiary.phone,
+      );
+    } catch (e) {
+      log('Error saving las correlative: $e');
+      return false;
     }
   }
 }

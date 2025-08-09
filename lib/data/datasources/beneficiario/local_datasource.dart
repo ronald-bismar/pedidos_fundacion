@@ -8,10 +8,12 @@ import 'package:sqflite/sqflite.dart';
 
 // Date for comparison example: SELECT * FROM coordinators WHERE updateAt > '2023-01-01T00:00:00Z'
 
-final beneficiaryLocalDataSourceProvider = Provider<BeneficiaryLocalDataSource>((ref) {
-  final dbHelper = ref.watch(databaseHelperProvider);
-  return BeneficiaryLocalDataSource(dbHelper);
-});
+final beneficiaryLocalDataSourceProvider = Provider<BeneficiaryLocalDataSource>(
+  (ref) {
+    final dbHelper = ref.watch(databaseHelperProvider);
+    return BeneficiaryLocalDataSource(dbHelper);
+  },
+);
 
 class BeneficiaryLocalDataSource {
   final DatabaseHelper _dbHelper;
@@ -107,30 +109,29 @@ class BeneficiaryLocalDataSource {
     return null;
   }
 
-  void updateLocation(Beneficiary beneficiary) {
-    _updateLocationAsync(beneficiary.id, beneficiary.location).catchError((
-      error,
-    ) {
-      log('Error updating beneficiary location locally: $error');
-    });
-  }
-
   // Método privado que hace el trabajo real
-  Future<void> _updateLocationAsync(
+  Future<bool> updateLocationAndPhone(
     String beneficiaryId,
     String location,
+    String phone,
   ) async {
     try {
       Database database = await _dbHelper.openDB();
       await database.update(
         tableName,
-        {'location': location, 'updateAt': DateTime.now().toIso8601String()},
+        {
+          'location': location,
+          'phone': phone,
+          'updateAt': DateTime.now().toIso8601String(),
+        },
         where: 'id = ?',
         whereArgs: [beneficiaryId],
       );
       log('Location updated locally for beneficiary: $beneficiaryId');
+      return true;
     } catch (e) {
       log('Error updating beneficiary location: $e');
+      return false;
     }
   }
 
@@ -156,11 +157,11 @@ class BeneficiaryLocalDataSource {
     }
   }
 
-    Future<bool> existByDni(String dni) async {
+  Future<bool> existByDni(String dni) async {
     final Database database = await _dbHelper.openDB();
     final result = await database.query(
       tableName,
-      columns: ['dni'], 
+      columns: ['dni'],
       where: 'dni = ?',
       whereArgs: [dni],
       limit: 1, // Solo necesitas saber si existe al menos uno

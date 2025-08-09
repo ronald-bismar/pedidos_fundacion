@@ -9,9 +9,9 @@ abstract class BeneficiaryRepository {
   Stream<Beneficiary?> getBeneficiary(String id);
   Future<Photo?> registerPhoto(File image);
   Future<void> updatePhotoBeneficiary(Beneficiary beneficiary, Photo photo);
-  void updateLocationBeneficiary(Beneficiary beneficiary);
   void updateActiveBeneficiary(Beneficiary beneficiary);
   Future<({bool isLocal, String? urlPhoto})> getPhoto(Beneficiary beneficiary);
   Future<int?> getLastCorrelativeCode();
   Future<void> saveLastCorrelativeCode(int codeCorrelative);
+  Future<bool> updateLocationAndPhone(Beneficiary beneficiary);
 }

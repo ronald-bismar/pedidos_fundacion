@@ -16,7 +16,7 @@ import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/providers/register_beneficiary_notifier.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/screens/location_phone_register_screen.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/states/register_beneficiary_state.dart';
-import 'package:pedidos_fundacion/features/registro_beneficiarios/usecases/obtener_codigo_beneficiario_usecase.dart';
+import 'package:pedidos_fundacion/features/registro_beneficiarios/usecases/obtener_codigo_beneficiario.dart';
 import 'package:pedidos_fundacion/toDataDynamic/social_reassons.dart';
 
 class AuthBeneficiaryScreen extends ConsumerStatefulWidget {

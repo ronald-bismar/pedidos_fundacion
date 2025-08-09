@@ -25,7 +25,7 @@ class GroupLocalDataSource {
       'groupName TEXT DEFAULT "", '
       'minAge INTEGER DEFAULT 0, '
       'maxAge INTEGER DEFAULT 0, '
-      'updatedAt TEXT DEFAULT "", '
+      'updatedAt TEXT DEFAULT "" '
       ')';
 
   Future<void> insert(Group group) async {

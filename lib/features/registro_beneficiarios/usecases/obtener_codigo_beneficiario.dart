@@ -25,6 +25,11 @@ class GetCodeBeneficiaryUseCase {
 
     lastCodeCorrelative = lastCodeCorrelative + 1;
 
+    /**Guardamos tambien el ultimo correlativo para que otro usuario tenga
+    el numero actualizado **/
+
+    beneficiaryRepository.saveLastCorrelativeCode(lastCodeCorrelative);
+
     //La forma de codigo el numero de digitos puede variar entre empresas
     final newCorrelative = lastCodeCorrelative.toString().padLeft(9, '0');
     final newCodeForUser = 'BO$newCorrelative';

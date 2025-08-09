@@ -109,12 +109,6 @@ class GroupRemoteDataSource {
 
   Future<List<Group>> getGroupsByAge(int age) async {
     try {
-      // Validación de entrada
-      if (age < 0) {
-        throw ArgumentError('La edad no puede ser negativa');
-      }
-
-      // Query optimizada con campos planos (más eficiente)
       final querySnapshot = await _firestore
           .collection(_collection)
           .where('minAge', isLessThanOrEqualTo: age)
@@ -132,28 +126,52 @@ class GroupRemoteDataSource {
 
   Future<Group?> getFirstGroupByAge(int age) async {
     try {
-      // Validación de entrada
-      if (age < 0) {
-        throw ArgumentError('La edad no puede ser negativa');
-      }
+      final allGroups = await getAllGroups();
 
-      // Obtener solo el primer documento que coincida
-      final querySnapshot = await _firestore
-          .collection(_collection)
-          .where('minAge', isLessThanOrEqualTo: age)
-          .where('maxAge', isGreaterThanOrEqualTo: age)
-          .limit(1) // Optimización: solo obtener el primero
-          .get();
-
-      if (querySnapshot.docs.isEmpty) {
+      if (allGroups.isEmpty) {
         return null;
+      } else {
+        return allGroups.firstWhere(
+          (group) =>
+              age >= group.ageRange.minAge && age <= group.ageRange.maxAge,
+        );
       }
-
-      final doc = querySnapshot.docs.first;
-      return Group.fromMap(doc.data()..['id'] = doc.id);
     } catch (e) {
       log('Error getting first group by age: $age', error: e);
       throw Exception('Error al obtener grupo por edad: $e');
+    }
+  }
+
+  Future<void> uploadGroups(List<Group> groups) async {
+    try {
+      // Firestore tiene un límite de 500 operaciones por batch
+      const int batchLimit = 500;
+
+      // Si hay más de 500 grupos, los dividimos en lotes
+      for (int i = 0; i < groups.length; i += batchLimit) {
+        final batch = _firestore.batch();
+        final endIndex = (i + batchLimit > groups.length)
+            ? groups.length
+            : i + batchLimit;
+        final groupsBatch = groups.sublist(i, endIndex);
+
+        // Agregar cada grupo al batch
+        for (final group in groupsBatch) {
+          final docRef = _firestore.collection(_collection).doc(group.id);
+          batch.set(docRef, group.toMap());
+        }
+
+        // Ejecutar el batch
+        await batch.commit();
+        log(
+          'Batch ${(i ~/ batchLimit) + 1} completado: ${groupsBatch.length} grupos subidos',
+        );
+      }
+
+      log('Subida completa: ${groups.length} grupos subidos exitosamente');
+    } catch (e) {
+      log('Error uploading groups', error: e);
+      throw Exception('Error al subir los grupos: $e');
     }
   }
 }

@@ -4,7 +4,7 @@ import 'package:pedidos_fundacion/core/utils/network_utils.dart';
 import 'package:pedidos_fundacion/data/beneficiary_repository_impl.dart';
 import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
 import 'package:pedidos_fundacion/domain/repositories/beneficiary_repository.dart';
-import 'package:pedidos_fundacion/features/registro_beneficiarios/usecases/asignar_grupo_usecase.dart';
+import 'package:pedidos_fundacion/features/registro_beneficiarios/usecases/asignar_grupo.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/usecases/validar_datos.dart';
 
 final registerBeneficiaryUseCaseProvider = Provider(

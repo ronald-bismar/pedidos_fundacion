@@ -9,14 +9,15 @@ import 'package:pedidos_fundacion/core/widgets/snackbar.dart';
 import 'package:pedidos_fundacion/core/widgets/subtitle.dart';
 import 'package:pedidos_fundacion/core/widgets/textfield.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
-import 'package:pedidos_fundacion/domain/entities/encargado.dart';
+import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
+import 'package:pedidos_fundacion/domain/entities/programa.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/providers/user_to_register_notifier.dart';
-import 'package:pedidos_fundacion/features/login/presentation/widgets/image_user_profile.dart';
+import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/providers/grupo_beneficiario_notifier.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/screens/image_profile_beneficiario_screen.dart';
 
 class GroupAssignedScreen extends ConsumerStatefulWidget {
-  final String coordinatorId;
-  const GroupAssignedScreen({super.key, this.coordinatorId = ''});
+  final String beneficiaryId;
+  const GroupAssignedScreen({super.key, required this.beneficiaryId});
 
   @override
   ConsumerState<GroupAssignedScreen> createState() =>
@@ -25,46 +26,60 @@ class GroupAssignedScreen extends ConsumerStatefulWidget {
 
 class _GenerateUserPasswordScreenState
     extends ConsumerState<GroupAssignedScreen> {
-  late TextEditingController usuarioController;
+  late TextEditingController groupAssignedController;
   late TextEditingController contrasenaController;
   bool isSuccess = true;
-  String emailCoordinator = "";
+  String beneficiaryName = '';
+  String codeBeneficiary = '';
+  String nameGroup = '';
 
   @override
   void initState() {
     super.initState();
-    usuarioController = TextEditingController();
+    groupAssignedController = TextEditingController();
     contrasenaController = TextEditingController();
   }
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<
-      AsyncValue<Coordinator?>
-    >(coordinatorStreamProvider(widget.coordinatorId), (previous, next) {
-      next.whenData((coordinator) {
-        if (coordinator != null) {
-          emailCoordinator = coordinator.email;
-          if (usuarioController.text != coordinator.username) {
-            usuarioController.text = coordinator.username;
+    ref.listen<AsyncValue<Beneficiary?>>(
+      beneficiaryStreamProvider(widget.beneficiaryId),
+      (previous, next) {
+        next.whenData((beneficiary) {
+          if (beneficiary != null) {
+            beneficiaryName = '${beneficiary.name} ${beneficiary.lastName}';
+            codeBeneficiary = beneficiary.code;
           }
-          if (contrasenaController.text != coordinator.password) {
-            contrasenaController.text = coordinator.password;
-          }
-        }
-      });
+        });
 
-      if (next.hasError) {
-        isSuccess = false;
-        MySnackBar.error(
-          context,
-          'No se pudo obtener el usuario y contraseña, por favor asigne un usuario y contraseña manualmente.',
-        );
-      }
-    });
+        if (next.hasError) {
+          isSuccess = false;
+          MySnackBar.error(context, 'No se pudo obtener al beneficiario.');
+        }
+      },
+    );
 
     final coordinatorAsyncValue = ref.watch(
-      coordinatorStreamProvider(widget.coordinatorId),
+      coordinatorStreamProvider(widget.beneficiaryId),
+    );
+    ref.listen<AsyncValue<Group?>>(
+      beneficiaryGroupAssignedStreamProvider(widget.beneficiaryId),
+      (previous, next) {
+        next.whenData((group) {
+          if (group != null) {
+            groupAssignedController.text =
+                '${group.groupName} (${group.ageRange.toString()})';
+          }
+        });
+
+        if (next.hasError) {
+          isSuccess = false;
+          MySnackBar.error(
+            context,
+            'No se pudo obtener el grupo asignado al beneficiario.',
+          );
+        }
+      },
     );
 
     return backgroundScreen(
@@ -78,8 +93,8 @@ class _GenerateUserPasswordScreenState
               children: [
                 Column(
                   children: [
-                    subTitle('Nombre de beneficiario', textColor: dark),
-                    subTitle('Codigo de beneficiario', textColor: dark),
+                    subTitle('Nombre: $beneficiaryName', textColor: dark),
+                    subTitle('Codigo: $codeBeneficiary', textColor: dark),
                   ],
                 ),
                 Column(
@@ -99,9 +114,9 @@ class _GenerateUserPasswordScreenState
                 ),
                 TextFieldCustom(
                   label: "",
-                  controller: usuarioController,
+                  controller: groupAssignedController,
                   prefixIcon: Icons.group,
-                  textInputType: TextInputType.emailAddress,
+                  textInputType: TextInputType.text,
                   marginVertical: 8,
                   readOnly: isSuccess,
                 ),
@@ -109,8 +124,10 @@ class _GenerateUserPasswordScreenState
                   children: [
                     BotonAncho(
                       text: "Aceptar",
-                      onPressed: () =>
-                          cambiarPantalla(context, ImageProfileBeneficiaryScreen()),
+                      onPressed: () => cambiarPantalla(
+                        context,
+                        ImageProfileBeneficiaryScreen(),
+                      ),
 
                       marginVertical: 0,
                       backgroundColor: white,
@@ -122,7 +139,10 @@ class _GenerateUserPasswordScreenState
                       text: "Cambiar grupo",
                       onPressed: () async {
                         if (isSuccess) {
-                          cambiarPantalla(context, ImageProfileBeneficiaryScreen());
+                          cambiarPantalla(
+                            context,
+                            ImageProfileBeneficiaryScreen(),
+                          );
                         }
                       },
                       marginVertical: 0,
@@ -144,7 +164,7 @@ class _GenerateUserPasswordScreenState
 
   @override
   void dispose() {
-    usuarioController.dispose();
+    groupAssignedController.dispose();
     contrasenaController.dispose();
     super.dispose();
   }

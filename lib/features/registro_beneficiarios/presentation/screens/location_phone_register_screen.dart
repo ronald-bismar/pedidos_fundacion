@@ -7,12 +7,13 @@ import 'package:pedidos_fundacion/core/widgets/background.dart';
 import 'package:pedidos_fundacion/core/widgets/boton_ancho.dart';
 import 'package:pedidos_fundacion/core/widgets/logo.dart';
 import 'package:pedidos_fundacion/core/widgets/progress_indicator.dart';
+import 'package:pedidos_fundacion/core/widgets/snackbar.dart';
 import 'package:pedidos_fundacion/core/widgets/textfield.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
 import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
-import 'package:pedidos_fundacion/features/authentication/presentation/providers/register_notifier.dart';
-import 'package:pedidos_fundacion/features/authentication/presentation/states/register_state.dart';
+import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/providers/register_phone_location_notifier.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/screens/grupo_asignado_screen.dart';
+import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/states/register_beneficiary_state.dart';
 import 'package:pedidos_fundacion/toDataDynamic/places.dart';
 
 class LocationPhoneAuthScreen extends ConsumerStatefulWidget {
@@ -29,7 +30,7 @@ class _LocationPhoneAuthScreenState
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   String region = '';
-  bool hasAddress = false;
+  bool setAddress = false;
 
   @override
   void dispose() {
@@ -39,20 +40,21 @@ class _LocationPhoneAuthScreenState
 
   @override
   Widget build(BuildContext context) {
-    // ref.listen<RegisterState>(registerProvider, (previous, next) {
-    //   if (next is RegisterSuccess) {
-    //     coordinator = coordinator.copyWith(id: next.data);
+    ref.listen<RegisterBeneficiaryState>(
+      registerPhoneLocationBeneficiaryProvider,
+      (previous, next) {
+        if (next is RegisterSuccess) {
+          cambiarPantallaConNuevaPila(
+            context,
+            GroupAssignedScreen(beneficiaryId: widget.beneficiary.id),
+          );
+        } else if (next is RegisterFailure) {
+          MySnackBar.error(context, next.error);
+        }
+      },
+    );
 
-    //     cambiarPantallaConNuevaPila(
-    //       context,
-    //       LocationPostScreen(coordinator: coordinator),
-    //     );
-    //   } else if (next is RegisterFailure) {
-    //     MySnackBar.error(context, next.error);
-    //   }
-    // });
-
-    final registerState = ref.watch(registerProvider);
+    final registerState = ref.watch(registerPhoneLocationBeneficiaryProvider);
 
     return backgroundScreen(
       SizedBox(
@@ -92,10 +94,10 @@ class _LocationPhoneAuthScreenState
                         padding: const EdgeInsets.symmetric(horizontal: 20.0),
                         child: CheckboxListTile(
                           title: const Text("Tiene zona, calle o nro de casa?"),
-                          value: hasAddress,
+                          value: setAddress,
                           onChanged: (value) {
                             setState(() {
-                              hasAddress = value ?? false;
+                              setAddress = value ?? false;
                             });
                           },
                           controlAffinity: ListTileControlAffinity.trailing,
@@ -110,7 +112,7 @@ class _LocationPhoneAuthScreenState
                           axis: Axis.vertical,
                           child: child,
                         ),
-                        child: hasAddress
+                        child: setAddress
                             ? TextFieldCustom(
                                 key: const ValueKey('direccion'),
                                 label: "Dirección",
@@ -138,7 +140,7 @@ class _LocationPhoneAuthScreenState
   Widget _buildRegisterButton() {
     return BotonAncho(
       text: "Siguiente",
-      onPressed: () => cambiarPantalla(context, GroupAssignedScreen()),
+      onPressed: () => _handleRegister(),
       marginVertical: 0,
       backgroundColor: white,
       textColor: dark,
@@ -150,17 +152,23 @@ class _LocationPhoneAuthScreenState
     // Cerrar el teclado si está abierto
     FocusScope.of(context).unfocus();
 
-    // // Validaciones básicas
-    // coordinator = Coordinator(
-    //   dni: cedulaController.text.trim(),
-    //   name: nombreController.text.trim(),
-    //   lastName: apellidoController.text.trim(),
-    //   email: emailController.text.trim(),
-    //   role: cargoSelected,
-    //   profession: profesionController.text.trim(),
-    //   active: false,
-    // );
+    final hasAddress = !setAddress && addressController.text.trim().isEmpty;
 
-    // ref.read(registerProvider.notifier).registerUser(coordinator: coordinator);
+    if (!hasAddress) {
+      MySnackBar.info(
+        context,
+        'Por favor introduzca una dirección si cuenta con una',
+      );
+      return;
+    }
+
+    final beneficiary = widget.beneficiary.copyWith(
+      phone: phoneController.text,
+      location: setAddress ? '$region, ${addressController.text}' : region,
+    );
+
+    ref
+        .read(registerPhoneLocationBeneficiaryProvider.notifier)
+        .registerPhoneLocation(beneficiary: beneficiary);
   }
 }

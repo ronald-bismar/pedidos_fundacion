@@ -15,7 +15,9 @@ final assignGroupUseCaseProvider = Provider(
 class AssignGroupUseCase {
   GroupLocalDataSource groupLocalDataSource;
   GroupRemoteDataSource groupRemoteDataSource;
+
   AssignGroupUseCase(this.groupLocalDataSource, this.groupRemoteDataSource);
+
   Future<Beneficiary> call(Beneficiary beneficiary) async {
     Group? group = await groupLocalDataSource.getGroupByAge(beneficiary.age);
 

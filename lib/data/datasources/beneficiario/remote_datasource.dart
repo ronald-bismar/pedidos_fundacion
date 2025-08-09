@@ -118,12 +118,12 @@ class BeneficiaryRemoteDataSource {
     }
   }
 
-  void updateLocation(Beneficiary beneficiary) {
+  void updateLocationAndPhone(Beneficiary beneficiary) {
     try {
       service
           .collection(_collection)
           .doc(beneficiary.id)
-          .update(BeneficiaryMapper.toJsonLocation(beneficiary));
+          .update(BeneficiaryMapper.toJsonLocationAndPhone(beneficiary));
     } catch (e) {
       throw Exception('Error updating beneficiary photo ID: $e');
     }
