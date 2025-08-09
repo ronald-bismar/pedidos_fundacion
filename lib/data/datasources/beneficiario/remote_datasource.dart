@@ -19,7 +19,7 @@ class BeneficiaryRemoteDataSource {
   static const idLastCorrelative = '60b954de-4c6a-4616-bdbb-b601ebdb3c71';
 
   //Reemplazar por el ultimo correlativo de la empresa
-  static const firstCorrelative = 1;
+  static const firstCorrelative = 000000000;
 
   BeneficiaryRemoteDataSource(this.service);
 

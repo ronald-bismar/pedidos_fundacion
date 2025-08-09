@@ -9,13 +9,15 @@ import 'package:pedidos_fundacion/core/widgets/logo.dart';
 import 'package:pedidos_fundacion/core/widgets/progress_indicator.dart';
 import 'package:pedidos_fundacion/core/widgets/textfield.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
+import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/providers/register_notifier.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/states/register_state.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/screens/grupo_asignado_screen.dart';
 import 'package:pedidos_fundacion/toDataDynamic/places.dart';
 
 class LocationPhoneAuthScreen extends ConsumerStatefulWidget {
-  const LocationPhoneAuthScreen({super.key});
+  final Beneficiary beneficiary;
+  const LocationPhoneAuthScreen(this.beneficiary, {super.key});
 
   @override
   ConsumerState<LocationPhoneAuthScreen> createState() =>
@@ -25,9 +27,9 @@ class LocationPhoneAuthScreen extends ConsumerStatefulWidget {
 class _LocationPhoneAuthScreenState
     extends ConsumerState<LocationPhoneAuthScreen> {
   final TextEditingController phoneController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
   String region = '';
   bool hasAddress = false;
-  final TextEditingController addressController = TextEditingController();
 
   @override
   void dispose() {

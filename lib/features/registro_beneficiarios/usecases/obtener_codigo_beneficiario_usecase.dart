@@ -6,18 +6,27 @@ final getCodeBeneficiaryUseCaseProvider = Provider(
   (ref) => GetCodeBeneficiaryUseCase(ref.watch(beneficiaryRepoProvider)),
 );
 
+final getCodeBeneficiaryProvider = FutureProvider<String?>((ref) async {
+  final useCase = ref.watch(getCodeBeneficiaryUseCaseProvider);
+  return await useCase();
+});
+
 class GetCodeBeneficiaryUseCase {
   BeneficiaryRepository beneficiaryRepository;
 
   GetCodeBeneficiaryUseCase(this.beneficiaryRepository);
 
   Future<String?> call() async {
-    final lastCodeCorrelative = await beneficiaryRepository
+    int? lastCodeCorrelative = await beneficiaryRepository
         .getLastCorrelativeCode();
     if (lastCodeCorrelative == null) {
       return null;
     }
-    final newCorrelative = lastCodeCorrelative + 1;
+
+    lastCodeCorrelative = lastCodeCorrelative + 1;
+
+    //La forma de codigo el numero de digitos puede variar entre empresas
+    final newCorrelative = lastCodeCorrelative.toString().padLeft(9, '0');
     final newCodeForUser = 'BO$newCorrelative';
     return newCodeForUser;
   }

@@ -68,7 +68,9 @@ class _LocationPostScreenState extends ConsumerState<LocationPostScreen> {
                         widthAlertDialog: double.infinity,
                         itemInitial: '',
                         onSelect: (group) => {assignedGroup = group},
-                        items: Grupo.values,
+                        items: Grupo.values()
+                            .map((group) => group.groupName)
+                            .toList(),
                         icon: Icons.group,
                         messageInfo: 'Programa/Grupo',
                       ),

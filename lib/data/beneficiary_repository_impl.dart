@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/services/image_storage.dart';
 import 'package:pedidos_fundacion/core/services/upload_image.dart';
@@ -12,14 +11,12 @@ import 'package:pedidos_fundacion/data/datasources/beneficiario/remote_datasourc
 import 'package:pedidos_fundacion/data/datasources/foto/local_datasource.dart';
 import 'package:pedidos_fundacion/data/datasources/foto/remote_datasource.dart';
 import 'package:pedidos_fundacion/data/preferences_usuario.dart';
-import 'package:pedidos_fundacion/di/services_provider.dart';
 import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
 import 'package:pedidos_fundacion/domain/entities/foto.dart';
 import 'package:pedidos_fundacion/domain/repositories/beneficiary_repository.dart';
 
 final beneficiaryRepoProvider = Provider(
   (ref) => BeneficiaryRepositoryImpl(
-    firebaseAuth: ref.watch(firebaseAuthProvider),
     beneficiaryRemoteDataSource: ref.watch(beneficiaryRemoteDataSourceProvider),
     beneficiaryLocalDatasource: ref.watch(beneficiaryLocalDataSourceProvider),
     photoLocalDataSource: ref.watch(photoLocalDataSourceProvider),
@@ -29,7 +26,6 @@ final beneficiaryRepoProvider = Provider(
 );
 
 class BeneficiaryRepositoryImpl extends BeneficiaryRepository {
-  final FirebaseAuth firebaseAuth;
   final BeneficiaryRemoteDataSource beneficiaryRemoteDataSource;
   final BeneficiaryLocalDataSource beneficiaryLocalDatasource;
   final PhotoLocalDataSource photoLocalDataSource;
@@ -37,7 +33,6 @@ class BeneficiaryRepositoryImpl extends BeneficiaryRepository {
   final PreferencesUsuario preferencesUsuario;
 
   BeneficiaryRepositoryImpl({
-    required this.firebaseAuth,
     required this.beneficiaryRemoteDataSource,
     required this.beneficiaryLocalDatasource,
     required this.photoLocalDataSource,

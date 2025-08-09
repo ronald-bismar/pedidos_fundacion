@@ -1,28 +1,73 @@
+import 'package:pedidos_fundacion/domain/entities/programa.dart';
+import 'package:pedidos_fundacion/domain/entities/rango_edad.dart';
+
 class Grupo {
-  static const String baseHogar = 'Base Hogar';
-  static const String baseHogar1Anio = 'Base Hogar - 1 año';
-  static const String baseCentroDescubridores = 'Base Centro - Descubridores';
-  static const String baseCentroDescubridores3Anios =
-      'Base Centro - Descubridores 3 años';
-  static const String baseCentroDescubridores45Anios =
-      'Base Centro - Descubridores (4 y 5 años)';
-  static const String baseCentroTriunfadoresI = 'Base Centro - Triunfadores I';
-  static const String baseCentroTriunfadoresII =
-      'Base Centro - Triunfadores II';
-  static const String baseCentroRestauradores = 'Base Centro - Restauradores';
+// Método para crear los grupos de ejemplo con rangos de edad apropiados
+  static List<Group> values() {
+    return [
+      Group(
+        id: 'group_001',
+        idTutor: 'tutor_001',
+        groupName: 'Base Hogar',
+        ageRange: AgeRange(0, 6), // Bebés y niños pequeños
+      ),
 
-  static const String baseCentroPreGAP = 'Base Centro - Pre GAP';
+      Group(
+        id: 'group_002',
+        idTutor: 'tutor_002',
+        groupName: 'Base Hogar - 1 año',
+        ageRange: AgeRange(1, 1), // Específicamente 1 año
+      ),
 
-  // Lista útil para mostrar en un dropdown
-  static const List<String> values = [
-    baseHogar,
-    baseHogar1Anio,
-    baseCentroDescubridores,
-    baseCentroDescubridores3Anios,
-    baseCentroDescubridores45Anios,
-    baseCentroTriunfadoresI,
-    baseCentroTriunfadoresII,
-    baseCentroRestauradores,
-    baseCentroPreGAP,
-  ];
+      Group(
+        id: 'group_003',
+        idTutor: 'tutor_003',
+        groupName: 'Base Centro - Descubridores',
+        ageRange: AgeRange(2, 5), // Preescolar general
+      ),
+
+      Group(
+        id: 'group_004',
+        idTutor: 'tutor_004',
+        groupName: 'Base Centro - Descubridores 3 años',
+        ageRange: AgeRange(3, 3), // Específicamente 3 años
+      ),
+
+      Group(
+        id: 'group_005',
+        idTutor: 'tutor_005',
+        groupName: 'Base Centro - Descubridores (4 y 5 años)',
+        ageRange: AgeRange(4, 5), // 4 y 5 años específicamente
+      ),
+
+      Group(
+        id: 'group_006',
+        idTutor: 'tutor_006',
+        groupName: 'Base Centro - Triunfadores I',
+        ageRange: AgeRange(6, 8), // Primaria temprana
+      ),
+
+      Group(
+        id: 'group_007',
+        idTutor: 'tutor_007',
+        groupName: 'Base Centro - Triunfadores II',
+        ageRange: AgeRange(9, 11), // Primaria media/tardía
+      ),
+
+      Group(
+        id: 'group_008',
+        idTutor: 'tutor_008',
+        groupName: 'Base Centro - Restauradores',
+        ageRange: AgeRange(12, 15), // Adolescencia temprana
+      ),
+
+      Group(
+        id: 'group_009',
+        idTutor: 'tutor_009',
+        groupName: 'Base Centro - Pre GAP',
+        ageRange: AgeRange(16, 18), // Adolescencia tardía/jóvenes
+      ),
+    ];
+  }
+  
 }

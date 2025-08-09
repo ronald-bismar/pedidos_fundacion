@@ -8,12 +8,15 @@ import 'package:pedidos_fundacion/core/widgets/boton_ancho.dart';
 import 'package:pedidos_fundacion/core/widgets/date_picker_textfield.dart';
 import 'package:pedidos_fundacion/core/widgets/logo.dart';
 import 'package:pedidos_fundacion/core/widgets/progress_indicator.dart';
+import 'package:pedidos_fundacion/core/widgets/snackbar.dart';
 import 'package:pedidos_fundacion/core/widgets/subtitle.dart';
 import 'package:pedidos_fundacion/core/widgets/textfield.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
-import 'package:pedidos_fundacion/features/authentication/presentation/providers/register_notifier.dart';
-import 'package:pedidos_fundacion/features/authentication/presentation/states/register_state.dart';
+import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
+import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/providers/register_beneficiary_notifier.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/screens/location_phone_register_screen.dart';
+import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/states/register_beneficiary_state.dart';
+import 'package:pedidos_fundacion/features/registro_beneficiarios/usecases/obtener_codigo_beneficiario_usecase.dart';
 import 'package:pedidos_fundacion/toDataDynamic/social_reassons.dart';
 
 class AuthBeneficiaryScreen extends ConsumerStatefulWidget {
@@ -31,8 +34,13 @@ class _AuthBeneficiaryScreenState extends ConsumerState<AuthBeneficiaryScreen> {
   final TextEditingController apellidoController = TextEditingController();
   final TextEditingController telefonoController = TextEditingController();
   final TextEditingController birthDateController = TextEditingController();
+  late Beneficiary beneficiary;
   DateTime? birthdate;
-  String socialReasson = '';
+  String socialReassonSelected = '';
+  bool isLoading = false;
+
+  final String messageError =
+      'No se pudo generar el codigo BO para el beneficiario, intentelo de nuevo y verifique su señal de internet. ';
 
   @override
   void dispose() {
@@ -46,20 +54,25 @@ class _AuthBeneficiaryScreenState extends ConsumerState<AuthBeneficiaryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ref.listen<RegisterState>(registerProvider, (previous, next) {
-    //   if (next is RegisterSuccess) {
-    //     coordinator = coordinator.copyWith(id: next.data);
+    _gettingCodeBeneficiary(context);
 
-    //     cambiarPantallaConNuevaPila(
-    //       context,
-    //       LocationPostScreen(coordinator: coordinator),
-    //     );
-    //   } else if (next is RegisterFailure) {
-    //     MySnackBar.error(context, next.error);
-    //   }
-    // });
+    ref.listen<RegisterBeneficiaryState>(registerBeneficiaryProvider, (
+      previous,
+      next,
+    ) {
+      if (next is RegisterSuccess) {
+        beneficiary = beneficiary.copyWith(id: next.data);
 
-    final registerState = ref.watch(registerProvider);
+        cambiarPantallaConNuevaPila(
+          context,
+          LocationPhoneAuthScreen(beneficiary),
+        );
+      } else if (next is RegisterFailure) {
+        MySnackBar.error(context, next.error);
+      }
+    });
+
+    final registerState = ref.watch(registerBeneficiaryProvider);
 
     return backgroundScreen(
       SizedBox(
@@ -89,6 +102,8 @@ class _AuthBeneficiaryScreenState extends ConsumerState<AuthBeneficiaryScreen> {
                         controller: codigoController,
                         marginVertical: 8,
                         prefixIcon: Icons.account_box_outlined,
+                        readOnly: true,
+                        highlight: true,
                       ),
                       TextFieldCustom(
                         label: "Cedula de identidad",
@@ -127,7 +142,7 @@ class _AuthBeneficiaryScreenState extends ConsumerState<AuthBeneficiaryScreen> {
                         textInputType: TextInputType.emailAddress,
                         marginVertical: 8,
                         onChanged: (value) =>
-                            setState(() => socialReasson = value),
+                            setState(() => socialReassonSelected = value),
                       ),
                     ],
                   ),
@@ -135,18 +150,48 @@ class _AuthBeneficiaryScreenState extends ConsumerState<AuthBeneficiaryScreen> {
                 _buildRegisterButton(),
               ],
             ),
-            if (registerState is RegisterLoading) const LoadingIndicator(),
+            if (isLoading || registerState is RegisterLoading)
+              const LoadingIndicator(),
           ],
         ),
       ),
     );
   }
 
+  void _gettingCodeBeneficiary(BuildContext context) {
+    final codeAsync = ref.watch(getCodeBeneficiaryProvider);
+
+    codeAsync.when(
+      data: (code) {
+        isLoading = false;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (code == null) {
+            MySnackBar.info(context, messageError);
+          } else {
+            codigoController.text = code;
+          }
+        });
+        return const SizedBox.shrink();
+      },
+      error: (error, _) {
+        isLoading = false;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          MySnackBar.info(context, "$messageError, Error: $error");
+          volverAnteriorPantalla(context);
+        });
+        return const SizedBox.shrink();
+      },
+      loading: () {
+        isLoading = true;
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
   Widget _buildRegisterButton() {
     return BotonAncho(
       text: "Siguiente",
-      onPressed: () =>
-          cambiarPantallaConNuevaPila(context, LocationPhoneAuthScreen()),
+      onPressed: () => _handleRegister(),
       // _handleRegister,
       marginVertical: 0,
       backgroundColor: white,
@@ -159,17 +204,23 @@ class _AuthBeneficiaryScreenState extends ConsumerState<AuthBeneficiaryScreen> {
     // Cerrar el teclado si está abierto
     FocusScope.of(context).unfocus();
 
-    // // Validaciones básicas
-    // coordinator = Coordinator(
-    //   dni: cedulaController.text.trim(),
-    //   name: nombreController.text.trim(),
-    //   lastName: apellidoController.text.trim(),
-    //   email: emailController.text.trim(),
-    //   role: cargoSelected,
-    //   profession: profesionController.text.trim(),
-    //   active: false,
-    // );
+    if (birthdate == null) {
+      MySnackBar.warning(context, 'Solicite la fecha de nacimiento');
+      return;
+    }
 
-    // ref.read(registerProvider.notifier).registerUser(coordinator: coordinator);
+    beneficiary = Beneficiary(
+      code: codigoController.text.trim(),
+      dni: cedulaController.text.trim(),
+      name: nombreController.text.trim(),
+      lastName: apellidoController.text.trim(),
+      birthdate: birthdate!,
+      socialReasson: socialReassonSelected,
+      active: true,
+    );
+
+    ref
+        .read(registerBeneficiaryProvider.notifier)
+        .registerUser(beneficiary: beneficiary);
   }
 }
