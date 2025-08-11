@@ -22,11 +22,21 @@ class RegisterBeneficiaryNotifier
     : super(RegisterInitial());
 
   // Método para iniciar registro
-  Future<void> registerPhoneLocation({required Beneficiary beneficiary}) async {
+  Future<void> registerPhoneLocation({
+    required Beneficiary beneficiary,
+    required String phone,
+    required String region,
+    required String address,
+  }) async {
     try {
       state = RegisterLoading();
 
-      final Result result = await registerPhoneLocationUseCase(beneficiary);
+      final Result result = await registerPhoneLocationUseCase(
+        beneficiary,
+        phone,
+        region,
+        address,
+      );
 
       if (result.isSuccess) {
         state = RegisterSuccess(result.data);

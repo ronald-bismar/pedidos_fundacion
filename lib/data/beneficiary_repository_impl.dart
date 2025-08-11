@@ -62,12 +62,14 @@ class BeneficiaryRepositoryImpl extends BeneficiaryRepository {
         id,
       );
       if (localBeneficiary != null) {
+        log('Mandando beneficiario desde bd local...');
         yield localBeneficiary;
       }
 
       final remoteBeneficiary = await beneficiaryRemoteDataSource
           .getBeneficiary(id);
       if (remoteBeneficiary != null) {
+        log('Mandando beneficiario desde bd remota...');
         await beneficiaryLocalDatasource.update(remoteBeneficiary);
         yield remoteBeneficiary;
       }
@@ -126,12 +128,12 @@ class BeneficiaryRepositoryImpl extends BeneficiaryRepository {
     if (urlRemote != null) {
       final urlLocal = await UploadImageLocal.saveImageLocally(
         image,
-        'profile_photo',
+        'profile_photo_beneficiary',
       );
 
       final photo = Photo(
         id: UUID.generateUUID(),
-        name: 'profile_photo',
+        name: 'profile_photo_beneficiary',
         urlRemote: urlRemote,
         urlLocal: urlLocal,
       );
@@ -204,7 +206,6 @@ class BeneficiaryRepositoryImpl extends BeneficiaryRepository {
   @override
   Future<bool> updateLocationAndPhone(Beneficiary beneficiary) async {
     try {
-
       //Solo lo lanzamos al guardado remoto sin esperar respuesta
       beneficiaryRemoteDataSource.updateLocationAndPhone(beneficiary);
 
@@ -216,6 +217,15 @@ class BeneficiaryRepositoryImpl extends BeneficiaryRepository {
     } catch (e) {
       log('Error saving las correlative: $e');
       return false;
+    }
+  }
+
+  void updateGroup(String idGroup, Beneficiary beneficiary) {
+    try {
+      beneficiaryLocalDatasource.updateGroup(beneficiary.id, idGroup);
+      beneficiaryRemoteDataSource.updateGroup(beneficiary, idGroup);
+    } catch (e) {
+      log('Error updating group of beneficiary: $e');
     }
   }
 }

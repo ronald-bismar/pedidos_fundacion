@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
+import 'package:pedidos_fundacion/core/utils/change_screen.dart';
 import 'package:pedidos_fundacion/core/widgets/background.dart';
 import 'package:pedidos_fundacion/core/widgets/boton_ancho.dart';
 import 'package:pedidos_fundacion/core/widgets/logo.dart';
@@ -10,13 +11,15 @@ import 'package:pedidos_fundacion/core/widgets/progress_indicator.dart';
 import 'package:pedidos_fundacion/core/widgets/snackbar.dart';
 import 'package:pedidos_fundacion/core/widgets/text_button_custom.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
-import 'package:pedidos_fundacion/features/authentication/presentation/providers/register_photo_notifier.dart';
+import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/states/register_photo_state.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/widgets/profile_image_picker.dart';
+import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/providers/registrar_foto_provider.dart';
+import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/screens/lista_beneficiarios.dart';
 
 class ImageProfileBeneficiaryScreen extends ConsumerStatefulWidget {
-  // final Coordinator coordinator;
-  const ImageProfileBeneficiaryScreen({super.key});
+  final Beneficiary beneficiary;
+  const ImageProfileBeneficiaryScreen(this.beneficiary, {super.key});
 
   @override
   ConsumerState<ImageProfileBeneficiaryScreen> createState() =>
@@ -29,18 +32,21 @@ class _ImageProfileBeneficiaryScreenState
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<RegisterPhotoState>(registerPhotoProvider, (previous, next) {
+    ref.listen<RegisterPhotoState>(registerPhotoBeneficiaryProvider, (
+      previous,
+      next,
+    ) {
       if (next is RegisterSuccess) {
-        // cambiarPantalla(
-        //   context,
-        //   GenerateUserPasswordScreen(coordinatorId: widget.coordinator.id),
-        // );
+        cambiarPantallaConNuevaPila(
+          context,
+          ListBeneficiariesScreen(beneficiaryId: widget.beneficiary.id),
+        );
       } else if (next is RegisterFailure) {
         MySnackBar.error(context, next.error);
       }
     });
 
-    final registerPhotoState = ref.watch(registerPhotoProvider);
+    final registerPhotoState = ref.watch(registerPhotoBeneficiaryProvider);
 
     return backgroundScreen(
       SizedBox(
@@ -74,13 +80,12 @@ class _ImageProfileBeneficiaryScreenState
                     TextButtonCustom(
                       text: "Omitir",
                       onPressed: () => {
-                        // cambiarPantalla(
-                        //   context,
-                        // BeneficiariesScreen()
-                        // GenerateUserPasswordScreen(
-                        //   coordinatorId: widget.coordinator.id,
-                        // ),
-                        // ),
+                        cambiarPantallaConNuevaPila(
+                          context,
+                          ListBeneficiariesScreen(
+                            beneficiaryId: widget.beneficiary.id,
+                          ),
+                        ),
                       },
                       marginVertical: 0,
                       textColor: dark,
@@ -97,8 +102,8 @@ class _ImageProfileBeneficiaryScreenState
   }
 
   void _handleRegister() {
-    // ref
-    //     .read(registerPhotoProvider.notifier)
-    //     .registerPhoto(photo: _selectedImage, coordinator: widget.coordinator);
+    ref
+        .read(registerPhotoBeneficiaryProvider.notifier)
+        .registerPhoto(photo: _selectedImage, beneficiary: widget.beneficiary);
   }
 }

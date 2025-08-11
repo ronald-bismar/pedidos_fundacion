@@ -2,7 +2,7 @@ import 'package:pedidos_fundacion/domain/entities/programa.dart';
 import 'package:pedidos_fundacion/domain/entities/rango_edad.dart';
 
 class Grupo {
-// Método para crear los grupos de ejemplo con rangos de edad apropiados
+  // Método para crear los grupos de ejemplo con rangos de edad apropiados
   static List<Group> values() {
     return [
       Group(
@@ -15,7 +15,7 @@ class Grupo {
       Group(
         id: 'group_002',
         idTutor: 'tutor_002',
-        groupName: 'Base Hogar - 1 año',
+        groupName: 'Base Hogar',
         ageRange: AgeRange(1, 1), // Específicamente 1 año
       ),
 
@@ -29,14 +29,14 @@ class Grupo {
       Group(
         id: 'group_004',
         idTutor: 'tutor_004',
-        groupName: 'Base Centro - Descubridores 3 años',
+        groupName: 'Base Centro - Descubridores',
         ageRange: AgeRange(3, 3), // Específicamente 3 años
       ),
 
       Group(
         id: 'group_005',
         idTutor: 'tutor_005',
-        groupName: 'Base Centro - Descubridores (4 y 5 años)',
+        groupName: 'Base Centro - Descubridores',
         ageRange: AgeRange(4, 5), // 4 y 5 años específicamente
       ),
 
@@ -69,5 +69,4 @@ class Grupo {
       ),
     ];
   }
-  
 }

@@ -30,7 +30,7 @@ class _LocationPhoneAuthScreenState
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   String region = '';
-  bool setAddress = false;
+  bool checkedAddress = false;
 
   @override
   void dispose() {
@@ -46,7 +46,10 @@ class _LocationPhoneAuthScreenState
         if (next is RegisterSuccess) {
           cambiarPantallaConNuevaPila(
             context,
-            GroupAssignedScreen(beneficiaryId: widget.beneficiary.id),
+            GroupAssignedScreen(
+              beneficiaryId: widget.beneficiary.id,
+              idGroup: widget.beneficiary.idGroup,
+            ),
           );
         } else if (next is RegisterFailure) {
           MySnackBar.error(context, next.error);
@@ -94,10 +97,10 @@ class _LocationPhoneAuthScreenState
                         padding: const EdgeInsets.symmetric(horizontal: 20.0),
                         child: CheckboxListTile(
                           title: const Text("Tiene zona, calle o nro de casa?"),
-                          value: setAddress,
+                          value: checkedAddress,
                           onChanged: (value) {
                             setState(() {
-                              setAddress = value ?? false;
+                              checkedAddress = value ?? false;
                             });
                           },
                           controlAffinity: ListTileControlAffinity.trailing,
@@ -112,7 +115,7 @@ class _LocationPhoneAuthScreenState
                           axis: Axis.vertical,
                           child: child,
                         ),
-                        child: setAddress
+                        child: checkedAddress
                             ? TextFieldCustom(
                                 key: const ValueKey('direccion'),
                                 label: "Dirección",
@@ -152,23 +155,29 @@ class _LocationPhoneAuthScreenState
     // Cerrar el teclado si está abierto
     FocusScope.of(context).unfocus();
 
-    final hasAddress = !setAddress && addressController.text.trim().isEmpty;
+    final addressFilledIncorrect =
+        checkedAddress && addressController.text.trim().isEmpty;
 
-    if (!hasAddress) {
-      MySnackBar.info(
+    if (addressFilledIncorrect) {
+      MySnackBar.error(
         context,
-        'Por favor introduzca una dirección si cuenta con una',
+        'Por favor introduzca una dirección, caso contrario desmarque el check',
       );
       return;
     }
 
     final beneficiary = widget.beneficiary.copyWith(
       phone: phoneController.text,
-      location: setAddress ? '$region, ${addressController.text}' : region,
+      location: checkedAddress ? '$region, ${addressController.text}' : region,
     );
 
     ref
         .read(registerPhoneLocationBeneficiaryProvider.notifier)
-        .registerPhoneLocation(beneficiary: beneficiary);
+        .registerPhoneLocation(
+          beneficiary: beneficiary,
+          phone: phoneController.text.trim(),
+          region: region,
+          address: addressController.text.trim(),
+        );
   }
 }

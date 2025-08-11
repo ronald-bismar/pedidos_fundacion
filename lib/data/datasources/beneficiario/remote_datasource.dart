@@ -42,6 +42,7 @@ class BeneficiaryRemoteDataSource {
           .get();
 
       if (doc.exists && doc.data() != null) {
+        log('Documento existe intentando mappear...');
         return BeneficiaryMapper.fromJson(doc.data()!);
       }
       return null;

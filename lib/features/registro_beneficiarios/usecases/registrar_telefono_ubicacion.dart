@@ -13,15 +13,23 @@ class RegisterPhoneLocationUseCase {
 
   RegisterPhoneLocationUseCase(this.beneficiaryRepository);
 
-  Future<Result> call(Beneficiary beneficiary) async {
+  Future<Result> call(
+    Beneficiary beneficiary,
+    String phone,
+    String region,
+    String address,
+  ) async {
     try {
-      final (bool isValidFields, String? message) = _validateLocation(
-        beneficiary,
-      );
+      final (bool isValidFields, String? message) = _validateLocation(region);
 
       if (!isValidFields) {
         return Result.failure(message ?? 'Invalid fields');
       }
+
+      beneficiary = beneficiary.copyWith(
+        phone: phone,
+        location: address.isNotEmpty ? '$region, $address' : region,
+      );
 
       final bool success = await beneficiaryRepository.updateLocationAndPhone(
         beneficiary,
@@ -37,9 +45,12 @@ class RegisterPhoneLocationUseCase {
     }
   }
 
-  (bool, String?) _validateLocation(Beneficiary beneficiary) {
-    if (beneficiary.location.trim().isEmpty) {
-      return (false, 'Por favor ingresa el apellido del beneficiario');
+  (bool, String?) _validateLocation(String region) {
+    if (region.trim().isEmpty) {
+      return (
+        false,
+        'Por favor ingresa la provincia/comunidad del beneficiario',
+      );
     }
 
     return (true, null);

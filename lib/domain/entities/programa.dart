@@ -10,7 +10,7 @@ class Group {
   Group({
     this.id = '',
     this.idTutor = '',
-    required this.groupName,
+    this.groupName = '',
     required this.ageRange,
     DateTime? updatedAt,
   }) : updatedAt = updatedAt ?? DateTime.now();

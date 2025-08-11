@@ -168,4 +168,20 @@ class BeneficiaryLocalDataSource {
     );
     return result.isNotEmpty;
   }
+
+  Future<void> updateGroup(String beneficiaryId, String idGroup) async {
+    try {
+      Database database = await _dbHelper.openDB();
+      await database.update(
+        tableName,
+        {'idGroup': idGroup, 'updateAt': DateTime.now().toIso8601String()},
+        where: 'id = ?',
+        whereArgs: [beneficiaryId],
+      );
+      log('Active updated locally for beneficiary: $beneficiaryId');
+    } catch (e) {
+      log('Error updating beneficiary active: $e');
+      // No throw Exception aquí - solo log
+    }
+  }
 }

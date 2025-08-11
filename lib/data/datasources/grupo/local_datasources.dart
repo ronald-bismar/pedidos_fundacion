@@ -48,9 +48,9 @@ class GroupLocalDataSource {
     return List.generate(cMap.length, (i) => Group.fromMap(cMap[i]));
   }
 
-  Future<void> delete(Group group) async {
+  Future<void> delete(String idGroup) async {
     Database database = await _dbHelper.openDB();
-    database.delete(tableName, where: 'id = ?', whereArgs: [group.id]);
+    database.delete(tableName, where: 'id = ?', whereArgs: [idGroup]);
   }
 
   Future<void> update(Group group) async {
@@ -80,6 +80,7 @@ class GroupLocalDataSource {
   }
 
   Future<Group?> getGroup(String id) async {
+    log('Group id: $id');
     Database database = await _dbHelper.openDB();
     final List<Map<String, dynamic>> cMap = await database.query(
       tableName,
@@ -90,6 +91,7 @@ class GroupLocalDataSource {
     if (cMap.isNotEmpty) {
       return Group.fromMap(cMap.first);
     }
+    log('Map is empty returning null...');
     return null;
   }
 
@@ -180,6 +182,22 @@ class GroupLocalDataSource {
     } catch (e) {
       log('Error checking if group exists for age: $age', error: e);
       return false;
+    }
+  }
+
+  Future<List<Group>> getGroupsByTutorId(String idTutor) async {
+    try {
+      Database database = await _dbHelper.openDB();
+      final List<Map<String, dynamic>> cMap = await database.query(
+        tableName,
+        where: 'idTutor = ?',
+        whereArgs: [idTutor],
+      );
+
+      return List.generate(cMap.length, (i) => Group.fromMap(cMap[i]));
+    } catch (e) {
+      log('Error getting groups by tutor id: $e', error: e);
+      return [];
     }
   }
 }

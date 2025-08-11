@@ -9,6 +9,7 @@ import 'package:pedidos_fundacion/features/login/presentation/widgets/image_user
 import 'package:pedidos_fundacion/features/login/presentation/widgets/item_menu_card.dart';
 import 'package:pedidos_fundacion/features/login/presentation/widgets/items_menu.dart';
 import 'package:pedidos_fundacion/presentation/screen_factory.dart';
+import 'package:pedidos_fundacion/toDataDynamic/items_menu.dart';
 
 class MenuScreen extends StatelessWidget {
   MenuScreen({super.key});
@@ -16,38 +17,6 @@ class MenuScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final menuItems = [
-      ItemMenu(
-        title: 'Pedidos',
-        icon: Icons.list,
-        screenType: ScreenType.pedidos,
-      ),
-      ItemMenu(
-        title: 'Entregas',
-        icon: Icons.delivery_dining,
-        screenType: ScreenType.entregas,
-      ),
-      ItemMenu(
-        title: 'Personal',
-        icon: Icons.person,
-        screenType: ScreenType.personal,
-      ),
-      ItemMenu(
-        title: 'Asistencia Beneficiarios',
-        icon: Icons.group_add,
-        screenType: ScreenType.asistenciaBeneficiarios,
-      ),
-      ItemMenu(
-        title: 'Beneficiarios',
-        icon: Icons.group,
-        screenType: ScreenType.beneficiarios,
-      ),
-      ItemMenu(
-        title: 'Reportes',
-        icon: Icons.report,
-        screenType: ScreenType.reportes,
-      ),
-    ];
     return Scaffold(
       body: Container(
         color: primary,

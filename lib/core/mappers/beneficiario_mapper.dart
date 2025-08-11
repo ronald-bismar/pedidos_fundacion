@@ -48,26 +48,29 @@ class BeneficiaryMapper {
   }
 
   static Map<String, dynamic> toJsonPhoto(Beneficiary beneficiary) {
-    return {'idPhoto': beneficiary.idPhoto, 'updateAt': DateTime.now()};
+    return {'idPhoto': beneficiary.idPhoto, 'updateAt': DateTime.now().toIso8601String()};
   }
 
   static Map<String, dynamic> toJsonLocationAndPhone(Beneficiary beneficiary) {
     return {
       'location': beneficiary.location,
       'phone': beneficiary.phone,
-      'updateAt': DateTime.now(),
+      'updateAt': DateTime.now().toIso8601String(),
     };
   }
 
   static Map<String, dynamic> toJsonActive(Beneficiary beneficiary) {
-    return {'active': beneficiary.active, 'updateAt': DateTime.now()};
+    return {'active': beneficiary.active, 'updateAt': DateTime.now().toIso8601String(),
+    };
   }
 
   static Map<String, dynamic> toJsonCode(Beneficiary beneficiary) {
-    return {'code': beneficiary.code, 'updateAt': DateTime.now()};
+    return {'code': beneficiary.code, 'updateAt': DateTime.now().toIso8601String(),
+    };
   }
 
   static Map<String, dynamic> toJsonGroup(Beneficiary beneficiary) {
-    return {'idGroup': beneficiary.active, 'updateAt': DateTime.now()};
+    return {'idGroup': beneficiary.active, 'updateAt': DateTime.now().toIso8601String(),
+    };
   }
 }

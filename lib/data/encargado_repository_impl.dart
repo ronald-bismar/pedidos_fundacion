@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pedidos_fundacion/core/services/image_downloader.dart';
 import 'package:pedidos_fundacion/core/services/image_storage.dart';
 import 'package:pedidos_fundacion/core/services/upload_image.dart';
 import 'package:pedidos_fundacion/core/utils/network_utils.dart';
@@ -229,32 +230,53 @@ class CoordinatorRepositoryImpl implements CoordinatorRepository {
   Future<({String name, String? urlPhoto, bool isLocal})> getNameAndPhoto(
     Coordinator coordinator,
   ) async {
-    final String firstName = coordinator.name.split(' ')[0];
-    final String firstLastName = coordinator.lastName.split(' ')[0];
-    final nameLastName = '$firstName $firstLastName';
+    String avatarName = getAvatarName(coordinator);
 
     final hasInternet = await NetworkUtils.hasRealInternet();
     if (hasInternet) {
-      final Photo? photo = await photoRemoteDataSource.getPhoto(
-        coordinator.idPhoto,
-      );
-      if (photo != null) {
-        log('url photo : local: ${photo.urlLocal} remote: ${photo.urlRemote}');
-        return (name: nameLastName, urlPhoto: photo.urlRemote, isLocal: false);
-      } else {
-        return (
-          name: nameLastName,
-          urlPhoto: await getUrlLocalPhoto(coordinator),
-          isLocal: true,
-        );
+      Photo? photo = await photoRemoteDataSource.getPhoto(coordinator.idPhoto);
+
+      if (photo != null && photo.urlRemote.isNotEmpty) {
+        coordinator = coordinator.copyWith(idPhoto: photo.id);
+        await preferencesUsuario.savePreferences(coordinator);
+
+        // Verificar si ya tenemos una versión local actualizada
+        String? localUrl = await getUrlLocalPhoto(coordinator);
+
+        if (localUrl == null || localUrl.isEmpty) {
+          final String? downloadedPath =
+              await ImageDownloader.downloadAndSaveImage(
+                photo.urlRemote,
+                'coordinator_${coordinator.idPhoto}',
+              );
+
+          if (downloadedPath != null) {
+            photo = photo.copyWith(urlLocal: downloadedPath);
+            await photoLocalDataSource.update(photo);
+
+            return (
+              name: avatarName,
+              urlPhoto: await getUrlLocalPhoto(coordinator),
+              isLocal: true,
+            );
+          }
+        }
+
+        // Si ya existe localmente o falló la descarga, usar la URL remota
+        return (name: avatarName, urlPhoto: photo.urlRemote, isLocal: false);
       }
     } else {
-      return (
-        name: nameLastName,
-        urlPhoto: await getUrlLocalPhoto(coordinator),
-        isLocal: true,
-      );
+      String? urlLocal = await getUrlLocalPhoto(coordinator);
+      return (name: avatarName, urlPhoto: urlLocal, isLocal: true);
     }
+    return (name: avatarName, urlPhoto: null, isLocal: false);
+  }
+
+  String getAvatarName(Coordinator coordinator) {
+    final String firstName = coordinator.name.split(' ')[0];
+    final String firstLastName = coordinator.lastName.split(' ')[0];
+    final nameLastName = '$firstName $firstLastName';
+    return nameLastName;
   }
 
   Future<String?> getUrlLocalPhoto(Coordinator coordinator) async {
