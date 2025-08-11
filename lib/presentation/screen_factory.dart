@@ -1,7 +1,7 @@
 // Enum para identificar las pantallas
 import 'package:flutter/material.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/screens/auth_screen.dart';
-import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/screens/lista_beneficiarios.dart';
+import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/screens/lista_beneficiarios_screen.dart';
 
 enum ScreenType {
   pedidos,

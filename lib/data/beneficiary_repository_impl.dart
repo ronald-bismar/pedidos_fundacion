@@ -228,4 +228,26 @@ class BeneficiaryRepositoryImpl extends BeneficiaryRepository {
       log('Error updating group of beneficiary: $e');
     }
   }
+
+  @override
+  Stream<List<Beneficiary>> getBeneficiariesByGroup(String idGroup) async* {
+    try {
+      final beneficiariesLocal = await beneficiaryLocalDatasource.listByGroup(
+        idGroup,
+      );
+
+      yield beneficiariesLocal;
+
+      final beneficiariesRemote = await beneficiaryRemoteDataSource.getByGroup(
+        idGroup,
+      );
+      if (beneficiariesRemote.isNotEmpty) {
+        await beneficiaryLocalDatasource.insertOrUpdate(beneficiariesRemote);
+        yield beneficiariesRemote;
+      }
+    } catch (e) {
+      log('Error getting coordinator: $e');
+      yield [];
+    }
+  }
 }

@@ -14,4 +14,5 @@ abstract class BeneficiaryRepository {
   Future<int?> getLastCorrelativeCode();
   Future<void> saveLastCorrelativeCode(int codeCorrelative);
   Future<bool> updateLocationAndPhone(Beneficiary beneficiary);
+  Stream<List<Beneficiary>> getBeneficiariesByGroup(String idGroup);
 }

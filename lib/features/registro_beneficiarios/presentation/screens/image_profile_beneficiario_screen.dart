@@ -15,7 +15,7 @@ import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/states/register_photo_state.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/widgets/profile_image_picker.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/providers/registrar_foto_provider.dart';
-import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/screens/lista_beneficiarios.dart';
+import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/screens/lista_beneficiarios_screen.dart';
 
 class ImageProfileBeneficiaryScreen extends ConsumerStatefulWidget {
   final Beneficiary beneficiary;
