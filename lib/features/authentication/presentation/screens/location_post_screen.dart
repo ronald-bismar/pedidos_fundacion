@@ -10,10 +10,11 @@ import 'package:pedidos_fundacion/core/widgets/logo.dart';
 import 'package:pedidos_fundacion/core/widgets/snackbar.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
 import 'package:pedidos_fundacion/domain/entities/encargado.dart';
+import 'package:pedidos_fundacion/domain/entities/programa.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/providers/update_location_provider.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/screens/image_profile_screen.dart';
+import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/providers/gropos_provider.dart';
 import 'package:pedidos_fundacion/toDataDynamic/cargos.dart';
-import 'package:pedidos_fundacion/toDataDynamic/grupos.dart';
 import 'package:pedidos_fundacion/toDataDynamic/places.dart';
 
 class LocationPostScreen extends ConsumerStatefulWidget {
@@ -26,12 +27,19 @@ class LocationPostScreen extends ConsumerStatefulWidget {
 
 class _LocationPostScreenState extends ConsumerState<LocationPostScreen> {
   String locationValue = '';
+  Group? assignedGroup;
 
   @override
   Widget build(BuildContext context) {
     final updateLocation = ref.watch(updateLocationCoordinatorProvider);
     final isTutor = widget.coordinator.role == Role.tutor;
-    String assignedGroup = "";
+
+    final groupsAsync = ref.watch(groupsProvider);
+
+    List<Group> groups = groupsAsync.maybeWhen(
+      data: (data) => data,
+      orElse: () => [],
+    );
 
     return backgroundScreen(
       Container(
@@ -67,10 +75,10 @@ class _LocationPostScreenState extends ConsumerState<LocationPostScreen> {
                         titleAlertDialog: 'Programa/Grupo',
                         widthAlertDialog: double.infinity,
                         itemInitial: '',
-                        onSelect: (group) => {assignedGroup = group},
-                        items: Grupo.values()
-                            .map((group) => group.groupName)
-                            .toList(),
+                        onSelect: (newGroup) => {
+                          assignNewGroup(newGroup, groups),
+                        },
+                        items: groups.map((group) => group.groupName).toList(),
                         icon: Icons.group,
                         messageInfo: 'Programa/Grupo',
                       ),
@@ -88,17 +96,16 @@ class _LocationPostScreenState extends ConsumerState<LocationPostScreen> {
                   return;
                 }
 
-                if (isTutor && assignedGroup.isEmpty) {
+                if (isTutor && assignedGroup == null) {
                   MySnackBar.info(context, 'Please enter an assigned group');
                   return;
                 }
 
-                //TODO: Falta añadir el grupo al que esta a cargo idGrupo si es tutor
                 final coordinatorWithLocation = widget.coordinator.copyWith(
                   location: locationValue.trim(),
                 );
 
-                updateLocation(coordinatorWithLocation);
+                updateLocation(coordinatorWithLocation, assignedGroup);
 
                 cambiarPantallaConNuevaPila(
                   context,
@@ -114,5 +121,11 @@ class _LocationPostScreenState extends ConsumerState<LocationPostScreen> {
         ),
       ),
     );
+  }
+
+  void assignNewGroup(String newGroup, List<Group> groups) {
+    final groupObject = groups.firstWhere((g) => g.groupName == newGroup);
+    assignedGroup = groupObject;
+    setState(() {});
   }
 }

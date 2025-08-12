@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pedidos_fundacion/toDataDynamic/cargos.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/utils/change_screen.dart';
 import 'package:pedidos_fundacion/core/widgets/alert_dialog_options.dart';
@@ -16,6 +15,7 @@ import 'package:pedidos_fundacion/domain/entities/encargado.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/providers/register_notifier.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/screens/location_post_screen.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/states/register_state.dart';
+import 'package:pedidos_fundacion/toDataDynamic/cargos.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});

@@ -2,42 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/utils/change_screen.dart';
-import 'package:pedidos_fundacion/core/widgets/drop_down_options.dart';
 import 'package:pedidos_fundacion/core/widgets/subtitle.dart';
 import 'package:pedidos_fundacion/core/widgets/text_normal.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
 import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
-import 'package:pedidos_fundacion/domain/entities/programa.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/providers/beneficiaries_provider.dart';
-import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/providers/gropos_provider.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/screens/auth_beneficiario_screen.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/widgets/card_beneficiario.dart';
 
-class ListBeneficiariesScreen extends ConsumerStatefulWidget {
+class ListCoordinatorsScreen extends ConsumerStatefulWidget {
   final String beneficiaryId;
-  const ListBeneficiariesScreen({this.beneficiaryId = '', super.key});
+  const ListCoordinatorsScreen({this.beneficiaryId = '', super.key});
 
   @override
-  ConsumerState<ListBeneficiariesScreen> createState() =>
-      _ListaBeneficiariesScreenState();
+  ConsumerState<ListCoordinatorsScreen> createState() =>
+      _ListaCoordinatorsScreenState();
 }
 
-class _ListaBeneficiariesScreenState
-    extends ConsumerState<ListBeneficiariesScreen> {
-  Group? selectedGroup;
-  String selectedGroupId = 'group_001'; // ID del grupo por defecto
-
+class _ListaCoordinatorsScreenState
+    extends ConsumerState<ListCoordinatorsScreen> {
   @override
   Widget build(BuildContext context) {
-    final groupsAsync = ref.watch(groupsProvider);
-
-    List<Group> groups = groupsAsync.maybeWhen(
-      data: (data) => data,
-      orElse: () => [],
-    );
-
     final beneficiariesAsyncValue = ref.watch(
-      beneficiariesStreamProvider(selectedGroupId),
+      beneficiariesStreamProvider(
+        // selectedGroupId
+        '',
+      ),
     );
 
     return Scaffold(
@@ -50,19 +40,7 @@ class _ListaBeneficiariesScreenState
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 20),
-                title('Lista de Beneficiarios'),
-                const SizedBox(height: 20),
-                DropDownOptions(
-                  itemInitial:
-                      selectedGroup?.groupName ?? 'Selecciona un grupo',
-                  onSelect: (value) => _onGroupSelected(value, groups),
-                  items: groups
-                      .map(
-                        (group) =>
-                            '${group.groupName} ${group.ageRange.toString()}',
-                      )
-                      .toList(),
-                ),
+                title('Lista de Encargados'),
                 const SizedBox(height: 20),
                 Expanded(
                   child: beneficiariesAsyncValue.when(
@@ -83,29 +61,15 @@ class _ListaBeneficiariesScreenState
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
           cambiarPantalla(context, AuthBeneficiaryScreen());
         },
-        icon: const Icon(Icons.person_add),
-        label: const Text('Nuevo beneficiario'),
         backgroundColor: quaternary,
         foregroundColor: dark,
+        child: const Icon(Icons.filter),
       ),
     );
-  }
-
-  void _onGroupSelected(String groupDisplayName, List<Group> groups) {
-    final Group foundGroup = groups.firstWhere(
-      (group) =>
-          '${group.groupName} ${group.ageRange.toString()}' == groupDisplayName,
-      orElse: () => groups.first,
-    );
-
-    setState(() {
-      selectedGroup = foundGroup;
-      selectedGroupId = foundGroup.id;
-    });
   }
 
   Widget _loadingState() {
