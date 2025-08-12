@@ -10,8 +10,9 @@ class TextFieldCustom extends StatefulWidget {
   final bool obscureText;
   final double marginHorizontal;
   final double marginVertical;
-  final IconData? prefixIcon; // Nuevo atributo para el ícono de prefijo
+  final IconData? prefixIcon;
   final bool readOnly;
+  final bool highlight; // Resaltar el texto mas grueso
 
   const TextFieldCustom({
     super.key,
@@ -24,7 +25,8 @@ class TextFieldCustom extends StatefulWidget {
     this.marginHorizontal = 20,
     this.marginVertical = 10,
     this.prefixIcon,
-    this.readOnly = false, // Constructor actualizado
+    this.readOnly = false,
+    this.highlight = false,
   });
 
   @override
@@ -89,6 +91,9 @@ class _TextFieldCustomState extends State<TextFieldCustom> {
           ),
         ),
         readOnly: widget.readOnly,
+        style: TextStyle(
+          fontWeight: widget.highlight ? FontWeight.bold : FontWeight.normal,
+        ),
       ),
     );
   }

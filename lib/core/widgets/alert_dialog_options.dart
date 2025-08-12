@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
+import 'package:pedidos_fundacion/core/widgets/selection_dialog.dart';
 
 class AlertDialogOptions extends StatefulWidget {
   final ValueChanged<String> onSelect;
@@ -33,7 +34,6 @@ class AlertDialogOptionsState extends State<AlertDialogOptions>
     with SingleTickerProviderStateMixin {
   late String selectedValue;
   late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
@@ -43,10 +43,6 @@ class AlertDialogOptionsState extends State<AlertDialogOptions>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
   }
 
   @override
@@ -108,71 +104,23 @@ class AlertDialogOptionsState extends State<AlertDialogOptions>
     );
   }
 
+  // Muestra el diálogo de selección usando el widget separado
   void _showSelectionDialog(BuildContext context) {
     _controller.forward(from: 0.0);
-    showDialog<String>(
+
+    SelectionDialog.show(
       context: context,
-      builder: (context) => ScaleTransition(
-        scale: _scaleAnimation,
-        child: AlertDialog(
-          title: Row(
-            children: [
-              if (widget.icon != null) ...[
-                Icon(widget.icon, color: secondary),
-                const SizedBox(width: 12),
-              ],
-              Expanded(
-                child: Text(
-                  widget.titleAlertDialog ?? 'Selecciona una opción',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: widget.items.length,
-              itemBuilder: (context, index) {
-                final zona = widget.items[index];
-                return TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0.0, end: 1.0),
-                  duration: Duration(milliseconds: 200 + (index * 50)),
-                  builder: (context, value, child) {
-                    return Transform.translate(
-                      offset: Offset(0, 50 * (1 - value)),
-                      child: Opacity(opacity: value, child: child),
-                    );
-                  },
-                  child: ListTile(
-                    title: Text(zona),
-                    trailing: selectedValue == zona
-                        ? Icon(
-                            Icons.check,
-                            color: Theme.of(context).primaryColor,
-                          )
-                        : null,
-                    onTap: () => Navigator.of(context).pop(zona),
-                  ),
-                );
-              },
-            ),
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-        ),
-      ),
-    ).then((value) {
-      if (value != null) {
+      items: widget.items,
+      icon: widget.icon,
+      titleAlertDialog: widget.titleAlertDialog,
+      selectedValue: selectedValue,
+      onSelect: (String value) {
         setState(() => selectedValue = value);
         log('Seleccionaste: $value');
         widget.onSelect(value);
-      }
+      },
+    ).then((value) {
+      // Solo animar la flecha de vuelta
       _controller.reverse();
     });
   }
