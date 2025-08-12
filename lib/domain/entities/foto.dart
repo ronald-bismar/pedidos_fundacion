@@ -13,7 +13,7 @@ class Photo {
 
   @override
   String toString() {
-    return 'PhotoUser{id: $id, name: $name, email: $urlRemote, location: $urlLocal}';
+    return 'Photo{id: $id, name: $name, urlRemote: $urlRemote, urlLocal: $urlLocal}';
   }
 
   Map<String, dynamic> toMap() {
@@ -31,6 +31,20 @@ class Photo {
       name: map['name'] ?? '',
       urlRemote: map['urlRemote'] ?? '',
       urlLocal: map['urlLocal'] ?? '',
+    );
+  }
+
+  Photo copyWith({
+    String? id,
+    String? name,
+    String? urlRemote,
+    String? urlLocal,
+  }) {
+    return Photo(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      urlRemote: urlRemote ?? this.urlRemote,
+      urlLocal: urlLocal ?? this.urlLocal,
     );
   }
 }

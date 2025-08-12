@@ -1,39 +1,27 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/utils/change_screen.dart';
 import 'package:pedidos_fundacion/core/widgets/logo.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
-import 'package:pedidos_fundacion/features/authentication/presentation/screens/auth_screen.dart';
 import 'package:pedidos_fundacion/features/login/presentation/widgets/image_user_profile.dart';
 import 'package:pedidos_fundacion/features/login/presentation/widgets/item_menu_card.dart';
 import 'package:pedidos_fundacion/features/login/presentation/widgets/items_menu.dart';
+import 'package:pedidos_fundacion/presentation/screen_factory.dart';
+import 'package:pedidos_fundacion/toDataDynamic/items_menu.dart';
 
 class MenuScreen extends StatelessWidget {
-  const MenuScreen({super.key});
+  MenuScreen({super.key});
+  final ScreenFactory screenFactory = ScreenFactory();
 
   @override
   Widget build(BuildContext context) {
-    final listItems = [
-      ItemMenu(title: 'Pedidos', icon: Icons.list, screen: AuthScreen()),
-      ItemMenu(
-        title: 'Entregas',
-        icon: Icons.delivery_dining,
-        screen: AuthScreen(),
-      ),
-      ItemMenu(
-        title: 'Historial de Entregas',
-        icon: Icons.history,
-        screen: AuthScreen(),
-      ),
-      ItemMenu(title: 'Personal', icon: Icons.person, screen: AuthScreen()),
-      ItemMenu(title: 'Beneficiarios', icon: Icons.group, screen: AuthScreen()),
-      ItemMenu(title: 'Reportes', icon: Icons.report, screen: AuthScreen()),
-    ];
     return Scaffold(
       body: Container(
         color: primary,
         alignment: Alignment.center,
-        child: SingleChildScrollView(child: contentMenu(context, listItems)),
+        child: SingleChildScrollView(child: contentMenu(context, menuItems)),
       ),
       drawer: drawerMenu(context),
     );
@@ -99,7 +87,7 @@ class MenuScreen extends StatelessWidget {
                 return itemMenu(
                   listItems[index],
                   index,
-                  () => cambiarPantalla(context, listItems[index].screen),
+                  () => _navigateToScreen(context, listItems[index]),
                 );
               },
             ),
@@ -107,5 +95,20 @@ class MenuScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // Método para navegar usando el factory
+  void _navigateToScreen(BuildContext context, ItemMenu menuItem) {
+    log('Ejecutando navigate to screen');
+    try {
+      final screen = screenFactory.createScreen(
+        menuItem.screenType,
+        arguments: menuItem.arguments,
+      );
+      cambiarPantalla(context, screen);
+    } catch (e) {
+      // Manejo de errores
+      log('Error al navegar: $e');
+    }
   }
 }

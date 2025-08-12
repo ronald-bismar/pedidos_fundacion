@@ -42,14 +42,23 @@ class CoordinatorMapper {
   }
 
   static Map<String, dynamic> toJsonPhoto(Coordinator coordinator) {
-    return {'idPhoto': coordinator.idPhoto, 'updateAt': DateTime.now()};
+    return {
+      'idPhoto': coordinator.idPhoto,
+      'updateAt': DateTime.now().toIso8601String(),
+    };
   }
 
   static Map<String, dynamic> toJsonLocation(Coordinator coordinator) {
-    return {'location': coordinator.idPhoto, 'updateAt': DateTime.now()};
+    return {
+      'location': coordinator.location,
+      'updateAt': DateTime.now().toIso8601String(),
+    };
   }
 
-    static Map<String, dynamic> toJsonActive(Coordinator coordinator) {
-    return {'active': coordinator.idPhoto, 'updateAt': DateTime.now()};
+  static Map<String, dynamic> toJsonActive(Coordinator coordinator) {
+    return {
+      'active': coordinator.active,
+      'updateAt': DateTime.now().toIso8601String(),
+    };
   }
 }

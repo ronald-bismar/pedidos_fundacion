@@ -4,7 +4,7 @@ import 'package:pedidos_fundacion/core/utils/network_utils.dart';
 import 'package:pedidos_fundacion/data/encargado_repository_impl.dart';
 import 'package:pedidos_fundacion/domain/entities/encargado.dart';
 import 'package:pedidos_fundacion/domain/repositories/encargado_repository.dart';
-import 'package:pedidos_fundacion/features/authentication/usecases/generar_usuario_contrase%C3%B1a.dart';
+import 'package:pedidos_fundacion/features/authentication/usecases/generar_usuario_contrasena.dart';
 import 'package:pedidos_fundacion/features/authentication/usecases/validar_datos.dart';
 
 final registerCoordinatorProvider = Provider(

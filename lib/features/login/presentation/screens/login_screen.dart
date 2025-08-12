@@ -9,10 +9,12 @@ import 'package:pedidos_fundacion/core/widgets/boton_ancho.dart';
 import 'package:pedidos_fundacion/core/widgets/logo.dart';
 import 'package:pedidos_fundacion/core/widgets/progress_indicator.dart';
 import 'package:pedidos_fundacion/core/widgets/snackbar.dart';
+import 'package:pedidos_fundacion/core/widgets/text_nxtmacsys.dart';
 import 'package:pedidos_fundacion/core/widgets/textfield.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/screens/welcome_screen.dart';
 import 'package:pedidos_fundacion/features/login/presentation/providers/login_notifier.dart';
+import 'package:pedidos_fundacion/features/login/presentation/providers/package_info_provider.dart';
 import 'package:pedidos_fundacion/features/login/presentation/screens/menu_screen.dart';
 import 'package:pedidos_fundacion/features/login/presentation/states/login_state.dart';
 import 'package:pedidos_fundacion/presentation/user_application_provider.dart';
@@ -37,6 +39,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final packageInfoAsync = ref.watch(packageInfoProvider);
+
     ref.listen<LoginState>(loginProvider, (previous, next) {
       if (next is LoginSuccess) {
         final coordinator = ref.watch(userApplicationProvider);
@@ -66,8 +70,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                SizedBox(),
                 Column(
                   children: [
                     const Logo(),
@@ -103,6 +108,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   backgroundColor: white,
                   textColor: dark,
                   paddingHorizontal: 80,
+                ),
+
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    child: Column(
+                      children: [
+                        TextNextMacroSystem(widthText: 140, heightText: 20),
+                        SizedBox(height: 2),
+                        packageInfoAsync.when(
+                          data: (packageInfo) => Text(
+                            'Version ${packageInfo.version}.${packageInfo.buildNumber}',
+                            style: TextStyle(fontSize: 13, color: white),
+                          ),
+                          loading: () {
+                            log('Cargando version de la app...');
+                            return Container();
+                          },
+                          error: (error, stackTrace) {
+                            log(
+                              'Ocurrio un error al cargar la version: $error',
+                            );
+                            return Container();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),

@@ -8,16 +8,16 @@ import 'package:sqflite/sqflite.dart';
 
 // Date for comparison example: SELECT * FROM coordinators WHERE updateAt > '2023-01-01T00:00:00Z'
 
-final localDataSourceProvider = Provider<CoordinatorLocalDatasource>((ref) {
+final localDataSourceProvider = Provider<CoordinatorLocalDataSource>((ref) {
   final dbHelper = ref.watch(databaseHelperProvider);
-  return CoordinatorLocalDatasource(dbHelper);
+  return CoordinatorLocalDataSource(dbHelper);
 });
 
-class CoordinatorLocalDatasource {
+class CoordinatorLocalDataSource {
   final DatabaseHelper _dbHelper;
   static const String tableName = 'coordinators';
 
-  CoordinatorLocalDatasource(this._dbHelper);
+  CoordinatorLocalDataSource(this._dbHelper);
 
   static String coordinators =
       'CREATE TABLE $tableName('
@@ -106,7 +106,9 @@ class CoordinatorLocalDatasource {
   }
 
   void updateLocation(Coordinator coordinator) {
-    _updateLocationAsync(coordinator.id, coordinator.location).catchError((error) {
+    _updateLocationAsync(coordinator.id, coordinator.location).catchError((
+      error,
+    ) {
       log('Error updating coordinator location locally: $error');
     });
   }
@@ -120,11 +122,7 @@ class CoordinatorLocalDatasource {
       Database database = await _dbHelper.openDB();
       await database.update(
         tableName,
-        {
-          'location': location,
-          'updateAt': DateTime.now()
-              .toIso8601String(),
-        },
+        {'location': location, 'updateAt': DateTime.now().toIso8601String()},
         where: 'id = ?',
         whereArgs: [coordinatorId],
       );
@@ -135,8 +133,8 @@ class CoordinatorLocalDatasource {
     }
   }
 
-   void updateActive(Coordinator coordinator) {
-    _updateActiveAsync(coordinator.id, coordinator.location).catchError((
+  void updateActive(Coordinator coordinator) {
+    _updateActiveAsync(coordinator.id, coordinator.active).catchError((
       error,
     ) {
       log('Error updating coordinator active locally: $error');
@@ -144,22 +142,30 @@ class CoordinatorLocalDatasource {
   }
 
   // Método privado que hace el trabajo real
-  Future<void> _updateActiveAsync(
-    String coordinatorId,
-    String location,
-  ) async {
+  Future<void> _updateActiveAsync(String coordinatorId, bool active) async {
     try {
       Database database = await _dbHelper.openDB();
       await database.update(
         tableName,
-        {'active': location, 'updateAt': DateTime.now().toIso8601String()},
+        {'active': active, 'updateAt': DateTime.now().toIso8601String()},
         where: 'id = ?',
         whereArgs: [coordinatorId],
       );
-      log('Location updated locally for coordinator: $coordinatorId');
+      log('Active updated locally for coordinator: $coordinatorId');
     } catch (e) {
       log('Error updating coordinator active: $e');
       // No throw Exception aquí - solo log
     }
+  }
+Future<bool> existByDni(String dni) async {
+    final Database database = await _dbHelper.openDB();
+    final result = await database.query(
+      tableName,
+      columns: ['dni'], // Solo selecciona la columna necesaria
+      where: 'dni = ?',
+      whereArgs: [dni],
+      limit: 1, // Solo necesitas saber si existe al menos uno
+    );
+    return result.isNotEmpty;
   }
 }

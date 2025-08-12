@@ -1,4 +1,6 @@
-import 'dart:io';
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,21 +15,20 @@ class NetworkUtils {
         return false;
       }
 
-      // 2. Hacer ping a Google usando HTTP GET
+      // 2. Hacer ping a Google usando HTTP GET con timeout
       final response = await http
           .get(
             Uri.parse('https://www.google.com'),
             headers: {'Cache-Control': 'no-cache', 'Pragma': 'no-cache'},
           )
-          .timeout(
-            Duration(seconds: 10), // Timeout de 10 segundos
-            onTimeout: () {
-              throw SocketException('Request timeout');
-            },
-          );
+          .timeout(const Duration(seconds: 10));
 
       return response.statusCode == 200;
+    } on TimeoutException catch (e) {
+      log('TimeoutException: $e');
+      return false;
     } catch (e) {
+      log('Error de conexión: $e');
       return false;
     }
   }

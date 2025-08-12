@@ -21,7 +21,10 @@ class MySnackBar {
 
   static void warning(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.orange),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: const Color.fromARGB(255, 255, 123, 0),
+      ),
     );
   }
 

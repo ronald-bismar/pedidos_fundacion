@@ -53,7 +53,7 @@ class _ImageUserProfileState extends ConsumerState<ImageUserProfile> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(50.0),
-              child: userProfile == null
+              child: userProfile.urlPhoto == null
                   ? Image.asset('assets/hombre.png', fit: BoxFit.cover)
                   : userProfile.isLocal
                   ? Image.file(
@@ -67,7 +67,7 @@ class _ImageUserProfileState extends ConsumerState<ImageUserProfile> {
             ),
           ),
         ),
-        Text(userProfile?.name ?? '', style: TextStyle(fontSize: 12)),
+        Text(userProfile.name, style: TextStyle(fontSize: 12)),
       ],
     );
   }

@@ -38,6 +38,11 @@ class PreferencesUsuario {
     prefs.setString(_keyRole, coordinator.role);
   }
 
+  Future<void> updatePhotoId(String idPhoto) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(_keyIdFoto, idPhoto);
+  }
+
   Future<Coordinator> getPreferencesCoordinator() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 

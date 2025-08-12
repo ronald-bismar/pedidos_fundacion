@@ -8,23 +8,19 @@ class UploadImageRemote {
   UploadImageRemote();
 
   static Future<String?> saveImage(File? image) async {
-    final url = Uri.parse('https://api.cloudinary.com/v1_1/dt5rqpa84/upload');
-
-    final request = http.MultipartRequest('POST', url)
-      ..fields['upload_preset'] = 'mhq0qu0h'
-      ..files.add(await http.MultipartFile.fromPath('file', image!.path));
     try {
+      final url = Uri.parse('https://api.cloudinary.com/v1_1/dt5rqpa84/upload');
+      final request = http.MultipartRequest('POST', url)
+        ..fields['upload_preset'] = 'mhq0qu0h'
+        ..files.add(await http.MultipartFile.fromPath('file', image!.path));
       // Enviar la solicitud
       final response = await request.send();
-
       // Verificar si la respuesta fue exitosa
       if (response.statusCode == 200) {
         final responseData = await response.stream.toBytes();
         final responseString = String.fromCharCodes(responseData);
-
         final jsonMap = jsonDecode(responseString);
         final imageUrl = jsonMap['url'];
-
         return imageUrl;
       } else {
         final responseData = await response.stream.toBytes();

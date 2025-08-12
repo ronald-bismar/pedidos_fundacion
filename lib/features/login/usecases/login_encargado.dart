@@ -42,13 +42,13 @@ class LoginCoordinatorUseCase {
       );
 
       if (coordinator == null) {
-        return Result.failure('Failed to register coordinator');
+        return Result.failure('Credentials incorrects');
       }
 
       userApplicationNotifier.setCoordinator(coordinator);
       return Result.success(coordinator.id);
     } catch (e) {
-      return Result.failure('Failed to register coordinator: $e');
+      return Result.failure('Failed to login coordinator: $e');
     }
   }
 }
