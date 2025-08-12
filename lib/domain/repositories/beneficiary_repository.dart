@@ -10,7 +10,7 @@ abstract class BeneficiaryRepository {
   Future<Photo?> registerPhoto(File image);
   Future<void> updatePhotoBeneficiary(Beneficiary beneficiary, Photo photo);
   void updateActiveBeneficiary(Beneficiary beneficiary);
-  Future<({bool isLocal, String? urlPhoto})> getPhoto(Beneficiary beneficiary);
+  Future<({bool isLocal, String? urlPhoto})> getPhoto(String idPhoto);
   Future<int?> getLastCorrelativeCode();
   Future<void> saveLastCorrelativeCode(int codeCorrelative);
   Future<bool> updateLocationAndPhone(Beneficiary beneficiary);

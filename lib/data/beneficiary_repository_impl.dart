@@ -2,9 +2,9 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pedidos_fundacion/core/services/image_downloader.dart';
 import 'package:pedidos_fundacion/core/services/image_storage.dart';
 import 'package:pedidos_fundacion/core/services/upload_image.dart';
-import 'package:pedidos_fundacion/core/utils/network_utils.dart';
 import 'package:pedidos_fundacion/core/utils/uuid.dart';
 import 'package:pedidos_fundacion/data/datasources/beneficiario/local_datasource.dart';
 import 'package:pedidos_fundacion/data/datasources/beneficiario/remote_datasource.dart';
@@ -80,24 +80,36 @@ class BeneficiaryRepositoryImpl extends BeneficiaryRepository {
   }
 
   @override
-  Future<({bool isLocal, String? urlPhoto})> getPhoto(
-    Beneficiary beneficiary,
-  ) async {
+  Future<({bool isLocal, String? urlPhoto})> getPhoto(String idPhoto) async {
     try {
-      final hasInternet = await NetworkUtils.hasRealInternet();
-      if (hasInternet) {
-        final Photo? photo = await photoRemoteDataSource.getPhoto(
-          beneficiary.idPhoto,
-        );
-        if (photo != null) {
-          log('url photo: local: ${photo.urlLocal} remote: ${photo.urlRemote}');
-          return (urlPhoto: photo.urlRemote, isLocal: false);
-        } else {
-          return (urlPhoto: await getUrlLocalPhoto(beneficiary), isLocal: true);
-        }
-      } else {
-        return (urlPhoto: await getUrlLocalPhoto(beneficiary), isLocal: true);
+      if (idPhoto.isEmpty) {
+        return (urlPhoto: null, isLocal: false);
       }
+
+      final localPhoto = await getUrlLocalPhoto(idPhoto);
+
+      if (localPhoto != null) {
+        return (urlPhoto: localPhoto, isLocal: true);
+      }
+
+      Photo? remotePhoto = await photoRemoteDataSource.getPhoto(idPhoto);
+
+      if (remotePhoto != null && remotePhoto.urlRemote.isNotEmpty) {
+        final String? downloadedPath =
+            await ImageDownloader.downloadAndSaveImage(
+              remotePhoto.urlRemote,
+              'coordinator_$idPhoto',
+            );
+
+        if (downloadedPath != null) {
+          remotePhoto = remotePhoto.copyWith(urlLocal: downloadedPath);
+          photoLocalDataSource.update(remotePhoto);
+        }
+
+        return (urlPhoto: remotePhoto.urlRemote, isLocal: false);
+      }
+
+      return (urlPhoto: null, isLocal: false);
     } catch (e) {
       log('Error getting photo of beneficiary: $e');
       return (urlPhoto: null, isLocal: false);
@@ -172,10 +184,8 @@ class BeneficiaryRepositoryImpl extends BeneficiaryRepository {
     }
   }
 
-  Future<String?> getUrlLocalPhoto(Beneficiary beneficiary) async {
-    final Photo? photo = await photoLocalDataSource.getPhoto(
-      beneficiary.idPhoto,
-    );
+  Future<String?> getUrlLocalPhoto(String idPhoto) async {
+    final Photo? photo = await photoLocalDataSource.getPhoto(idPhoto);
 
     if (photo != null) {
       return photo.urlLocal;

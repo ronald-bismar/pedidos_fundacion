@@ -3,13 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/utils/change_screen.dart';
 import 'package:pedidos_fundacion/core/widgets/drop_down_options.dart';
-import 'package:pedidos_fundacion/core/widgets/snackbar.dart';
+import 'package:pedidos_fundacion/core/widgets/subtitle.dart';
+import 'package:pedidos_fundacion/core/widgets/text_normal.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
 import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
 import 'package:pedidos_fundacion/domain/entities/programa.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/providers/beneficiaries_provider.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/providers/gropos_provider.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/screens/auth_beneficiario_screen.dart';
+import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/widgets/card_beneficiario.dart';
 
 class ListBeneficiariesScreen extends ConsumerStatefulWidget {
   final String beneficiaryId;
@@ -28,21 +30,12 @@ class _ListaBeneficiariesScreenState
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AsyncValue<List<Group>>>(groupsProvider, (previous, next) {
-      next.whenData((data) {
-        groups = data;
-        // Si es la primera carga y no hay grupo seleccionado, tomar el primero
-        if (selectedGroup == null && groups.isNotEmpty) {
-          selectedGroup = groups.first;
-          selectedGroupId =
-              selectedGroup!.id; // Asegúrate de que Group tenga un campo id
-        }
-      });
+    final groupsAsync = ref.watch(groupsProvider);
 
-      if (next.hasError) {
-        MySnackBar.error(context, 'No se pudo obtener los grupos.');
-      }
-    });
+    List<Group> groups = groupsAsync.maybeWhen(
+      data: (data) => data,
+      orElse: () => [],
+    );
 
     final beneficiariesAsyncValue = ref.watch(
       beneficiariesStreamProvider(selectedGroupId),
@@ -63,9 +56,7 @@ class _ListaBeneficiariesScreenState
                 DropDownOptions(
                   itemInitial:
                       selectedGroup?.groupName ?? 'Selecciona un grupo',
-                  onSelect: (value) {
-                    _onGroupSelected(value);
-                  },
+                  onSelect: (value) => _onGroupSelected(value, groups),
                   items: groups
                       .map(
                         (group) =>
@@ -105,17 +96,16 @@ class _ListaBeneficiariesScreenState
     );
   }
 
-  void _onGroupSelected(String groupDisplayName) {
-    // Buscar el grupo por el nombre mostrado
+  void _onGroupSelected(String groupDisplayName, List<Group> groups) {
     final Group foundGroup = groups.firstWhere(
       (group) =>
           '${group.groupName} ${group.ageRange.toString()}' == groupDisplayName,
-      orElse: () => groups.first, // Fallback al primer grupo si no se encuentra
+      orElse: () => groups.first,
     );
 
     setState(() {
       selectedGroup = foundGroup;
-      selectedGroupId = foundGroup.id; // Cambiar el ID del grupo
+      selectedGroupId = foundGroup.id;
     });
   }
 
@@ -134,23 +124,12 @@ class _ListaBeneficiariesScreenState
         children: [
           Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
           const SizedBox(height: 16),
-          const Text(
+          subTitle(
             'Error al cargar beneficiarios',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
+            fontWeight: FontWeight.w600,
           ),
           const SizedBox(height: 8),
-          Text(
-            error.toString(),
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
-              fontSize: 14,
-            ),
-          ),
+          textNormal(error.toString(), textColor: white.withOpacity(0.8)),
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: () {
@@ -181,23 +160,9 @@ class _ListaBeneficiariesScreenState
             color: Colors.white.withOpacity(0.6),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'No hay beneficiarios',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          subTitle('No hay beneficiarios', fontWeight: FontWeight.w600),
           const SizedBox(height: 8),
-          Text(
-            'Aún no se han registrado beneficiarios en este grupo',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
-              fontSize: 14,
-            ),
-          ),
+          textNormal('Aún no se han registrado beneficiarios en este grupo'),
         ],
       ),
     );
@@ -211,79 +176,8 @@ class _ListaBeneficiariesScreenState
       child: ListView.builder(
         itemCount: beneficiaries.length,
         itemBuilder: (context, index) {
-          return cardBeneficiary(beneficiaries, index);
+          return CardBeneficiary(beneficiaries[index]);
         },
-      ),
-    );
-  }
-
-  Card cardBeneficiary(List<Beneficiary> beneficiaries, int index) {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-      child: IntrinsicHeight(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-          child: Row(
-            children: [
-              imageProfileBeneficiary(),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const SizedBox(height: 4),
-                    Text(
-                      beneficiaries[index].code,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: secondary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Expanded(
-                      child: Text(
-                        '${beneficiaries[index].name} ${beneficiaries[index].lastName}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget imageProfileBeneficiary() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(55.0)),
-      child: Container(
-        padding: const EdgeInsets.all(4.0),
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(55.0),
-          gradient: LinearGradient(
-            colors: [primary.withOpacity(0.1), secondary.withOpacity(0.3)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(50.0),
-          child: Image.asset('assets/hombre.png', fit: BoxFit.cover),
-        ),
       ),
     );
   }
