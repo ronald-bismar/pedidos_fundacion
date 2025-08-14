@@ -5,28 +5,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/providers/image_beneficiary_provider.dart';
 
-class ImageBeneficiary extends ConsumerStatefulWidget {
+class ImageBeneficiary extends ConsumerWidget {
   final String idPhotoBeneficiary;
   const ImageBeneficiary(this.idPhotoBeneficiary, {super.key});
 
   @override
-  ConsumerState<ImageBeneficiary> createState() => _ImageBeneficiaryState();
-}
-
-class _ImageBeneficiaryState extends ConsumerState<ImageBeneficiary> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      ref
-          .read(imageBeneficiaryProvider.notifier)
-          .loadPhoto(widget.idPhotoBeneficiary);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final imageProfile = ref.watch(imageBeneficiaryProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final imageProfile = ref.watch(
+      imageBeneficiaryProvider(idPhotoBeneficiary),
+    );
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(55.0)),
