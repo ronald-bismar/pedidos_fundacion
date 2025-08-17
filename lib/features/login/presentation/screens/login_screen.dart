@@ -12,7 +12,7 @@ import 'package:pedidos_fundacion/core/widgets/snackbar.dart';
 import 'package:pedidos_fundacion/core/widgets/text_nxtmacsys.dart';
 import 'package:pedidos_fundacion/core/widgets/textfield.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
-import 'package:pedidos_fundacion/features/authentication/presentation/screens/welcome_screen.dart';
+import 'package:pedidos_fundacion/features/encargados/presentation/screens/welcome_screen.dart';
 import 'package:pedidos_fundacion/features/login/presentation/providers/login_notifier.dart';
 import 'package:pedidos_fundacion/features/login/presentation/providers/package_info_provider.dart';
 import 'package:pedidos_fundacion/features/login/presentation/screens/menu_screen.dart';

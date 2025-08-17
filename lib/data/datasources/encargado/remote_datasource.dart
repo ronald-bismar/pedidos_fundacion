@@ -142,7 +142,7 @@ class CoordinatorRemoteDataSource {
     }
   }
 
-    void updateActive(Coordinator coordinator) {
+  void updateActive(Coordinator coordinator) {
     try {
       service
           .collection(_collection)
@@ -150,6 +150,26 @@ class CoordinatorRemoteDataSource {
           .update(CoordinatorMapper.toJsonActive(coordinator));
     } catch (e) {
       throw Exception('Error updating coordinator photo ID: $e');
+    }
+  }
+
+  Future<List<Coordinator>> getCoordinators() async {
+    try {
+      final active = 1;
+      final querySnapshot = await service
+          .collection(_collection)
+          .where('active', isEqualTo: active)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return querySnapshot.docs.map((doc) {
+          return CoordinatorMapper.fromJson(doc.data());
+        }).toList();
+      }
+      return [];
+    } catch (e) {
+      log('Error getting coordinators: $e');
+      return [];
     }
   }
 }

@@ -290,4 +290,27 @@ class CoordinatorRepositoryImpl implements CoordinatorRepository {
       return null;
     }
   }
+
+  @override
+  Future<List<Coordinator>> getCoordinators() async {
+    try {
+      final coordinatorsLocal = await coordinatorLocalDatasource
+          .getCoordinators();
+
+      if (coordinatorsLocal.isNotEmpty) {
+        return coordinatorsLocal;
+      }
+
+      final coordinatorsRemote = await coordinatorRemoteDataSource
+          .getCoordinators();
+      if (coordinatorsRemote.isNotEmpty) {
+        await coordinatorLocalDatasource.insertOrUpdate(coordinatorsRemote);
+        return coordinatorsRemote;
+      }
+    } catch (e) {
+      log('Error getting coordinator: $e');
+      return [];
+    }
+    return [];
+  }
 }
