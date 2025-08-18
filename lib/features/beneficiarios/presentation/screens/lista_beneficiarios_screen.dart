@@ -60,9 +60,7 @@ class _ListaBeneficiariesScreenState
                   itemInitial:
                       selectedGroup?.groupName ?? 'Selecciona un grupo',
                   onSelect: (value) => _onGroupSelected(value, groups),
-                  items: groups
-                      .map((group) => '${group.groupName} ${group.ageRange}')
-                      .toList(),
+                  items: groups.map((group) => group.groupName).toList(),
                 ),
                 const SizedBox(height: 20),
                 Expanded(
@@ -102,10 +100,9 @@ class _ListaBeneficiariesScreenState
 
   void _onGroupSelected(String groupDisplayName, List<Group> groups) {
     final Group foundGroup = groups.firstWhere(
-      (group) => '${group.groupName} ${group.ageRange}' == groupDisplayName,
+      (group) => group.groupName == groupDisplayName,
       orElse: () => groups.first,
     );
-
     ref.read(selectedGroupProvider.notifier).state = foundGroup;
   }
 
