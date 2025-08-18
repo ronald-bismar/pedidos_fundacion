@@ -2,31 +2,31 @@ class AttendanceBeneficiary {
   String id;
   String idBeneficiary;
   String idAttendance;
-  String isAttended;
+  String state;
 
   AttendanceBeneficiary({
     this.id = '',
     this.idBeneficiary = '',
     this.idAttendance = '',
-    this.isAttended = '',
+    this.state = '',
   });
 
   @override
   String toString() {
-    return 'AttendanceBeneficiary{id: $id, idBeneficiary: $idBeneficiary, idAttendance: $idAttendance, isAttended: $isAttended}';
+    return 'AttendanceBeneficiary{id: $id, idBeneficiary: $idBeneficiary, idAttendance: $idAttendance, state: $state}';
   }
 
   AttendanceBeneficiary copyWith({
     String? id,
-    String? type,
-    String? group,
-    DateTime? date,
+    String? idBeneficiary,
+    String? idAttendance,
+    String? state,
   }) {
     return AttendanceBeneficiary(
       id: id ?? this.id,
-      idBeneficiary: idBeneficiary,
-      idAttendance: idAttendance,
-      isAttended: isAttended,
+      idBeneficiary: idBeneficiary ?? this.idBeneficiary,
+      idAttendance: idAttendance ?? this.idAttendance,
+      state: state ?? this.state,
     );
   }
 
@@ -35,7 +35,7 @@ class AttendanceBeneficiary {
       'id': id,
       'idBeneficiary': idBeneficiary,
       'idAttendance': idAttendance,
-      'isAttended': isAttended,
+      'state': state,
     };
   }
 
@@ -44,7 +44,7 @@ class AttendanceBeneficiary {
       id: map['id'] ?? '',
       idBeneficiary: map['idBeneficiary'] ?? '',
       idAttendance: map['idAttendance'] ?? '',
-      isAttended: map['isAttended'] ?? '',
+      state: map['state'] ?? '',
     );
   }
 }
