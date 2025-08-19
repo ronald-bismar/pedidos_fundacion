@@ -1,5 +1,9 @@
+import 'package:uuid/uuid.dart';
+
 class UUID {
+  static final _uuid = Uuid();
+
   static String generateUUID() {
-    return DateTime.now().millisecondsSinceEpoch.toString();
+    return _uuid.v4();
   }
 }

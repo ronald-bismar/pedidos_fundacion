@@ -73,4 +73,23 @@ class AttendanceRemoteDataSource {
       throw Exception('Error getting attendance: $e');
     }
   }
+
+  Future<Attendance?> getAttendanceByDate(String idGroup, DateTime date) async {
+  try {
+    String dateOnly = '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    
+    final querySnapshot = await service
+        .collection(_collection)
+        .where('idGroup', isEqualTo: idGroup)
+        .where('dateOnly', isEqualTo: dateOnly) // Sin índice necesario si hay pocos docs
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      return Attendance.fromMap(querySnapshot.docs.first.data());
+    }
+    return null;
+  } catch (e) {
+    throw Exception('Error getting attendance by date: $e');
+  }
+}
 }

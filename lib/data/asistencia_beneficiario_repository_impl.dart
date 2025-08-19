@@ -159,6 +159,30 @@ class AttendanceRepositoryImpl extends AttendanceRepository {
   }
 
   @override
+  Future<List<AttendanceBeneficiary>> listAttendanceBeneficiaries(
+    String idGroup,
+    DateTime date,
+  ) async {
+    try {
+      final attendance = await localDataSource.getAttendanceByDate(idGroup, date) ?? 
+                        await remoteDataSource.getAttendanceByDate(idGroup, date);
+      
+      if (attendance == null) return [];
+
+      final localBeneficiaries = 
+          await attendanceBeneficiaryLocalDataSource.listByAttendance(attendance.id);
+      
+      if (localBeneficiaries.isNotEmpty) return localBeneficiaries;
+
+      return await attendanceBeneficiaryRemoteDataSource.listByAttendance(attendance.id);
+      
+    } catch (e) {
+      log('Error al obtener la asistencia del beneficiario: $e');
+      return [];
+    }
+  }
+
+  @override
   Future<void> updateAttendance(Attendance attendance) async {
     try {
       await localDataSource.update(attendance);

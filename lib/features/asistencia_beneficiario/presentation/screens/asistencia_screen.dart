@@ -1,9 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/utils/change_screen.dart';
-import 'package:pedidos_fundacion/core/utils/uuid.dart';
 import 'package:pedidos_fundacion/core/widgets/alert_dialog_options.dart';
 import 'package:pedidos_fundacion/core/widgets/drop_down_options.dart';
 import 'package:pedidos_fundacion/core/widgets/subtitle.dart';
@@ -11,9 +12,8 @@ import 'package:pedidos_fundacion/core/widgets/text_normal.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
 import 'package:pedidos_fundacion/domain/entities/asistencia.dart';
 import 'package:pedidos_fundacion/domain/entities/asistencia_beneficiario.dart';
-import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
 import 'package:pedidos_fundacion/domain/entities/programa.dart';
-import 'package:pedidos_fundacion/features/asistencia_beneficiario/model/estados_asistencia.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/providers/asistencia_beneficiario_provider.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/providers/register_attendance_provider.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/screens/historial_asistencia_screen.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/widgets/card_asistencia_beneficario.dart';
@@ -39,11 +39,7 @@ class _AttendanceBeneficiaryScreenState
   @override
   void initState() {
     super.initState();
-    attendance = Attendance(
-      id: UUID.generateUUID(),
-      type: typeInitial,
-      date: DateTime.now(),
-    );
+    attendance = Attendance(type: typeInitial, date: DateTime.now());
   }
 
   @override
@@ -137,38 +133,29 @@ class _AttendanceBeneficiaryScreenState
                               ? _selectGroupMessage()
                               : Consumer(
                                   builder: (context, ref, child) {
-                                    final beneficiariesAsyncValue = ref.watch(
-                                      beneficiariesStreamProvider(
-                                        selectedGroup.id,
-                                      ),
-                                    );
+                                    final attendanceBeneficiariesAsyncValue =
+                                        ref.watch(
+                                          attendanceBeneficiariesStreamProvider(
+                                            (selectedGroup.id, attendance.date),
+                                          ),
+                                        );
 
-                                    return beneficiariesAsyncValue.when(
-                                      loading: () => _loadingState(),
-                                      error: (error, stackTrace) =>
-                                          _errorState(error),
-                                      data: (beneficiaries) {
-                                        if (beneficiaries.isEmpty) {
-                                          return _emptyState();
-                                        }
-                                        attendanceList = beneficiaries
-                                            .map(
-                                              (beneficiary) =>
-                                                  AttendanceBeneficiary(
-                                                    id: UUID.generateUUID(),
-                                                    idBeneficiary:
-                                                        beneficiary.id,
-                                                    idAttendance: attendance.id,
-                                                    state: StateAttendance
-                                                        .notRegistered
-                                                        .name,
-                                                  ),
-                                            )
-                                            .toList();
+                                    return attendanceBeneficiariesAsyncValue
+                                        .when(
+                                          loading: () => _loadingState(),
+                                          error: (error, stackTrace) =>
+                                              _errorState(error),
+                                          data: (attendanceBeneficiaries) {
+                                            if (attendanceBeneficiaries
+                                                .isEmpty) {
+                                              return _emptyState();
+                                            }
+                                            attendanceList =
+                                                attendanceBeneficiaries;
 
-                                        return _loadedState(beneficiaries);
-                                      },
-                                    );
+                                            return _loadedState(attendanceList);
+                                          },
+                                        );
                                   },
                                 ),
                         ),
@@ -209,17 +196,61 @@ class _AttendanceBeneficiaryScreenState
 
   void _onGroupSelected(String groupDisplayName, List<Group> groups) {
     if (attendanceList.isNotEmpty) {
+      _showWarningDialog(groupDisplayName, groups);
+    } else {
+      _saveAndUpdateGroup(groupDisplayName, groups);
+    }
+  }
+
+  void _showWarningDialog(String groupDisplayName, List<Group> groups) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Advertencia'),
+        content: const Text(
+          'Se guardaran los datos automaticos de la lista de asistencia, desea continuar?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _saveAndUpdateGroup(groupDisplayName, groups);
+            },
+            child: const Text('Continuar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper method to save attendance and update group
+  void _saveAndUpdateGroup(String groupDisplayName, List<Group> groups) {
+    if (attendanceList.isNotEmpty) {
+      log('Attendance: Tamanio de la lista actual: ${attendanceList.length}');
+      for (var attendance in attendanceList) {
+        log('Attendance: ${attendance.toString()}');
+      }
+
+      attendance = attendance.copyWith(
+        idGroup: attendanceList.first.idAttendance,
+      );
       ref
           .watch(registerAttendanceProvider)
           .call(attendance, attendanceList, context);
     }
+
     final Group foundGroup = groups.firstWhere(
       (group) => group.groupName == groupDisplayName,
       orElse: () => groups.first,
     );
 
     attendance = attendance.copyWith(idGroup: foundGroup.id);
-
     ref.read(selectedGroupProvider.notifier).state = foundGroup;
   }
 
@@ -288,13 +319,17 @@ class _AttendanceBeneficiaryScreenState
     );
   }
 
-  Widget _loadedState(List<Beneficiary> beneficiaries) {
+  Widget _loadedState(List<AttendanceBeneficiary> attendanceList) {
     return ListView(
-      children: beneficiaries
+      children: attendanceList
           .map(
-            (beneficiary) => CardAttendanceBeneficiary(
-              beneficiary,
-              onAttendanceSelected: (value) {},
+            (attendance) => CardAttendanceBeneficiary(
+              attendance,
+              onAttendanceSelected: (value) {
+                setState(() {
+                  attendance = attendance.copyWith(state: value.name);
+                });
+              },
             ),
           )
           .toList(),

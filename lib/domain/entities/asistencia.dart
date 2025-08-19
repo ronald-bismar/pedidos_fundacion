@@ -40,7 +40,7 @@ class Attendance {
       'type': type,
       'idGroup': idGroup,
       'nameGroup': nameGroup,
-      'date': date.toIso8601String(),
+      'date': date.toIso8601String().substring(0, 10),
     };
   }
 
@@ -50,7 +50,9 @@ class Attendance {
       type: map['type'] ?? '',
       idGroup: map['idGroup'] ?? '',
       nameGroup: map['nameGroup'] ?? '',
-      date: map['date'] != null ? DateTime.parse(map['date']) : DateTime.now(),
+      date: map['date'] != null
+          ? DateTime.parse(map['date'] + 'T00:00:00')
+          : DateTime.now(),
     );
   }
 }

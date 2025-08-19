@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:pedidos_fundacion/data/datasources/db_helper.dart';
 import 'package:pedidos_fundacion/domain/entities/asistencia.dart';
 import 'package:sqflite/sqflite.dart';
@@ -74,6 +75,21 @@ class AttendanceLocalDataSource {
       tableName,
       where: 'id = ?',
       whereArgs: [id],
+    );
+
+    if (cMap.isNotEmpty) {
+      return Attendance.fromMap(cMap.first);
+    }
+    return null;
+  }
+
+  Future<Attendance?> getAttendanceByDate(String idGroup, DateTime date) async {
+    Database database = await _dbHelper.openDB();
+
+    final List<Map<String, dynamic>> cMap = await database.query(
+      tableName,
+      where: 'idGroup = ? AND DATE(date) = DATE(?)',
+      whereArgs: [idGroup, DateFormat('yyyy-MM-dd').format(date)],
     );
 
     if (cMap.isNotEmpty) {

@@ -21,4 +21,8 @@ abstract class AttendanceRepository {
     Attendance attendance,
     List<AttendanceBeneficiary> attendanceBeneficiaries,
   );
+  Future<List<AttendanceBeneficiary>> listAttendanceBeneficiaries(
+    String idGroup,
+    DateTime date,
+  );
 }

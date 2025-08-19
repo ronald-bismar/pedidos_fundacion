@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/widgets/subtitle.dart';
-import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
+import 'package:pedidos_fundacion/domain/entities/asistencia_beneficiario.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/model/estados_asistencia.dart';
 
 class CardAttendanceBeneficiary extends ConsumerStatefulWidget {
-  final Beneficiary beneficiary;
-  final Function(bool) onAttendanceSelected;
+  final AttendanceBeneficiary attendanceBeneficiary;
+  final Function(StateAttendance) onAttendanceSelected;
   const CardAttendanceBeneficiary(
-    this.beneficiary, {
+    this.attendanceBeneficiary, {
     super.key,
     required this.onAttendanceSelected,
   });
@@ -20,12 +21,9 @@ class CardAttendanceBeneficiary extends ConsumerStatefulWidget {
 
 class _CardAttendanceBeneficiaryState
     extends ConsumerState<CardAttendanceBeneficiary> {
-  bool? isAttended;
-
   @override
   Widget build(BuildContext context) {
-    final firstName = widget.beneficiary.name.split(' ')[0];
-    final lastName = widget.beneficiary.lastName.split(' ')[0];
+    final nameBeneficiary = widget.attendanceBeneficiary.nameBeneficiary;
 
     return IntrinsicHeight(
       child: Padding(
@@ -36,7 +34,7 @@ class _CardAttendanceBeneficiaryState
             Expanded(
               flex: 3,
               child: subTitle(
-                '$firstName $lastName',
+                nameBeneficiary,
                 fontWeight: FontWeight.w500,
                 textColor: dark,
                 textAlign: TextAlign.left,
@@ -61,12 +59,23 @@ class _CardAttendanceBeneficiaryState
   }
 
   Widget optionAssisted() {
-    final isSelected = isAttended == true;
+    final isSelected =
+        StateAttendance.attended.name == widget.attendanceBeneficiary.state;
 
     return GestureDetector(
       onTap: () {
         setState(() {
-          isAttended = isSelected ? null : true;
+          widget.attendanceBeneficiary.state =
+              widget.attendanceBeneficiary.state ==
+                  StateAttendance.attended.name
+              ? StateAttendance.notRegistered.name
+              : StateAttendance.attended.name;
+          widget.onAttendanceSelected(
+            widget.attendanceBeneficiary.state ==
+                    StateAttendance.notRegistered.name
+                ? StateAttendance.attended
+                : StateAttendance.notRegistered,
+          );
         });
       },
       child: AnimatedContainer(
@@ -91,12 +100,23 @@ class _CardAttendanceBeneficiaryState
   }
 
   Widget optionNotAssisted() {
-    final isSelected = isAttended == false;
+    final isSelected =
+        StateAttendance.notAttended.name == widget.attendanceBeneficiary.state;
 
     return GestureDetector(
       onTap: () {
         setState(() {
-          isAttended = isSelected ? null : false;
+          widget.attendanceBeneficiary.state =
+              widget.attendanceBeneficiary.state ==
+                  StateAttendance.notAttended.name
+              ? StateAttendance.notRegistered.name
+              : StateAttendance.notAttended.name;
+          widget.onAttendanceSelected(
+            widget.attendanceBeneficiary.state ==
+                    StateAttendance.notRegistered.name
+                ? StateAttendance.notAttended
+                : StateAttendance.notRegistered,
+          );
         });
       },
       child: AnimatedContainer(

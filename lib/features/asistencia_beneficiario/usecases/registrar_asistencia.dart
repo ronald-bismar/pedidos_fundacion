@@ -10,7 +10,6 @@ final registerAttendanceUseCaseProvider = Provider(
   (ref) => RegisterAttendanceUseCase(ref.watch(attendanceRepoProvider)),
 );
 
-//Offline first: Consultamos siempre a la base de datos local y despues a la base de datos remota
 class RegisterAttendanceUseCase {
   final AttendanceRepository _attendanceRepository;
 
@@ -26,7 +25,7 @@ class RegisterAttendanceUseCase {
       attendanceBeneficiary,
     );
 
-    if (!isSuccess) {
+    if (!isSuccess && context.mounted) {
       MySnackBar.error(context, 'No se pudo registrar la asistencia del grupo');
       return;
     }

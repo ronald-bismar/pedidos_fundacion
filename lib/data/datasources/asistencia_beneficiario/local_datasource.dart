@@ -20,6 +20,7 @@ class AttendanceBeneficiaryLocalDataSource {
   static String attendanceBeneficiary =
       'CREATE TABLE $tableName('
       'id TEXT PRIMARY KEY, '
+      'nameBeneficiary TEXT DEFAULT "", '
       'idBeneficiary TEXT DEFAULT "", '
       'idAttendance TEXT DEFAULT "", '
       'state TEXT DEFAULT "" '
@@ -101,4 +102,5 @@ class AttendanceBeneficiaryLocalDataSource {
       (i) => AttendanceBeneficiary.fromMap(cMap[i]),
     );
   } //Despues hacer una agrupacion por el id beneficiario
+
 }
