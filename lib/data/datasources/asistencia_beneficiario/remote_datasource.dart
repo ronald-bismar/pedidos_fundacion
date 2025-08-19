@@ -85,4 +85,20 @@ class AttendanceBeneficiaryRemoteDataSource {
       throw Exception('Error getting attendance beneficiaries: $e');
     }
   }
+
+  Future<void> insertOrUpdate(List<AttendanceBeneficiary> beneficiaries) async {
+  try {
+    final batch = service.batch();
+
+    for (final beneficiary in beneficiaries) {
+      final docRef = service.collection(_collection).doc(beneficiary.id);
+      batch.set(docRef, beneficiary.toMap());
+    }
+
+    await batch.commit();
+  } catch (e) {
+    throw Exception('Error inserting multiple attendance beneficiaries: $e');
+  }
+}
+
 }

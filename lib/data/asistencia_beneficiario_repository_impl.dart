@@ -117,6 +117,22 @@ class AttendanceRepositoryImpl extends AttendanceRepository {
   }
 
   @override
+  Future<void> insertAttendanceBeneficiaries(
+    List<AttendanceBeneficiary> attendanceBeneficiaries,
+  ) async {
+    try {
+      await attendanceBeneficiaryLocalDataSource.insertOrUpdate(
+        attendanceBeneficiaries,
+      );
+      attendanceBeneficiaryRemoteDataSource.insertOrUpdate(
+        attendanceBeneficiaries,
+      );
+    } catch (e) {
+      log('Error al insertar las asistencias de los beneficiarios: $e');
+    }
+  }
+
+  @override
   Future<List<AttendanceBeneficiary>> listByAttendance(
     String idAttendance,
   ) async {
@@ -161,6 +177,22 @@ class AttendanceRepositoryImpl extends AttendanceRepository {
       attendanceBeneficiaryRemoteDataSource.update(attendance);
     } catch (e) {
       log('Error al actualizar la asistencia del beneficiario: $e');
+    }
+  }
+
+  @override
+  Future<bool> saveAttendance(
+    Attendance attendance,
+    List<AttendanceBeneficiary> attendanceBeneficiaries,
+  ) async {
+    try {
+      log('Guardando la asistencia');
+      await insertAttendance(attendance);
+      await insertAttendanceBeneficiaries(attendanceBeneficiaries);
+      return true;
+    } catch (e) {
+      log('Error al guardar la asistencia: $e');
+      return false;
     }
   }
 }

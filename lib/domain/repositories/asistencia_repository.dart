@@ -14,4 +14,11 @@ abstract class AttendanceRepository {
   Future<void> updateAttendanceBeneficiary(AttendanceBeneficiary attendance);
   Future<AttendanceBeneficiary?> getAttendanceBeneficiary(String id);
   Future<List<AttendanceBeneficiary>> listByAttendance(String idAttendance);
+  Future<void> insertAttendanceBeneficiaries(
+    List<AttendanceBeneficiary> attendanceBeneficiaries,
+  );
+  Future<bool> saveAttendance(
+    Attendance attendance,
+    List<AttendanceBeneficiary> attendanceBeneficiaries,
+  );
 }

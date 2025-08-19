@@ -3,13 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/utils/change_screen.dart';
+import 'package:pedidos_fundacion/core/utils/uuid.dart';
 import 'package:pedidos_fundacion/core/widgets/alert_dialog_options.dart';
 import 'package:pedidos_fundacion/core/widgets/drop_down_options.dart';
 import 'package:pedidos_fundacion/core/widgets/subtitle.dart';
 import 'package:pedidos_fundacion/core/widgets/text_normal.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
+import 'package:pedidos_fundacion/domain/entities/asistencia.dart';
+import 'package:pedidos_fundacion/domain/entities/asistencia_beneficiario.dart';
 import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
 import 'package:pedidos_fundacion/domain/entities/programa.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/model/estados_asistencia.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/providers/register_attendance_provider.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/screens/historial_asistencia_screen.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/widgets/card_asistencia_beneficario.dart';
 import 'package:pedidos_fundacion/features/beneficiarios/presentation/providers/beneficiaries_provider.dart';
@@ -27,6 +32,20 @@ class AttendanceBeneficiaryScreen extends ConsumerStatefulWidget {
 
 class _AttendanceBeneficiaryScreenState
     extends ConsumerState<AttendanceBeneficiaryScreen> {
+  late Attendance attendance;
+  List<AttendanceBeneficiary> attendanceList = [];
+  String typeInitial = tiposDeAsistencia.first;
+
+  @override
+  void initState() {
+    super.initState();
+    attendance = Attendance(
+      id: UUID.generateUUID(),
+      type: typeInitial,
+      date: DateTime.now(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final selectedGroup = ref.watch(selectedGroupProvider);
@@ -83,10 +102,10 @@ class _AttendanceBeneficiaryScreenState
                     backgroundColor: Colors.grey.shade300,
                     titleAlertDialog: 'Selecciona tipo de asistencia',
                     widthAlertDialog: 330,
-                    itemInitial: tiposDeAsistencia.first,
-                    onSelect: (cargo) {
+                    itemInitial: typeInitial,
+                    onSelect: (typeAttendance) {
                       setState(() {
-                        // typeSelected = cargo;
+                        attendance = attendance.copyWith(type: typeAttendance);
                       });
                     },
                     items: tiposDeAsistencia,
@@ -132,6 +151,21 @@ class _AttendanceBeneficiaryScreenState
                                         if (beneficiaries.isEmpty) {
                                           return _emptyState();
                                         }
+                                        attendanceList = beneficiaries
+                                            .map(
+                                              (beneficiary) =>
+                                                  AttendanceBeneficiary(
+                                                    id: UUID.generateUUID(),
+                                                    idBeneficiary:
+                                                        beneficiary.id,
+                                                    idAttendance: attendance.id,
+                                                    state: StateAttendance
+                                                        .notRegistered
+                                                        .name,
+                                                  ),
+                                            )
+                                            .toList();
+
                                         return _loadedState(beneficiaries);
                                       },
                                     );
@@ -174,17 +208,25 @@ class _AttendanceBeneficiaryScreenState
   }
 
   void _onGroupSelected(String groupDisplayName, List<Group> groups) {
+    if (attendanceList.isNotEmpty) {
+      ref
+          .watch(registerAttendanceProvider)
+          .call(attendance, attendanceList, context);
+    }
     final Group foundGroup = groups.firstWhere(
       (group) => group.groupName == groupDisplayName,
       orElse: () => groups.first,
     );
+
+    attendance = attendance.copyWith(idGroup: foundGroup.id);
+
     ref.read(selectedGroupProvider.notifier).state = foundGroup;
   }
 
   Widget _loadingState() {
     return const Center(
       child: CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        valueColor: AlwaysStoppedAnimation<Color>(secondary),
       ),
     );
   }
@@ -252,11 +294,7 @@ class _AttendanceBeneficiaryScreenState
           .map(
             (beneficiary) => CardAttendanceBeneficiary(
               beneficiary,
-              onAttendanceSelected: (value) {
-                // setState(() {
-                //   isAttended = value;
-                // });
-              },
+              onAttendanceSelected: (value) {},
             ),
           )
           .toList(),

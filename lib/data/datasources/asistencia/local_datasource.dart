@@ -24,7 +24,7 @@ class AttendanceLocalDataSource {
       'type TEXT, '
       'idGroup TEXT, '
       'nameGroup TEXT, '
-      'date TEXT, '
+      'date TEXT '
       ')';
 
   Future<void> insert(Attendance c) async {

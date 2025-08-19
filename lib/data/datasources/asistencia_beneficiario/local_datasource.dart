@@ -22,7 +22,7 @@ class AttendanceBeneficiaryLocalDataSource {
       'id TEXT PRIMARY KEY, '
       'idBeneficiary TEXT DEFAULT "", '
       'idAttendance TEXT DEFAULT "", '
-      'state TEXT DEFAULT "", '
+      'state TEXT DEFAULT "" '
       ')';
 
   Future<void> insert(AttendanceBeneficiary c) async {
