@@ -32,10 +32,12 @@ class MySnackBar {
     BuildContext context,
     String message, {
     Color? backgroundColor,
+    int durationInSeconds = 2,
   }) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
+        duration: Duration(seconds: durationInSeconds),
         backgroundColor: backgroundColor ?? Colors.black,
       ),
     );

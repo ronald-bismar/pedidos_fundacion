@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
@@ -30,7 +32,6 @@ class _CardAttendanceBeneficiaryState
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
         child: Row(
           children: [
-            // First row taking 3/4 of width
             Expanded(
               flex: 3,
               child: subTitle(
@@ -40,7 +41,6 @@ class _CardAttendanceBeneficiaryState
                 textAlign: TextAlign.left,
               ),
             ),
-            // Second row taking 1/4 of width
             Expanded(
               flex: 2,
               child: Row(
@@ -59,20 +59,21 @@ class _CardAttendanceBeneficiaryState
   }
 
   Widget optionAssisted() {
-    final isSelected =
+    bool isSelected =
         StateAttendance.attended.name == widget.attendanceBeneficiary.state;
 
     return GestureDetector(
       onTap: () {
         setState(() {
-          widget.attendanceBeneficiary.state =
-              widget.attendanceBeneficiary.state ==
-                  StateAttendance.attended.name
-              ? StateAttendance.notRegistered.name
-              : StateAttendance.attended.name;
+          isSelected = !isSelected;
+          log('isSelected optionAssisted: $isSelected');
+
+          widget.attendanceBeneficiary.state = isSelected
+              ? StateAttendance.attended.name
+              : StateAttendance.notRegistered.name;
+
           widget.onAttendanceSelected(
-            widget.attendanceBeneficiary.state ==
-                    StateAttendance.notRegistered.name
+            isSelected
                 ? StateAttendance.attended
                 : StateAttendance.notRegistered,
           );
@@ -100,20 +101,20 @@ class _CardAttendanceBeneficiaryState
   }
 
   Widget optionNotAssisted() {
-    final isSelected =
+    bool isSelected =
         StateAttendance.notAttended.name == widget.attendanceBeneficiary.state;
 
     return GestureDetector(
       onTap: () {
         setState(() {
-          widget.attendanceBeneficiary.state =
-              widget.attendanceBeneficiary.state ==
-                  StateAttendance.notAttended.name
-              ? StateAttendance.notRegistered.name
-              : StateAttendance.notAttended.name;
+          isSelected = !isSelected;
+          log('isSelected optionNotAssisted: $isSelected');
+          widget.attendanceBeneficiary.state = isSelected
+              ? StateAttendance.notAttended.name
+              : StateAttendance.notRegistered.name;
+
           widget.onAttendanceSelected(
-            widget.attendanceBeneficiary.state ==
-                    StateAttendance.notRegistered.name
+            isSelected
                 ? StateAttendance.notAttended
                 : StateAttendance.notRegistered,
           );

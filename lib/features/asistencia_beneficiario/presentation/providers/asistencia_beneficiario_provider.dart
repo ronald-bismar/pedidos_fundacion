@@ -23,13 +23,15 @@ final attendanceBeneficiariesStreamProvider =
             .getBeneficiariesByGroup(idGroup)
             .first;
 
+        final idAttendance = UUID.generateUUID();
+
         attendances.addAll(
           beneficiaries.map(
             (b) => AttendanceBeneficiary(
               id: UUID.generateUUID(),
               idBeneficiary: b.id,
               nameBeneficiary: '${b.name} ${b.lastName}',
-              idAttendance: UUID.generateUUID(),
+              idAttendance: idAttendance,
               state: StateAttendance.notRegistered.name,
             ),
           ),
