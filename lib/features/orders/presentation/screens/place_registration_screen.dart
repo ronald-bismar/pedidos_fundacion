@@ -1,13 +1,8 @@
 // lib/features/orders/presentation/screens/place_registration_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
-
-import 'package:pedidos_fundacion/features/orders/domain/entities/place_entity.dart';
-import '../../../../features/orders/domain/entities/place_entity.dart';
-import '../../../../features/orders/presentation/providers/place_providers.dart';
-
-
+import '../../domain/entities/place_entity.dart';
+import '../providers/place_providers.dart';
 
 class PlaceRegistrationScreen extends ConsumerStatefulWidget {
   const PlaceRegistrationScreen({super.key});
@@ -17,10 +12,12 @@ class PlaceRegistrationScreen extends ConsumerStatefulWidget {
 }
 
 class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScreen> {
-
-  // Método para mostrar el diálogo de agregar lugar con nuevo diseño
+  // Método para mostrar el diálogo de agregar lugar
   void _showAddPlaceDialog() {
-    final TextEditingController controller = TextEditingController();
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController countryController = TextEditingController();
+    final TextEditingController departmentController = TextEditingController();
+    final TextEditingController cityController = TextEditingController();
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
     showDialog(
@@ -39,37 +36,63 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
           content: SingleChildScrollView(
             child: Form(
               key: formKey,
-              child: TextFormField(
-                controller: controller,
-                decoration: InputDecoration(
-                  labelText: 'Nombre del Lugar',
-                  hintText: 'Ej. Achica, Pochohota',
-                  prefixIcon: const Icon(Icons.location_on, color: Colors.blue),
-                  filled: true,
-                  fillColor: Colors.blue.shade50,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: BorderSide.none,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre del Lugar',
+                      prefixIcon: Icon(Icons.location_on),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'El nombre no puede estar vacío.';
+                      }
+                      final places = ref.read(placeProvider);
+                      if (places.any((p) => p.name.trim().toLowerCase() == value.trim().toLowerCase())) {
+                        return 'Este lugar ya ha sido registrado.';
+                      }
+                      return null;
+                    },
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: BorderSide(color: Colors.blue.shade200, width: 1.5),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: countryController,
+                    decoration: const InputDecoration(
+                      labelText: 'País',
+                      prefixIcon: Icon(Icons.public),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'El país no puede estar vacío.';
+                      }
+                      return null;
+                    },
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: const BorderSide(color: Colors.blue, width: 2),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: departmentController,
+                    decoration: const InputDecoration(
+                      labelText: 'Departamento',
+                      prefixIcon: Icon(Icons.business_outlined),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'El departamento no puede estar vacío.';
+                      }
+                      return null;
+                    },
                   ),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'El nombre del lugar no puede estar vacío.';
-                  }
-                  final places = ref.read(placeProvider);
-                  if (places.any((p) => p.name.trim().toLowerCase() == value.trim().toLowerCase())) {
-                    return 'Este lugar ya ha sido registrado.';
-                  }
-                  return null;
-                },
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: cityController,
+                    decoration: const InputDecoration(
+                      labelText: 'Ciudad (Opcional)',
+                      prefixIcon: Icon(Icons.location_city),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -78,20 +101,23 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
             TextButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                controller.dispose();
+                nameController.dispose();
+                countryController.dispose();
+                departmentController.dispose();
+                cityController.dispose();
               },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.grey.shade700,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
               child: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.w600)),
             ),
             ElevatedButton(
               onPressed: () {
                 if (formKey.currentState!.validate()) {
-                  final String newPlaceName = controller.text.trim();
-                  ref.read(placeProvider.notifier).addPlace(newPlaceName);
+                  final String newPlaceName = nameController.text.trim();
+                  ref.read(placeProvider.notifier).addPlace(
+                        name: newPlaceName,
+                        country: countryController.text.trim(),
+                        department: departmentController.text.trim(),
+                        city: cityController.text.trim(),
+                      );
                   Navigator.of(dialogContext).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -101,13 +127,7 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
                   );
                 }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue.shade700,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              child: const Text('Registrar', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: const Text('Registrar'),
             ),
           ],
         );
@@ -116,10 +136,13 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
   }
 
   Future<void> _editPlace(PlaceEntity placeToEdit) async {
-    final TextEditingController editController = TextEditingController(text: placeToEdit.name);
+    final TextEditingController nameController = TextEditingController(text: placeToEdit.name);
+    final TextEditingController countryController = TextEditingController(text: placeToEdit.country);
+    final TextEditingController departmentController = TextEditingController(text: placeToEdit.department);
+    final TextEditingController cityController = TextEditingController(text: placeToEdit.city);
     final GlobalKey<FormState> editFormKey = GlobalKey<FormState>();
 
-    final String? newName = await showDialog<String>(
+    final PlaceEntity? updatedPlace = await showDialog<PlaceEntity>(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
@@ -135,38 +158,52 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
           content: SingleChildScrollView(
             child: Form(
               key: editFormKey,
-              child: TextFormField(
-                controller: editController,
-                decoration: InputDecoration(
-                  labelText: 'Nuevo nombre',
-                  hintText: 'Ingrese el nuevo nombre del lugar',
-                  prefixIcon: const Icon(Icons.edit_location, color: Colors.orange),
-                  filled: true,
-                  fillColor: Colors.orange.shade50,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: BorderSide.none,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: nameController,
+                    decoration: const InputDecoration(labelText: 'Nuevo nombre', prefixIcon: Icon(Icons.edit_location)),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'El nombre no puede estar vacío.';
+                      }
+                      final normalizedNewName = value.trim().toLowerCase();
+                      final existingPlaces = ref.read(placeProvider);
+                      if (existingPlaces.any((p) => p.id != placeToEdit.id && p.name.trim().toLowerCase() == normalizedNewName)) {
+                        return 'Este nombre de lugar ya existe.';
+                      }
+                      return null;
+                    },
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: BorderSide(color: Colors.orange.shade200, width: 1.5),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: countryController,
+                    decoration: const InputDecoration(labelText: 'País', prefixIcon: Icon(Icons.public)),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'El país no puede estar vacío.';
+                      }
+                      return null;
+                    },
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: const BorderSide(color: Colors.orange, width: 2),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: departmentController,
+                    decoration: const InputDecoration(labelText: 'Departamento', prefixIcon: Icon(Icons.business_outlined)),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'El departamento no puede estar vacío.';
+                      }
+                      return null;
+                    },
                   ),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'El nombre no puede estar vacío.';
-                  }
-                  final normalizedNewName = value.trim().toLowerCase();
-                  final existingPlaces = ref.read(placeProvider);
-                  if (existingPlaces.any((p) => p.id != placeToEdit.id && p.name.trim().toLowerCase() == normalizedNewName)) {
-                    return 'Este nombre de lugar ya existe.';
-                  }
-                  return null;
-                },
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: cityController,
+                    decoration: const InputDecoration(labelText: 'Ciudad (Opcional)', prefixIcon: Icon(Icons.location_city)),
+                  ),
+                ],
               ),
             ),
           ),
@@ -174,38 +211,31 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.grey.shade700,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
               child: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.w600)),
             ),
             ElevatedButton(
               onPressed: () {
                 if (editFormKey.currentState!.validate()) {
-                  Navigator.of(dialogContext).pop(editController.text.trim());
+                  Navigator.of(dialogContext).pop(placeToEdit.copyWith(
+                    name: nameController.text.trim(),
+                    country: countryController.text.trim(),
+                    department: departmentController.text.trim(),
+                    city: cityController.text.trim().isNotEmpty ? cityController.text.trim() : null,
+                  ));
                 }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange.shade700,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              child: const Text('Guardar', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: const Text('Guardar'),
             ),
           ],
         );
       },
     );
 
-    if (newName != null && newName.isNotEmpty && newName != placeToEdit.name) {
-      final updatedPlace = placeToEdit.copyWith(name: newName);
+    if (updatedPlace != null && updatedPlace != placeToEdit) {
       ref.read(placeProvider.notifier).updatePlace(updatedPlace);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Lugar actualizado a "$newName".', style: const TextStyle(color: Colors.white)),
+          content: Text('Lugar actualizado a "${updatedPlace.name}".', style: const TextStyle(color: Colors.white)),
           backgroundColor: Colors.orange.shade600,
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
@@ -214,7 +244,7 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
     }
   }
 
-
+  // Confirmación para "eliminar" (cambiar estado a deleted)
   Future<void> _confirmDelete(PlaceEntity placeToDelete) async {
     final bool? confirm = await showDialog<bool>(
       context: context,
@@ -222,7 +252,7 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           title: const Text('Confirmar Eliminación'),
-          content: Text('¿Estás seguro de que quieres eliminar el lugar "${placeToDelete.name}"? Esta acción es permanente.'),
+          content: Text('¿Estás seguro de que quieres eliminar el lugar "${placeToDelete.name}"?'),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -243,10 +273,10 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
     );
 
     if (confirm == true) {
-      ref.read(placeProvider.notifier).removePlace(placeToDelete.id);
+      ref.read(placeProvider.notifier).deletePlace(placeToDelete.id);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Lugar "${placeToDelete.name}" eliminado.', style: const TextStyle(color: Colors.white)),
+          content: Text('Lugar "${placeToDelete.name}" marcado como eliminado.'),
           backgroundColor: Colors.red.shade600,
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
@@ -257,7 +287,11 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
 
   @override
   Widget build(BuildContext context) {
+    // Escucha todos los lugares (activos, inactivos, eliminados)
     final places = ref.watch(placeProvider);
+
+    // Filtra los lugares que no están eliminados
+    final visiblePlaces = places.where((place) => place.state != PlaceState.deleted).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -282,13 +316,13 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Text(
-                  'Lugares Registrados (${places.length}):',
+                  'Lugares Registrados (${visiblePlaces.length}):',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue.shade800),
                 ),
               ),
               const Divider(height: 20, thickness: 1.5, color: Colors.blueGrey),
               Expanded(
-                child: places.isEmpty
+                child: visiblePlaces.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -305,19 +339,20 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
                       )
                     : ListView.builder(
                         physics: const BouncingScrollPhysics(),
-                        itemCount: places.length,
+                        itemCount: visiblePlaces.length,
                         itemBuilder: (context, index) {
-                          final place = places[index];
+                          final place = visiblePlaces[index];
+                          final bool isActive = place.state == PlaceState.active;
                           return Card(
                             margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
                             elevation: 2,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             child: ListTile(
                               leading: CircleAvatar(
-                                backgroundColor: place.isActive ? Colors.blue.shade100 : Colors.grey.shade300,
+                                backgroundColor: isActive ? Colors.blue.shade100 : Colors.grey.shade300,
                                 child: Icon(
-                                  place.isActive ? Icons.place : Icons.visibility_off,
-                                  color: place.isActive ? Colors.blue.shade700 : Colors.grey.shade700,
+                                  isActive ? Icons.place : Icons.visibility_off,
+                                  color: isActive ? Colors.blue.shade700 : Colors.grey.shade700,
                                 ),
                               ),
                               title: Text(
@@ -325,13 +360,17 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: place.isActive ? Colors.black87 : Colors.grey.shade600,
-                                  decoration: place.isActive ? TextDecoration.none : TextDecoration.lineThrough,
+                                  color: isActive ? Colors.black87 : Colors.grey.shade600,
+                                  decoration: isActive ? TextDecoration.none : TextDecoration.lineThrough,
                                 ),
                               ),
-                              subtitle: place.isActive
-                                  ? null
-                                  : const Text('Inactivo', style: TextStyle(fontSize: 12, color: Colors.red)),
+                              subtitle: Text(
+                                '${place.department}, ${place.country}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -342,29 +381,35 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
                                   ),
                                   IconButton(
                                     icon: Icon(
-                                      place.isActive ? Icons.visibility_off : Icons.visibility,
-                                      color: place.isActive ? Colors.grey.shade700 : Colors.green.shade700,
+                                      isActive ? Icons.visibility_off : Icons.visibility,
+                                      color: isActive ? Colors.grey.shade700 : Colors.green.shade700,
                                     ),
                                     onPressed: () {
-                                      ref.read(placeProvider.notifier).togglePlaceActiveStatus(place.id);
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            place.isActive ? 'Lugar "${place.name}" desactivado.' : 'Lugar "${place.name}" activado.',
-                                            style: const TextStyle(color: Colors.white),
+                                      final notifier = ref.read(placeProvider.notifier);
+                                      if (isActive) {
+                                        notifier.blockPlace(place.id);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('Lugar "${place.name}" desactivado.'),
+                                            backgroundColor: Colors.grey.shade600,
                                           ),
-                                          backgroundColor: place.isActive ? Colors.grey.shade600 : Colors.green.shade600,
-                                          duration: const Duration(seconds: 2),
-                                          behavior: SnackBarBehavior.floating,
-                                        ),
-                                      );
+                                        );
+                                      } else {
+                                        notifier.unblockPlace(place.id);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('Lugar "${place.name}" activado.'),
+                                            backgroundColor: Colors.green.shade600,
+                                          ),
+                                        );
+                                      }
                                     },
-                                    tooltip: place.isActive ? 'Desactivar lugar' : 'Activar lugar',
+                                    tooltip: isActive ? 'Desactivar lugar' : 'Activar lugar',
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.delete_forever, color: Colors.red),
                                     onPressed: () => _confirmDelete(place),
-                                    tooltip: 'Eliminar lugar permanentemente',
+                                    tooltip: 'Eliminar lugar',
                                   ),
                                 ],
                               ),

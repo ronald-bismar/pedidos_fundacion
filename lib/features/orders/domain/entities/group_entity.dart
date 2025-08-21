@@ -16,7 +16,7 @@ class GroupEntity {
   final DateTime registrationDate;
   DateTime? editedDate;
   DateTime? deleteDate;
-  DateTime? restorationDate; // Puedes cambiar el nombre a 'blockedDate' si quieres
+  DateTime? restorationDate;
 
   GroupEntity({
     required this.idCluster,

@@ -1,31 +1,61 @@
 // lib/features/orders/domain/entities/place_entity.dart
-import 'package:uuid/uuid.dart'; // Asegúrate de añadir el paquete uuid a tu pubspec.yaml
+import 'package:uuid/uuid.dart';
+
+// Enumerador para los estados del lugar
+enum PlaceState { active, deleted, blocked }
 
 class PlaceEntity {
   final String id;
-  String name;
-  bool isActive; // Para controlar si el lugar está "visible" o "activo"
+  final String name;
+  final String country;
+  final String department;
+  final String? city;
+  final PlaceState state;
+  final DateTime registrationDate;
+  final DateTime? editedDate;
+  final DateTime? deleteDate;
+  final DateTime? restorationDate;
 
   PlaceEntity({
     required this.id,
     required this.name,
-    this.isActive = true, // Por defecto, un lugar está activo
+    required this.country,
+    required this.department,
+    this.city,
+    this.state = PlaceState.active,
+    required this.registrationDate,
+    this.editedDate,
+    this.deleteDate,
+    this.restorationDate,
   });
 
-  // Método para copiar el objeto con posibles nuevos valores
+  // Método para crear una nueva instancia con cambios
   PlaceEntity copyWith({
     String? id,
     String? name,
-    bool? isActive,
+    String? country,
+    String? department,
+    String? city,
+    PlaceState? state,
+    DateTime? registrationDate,
+    DateTime? editedDate,
+    DateTime? deleteDate,
+    DateTime? restorationDate,
   }) {
     return PlaceEntity(
       id: id ?? this.id,
       name: name ?? this.name,
-      isActive: isActive ?? this.isActive,
+      country: country ?? this.country,
+      department: department ?? this.department,
+      city: city ?? this.city,
+      state: state ?? this.state,
+      registrationDate: registrationDate ?? this.registrationDate,
+      editedDate: editedDate ?? this.editedDate,
+      deleteDate: deleteDate ?? this.deleteDate,
     );
   }
 
-  // Método para comparar igualdad (útil para `contains`)
+  // Sobrescribe los operadores de igualdad para una comparación correcta
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

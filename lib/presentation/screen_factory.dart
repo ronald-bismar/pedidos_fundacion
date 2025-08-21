@@ -13,7 +13,7 @@ enum ScreenType {
   beneficiarios,
   reportes,
   lugares,
-  grupos
+  grupos,
 }
 
 // Factory para crear las pantallas
@@ -39,12 +39,12 @@ class ScreenFactory {
         return AuthScreen();
       case ScreenType.beneficiarios:
         return ListBeneficiariesScreen();
+      case ScreenType.reportes:
+        return AuthScreen();
       case ScreenType.lugares:
         return PlaceRegistrationScreen();
       case ScreenType.grupos:
         return GroupRegistrationScreen();
-      case ScreenType.reportes:
-        return AuthScreen();
     }
   }
 }
