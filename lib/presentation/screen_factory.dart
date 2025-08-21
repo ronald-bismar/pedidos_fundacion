@@ -1,7 +1,9 @@
 // Enum para identificar las pantallas
 import 'package:flutter/material.dart';
-import 'package:pedidos_fundacion/features/authentication/presentation/screens/auth_screen.dart';
-import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/screens/lista_beneficiarios_screen.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/screens/asistencia_screen.dart';
+import 'package:pedidos_fundacion/features/beneficiarios/presentation/screens/lista_beneficiarios_screen.dart';
+import 'package:pedidos_fundacion/features/encargados/presentation/screens/auth_screen.dart';
+import 'package:pedidos_fundacion/features/encargados/presentation/screens/lista_encargados_screen.dart';
 
 enum ScreenType {
   pedidos,
@@ -26,17 +28,17 @@ class ScreenFactory {
   }) {
     switch (screenType) {
       case ScreenType.pedidos:
-        return AuthScreen();
+        return AuthCoordinatorScreen();
       case ScreenType.entregas:
-        return AuthScreen();
+        return AuthCoordinatorScreen();
       case ScreenType.personal:
-        return AuthScreen();
+        return ListCoordinatorsScreen();
       case ScreenType.asistenciaBeneficiarios:
-        return AuthScreen();
+        return AttendanceBeneficiaryScreen();
       case ScreenType.beneficiarios:
         return ListBeneficiariesScreen();
       case ScreenType.reportes:
-        return AuthScreen();
+        return AuthCoordinatorScreen();
     }
   }
 }

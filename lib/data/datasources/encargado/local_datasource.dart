@@ -168,4 +168,12 @@ Future<bool> existByDni(String dni) async {
     );
     return result.isNotEmpty;
   }
+
+  Future<List<Coordinator>> getCoordinators() async {
+    final Database database = await _dbHelper.openDB();
+    final result = await database.query(
+      tableName,
+    );
+    return result.map((e) => CoordinatorMapper.fromJson(e)).toList();
+  }
 }

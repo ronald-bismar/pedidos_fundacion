@@ -13,6 +13,9 @@ class AlertDialogOptions extends StatefulWidget {
   final String? titleAlertDialog;
   final IconData? icon;
   final String? messageInfo;
+  final Color? backgroundColor;
+  final TextAlign textAlignment;
+  final double? textSize;
 
   const AlertDialogOptions({
     super.key,
@@ -24,6 +27,9 @@ class AlertDialogOptions extends StatefulWidget {
     this.titleAlertDialog,
     this.icon,
     this.messageInfo,
+    this.backgroundColor,
+    this.textAlignment = TextAlign.start,
+    this.textSize,
   });
 
   @override
@@ -59,7 +65,7 @@ class AlertDialogOptionsState extends State<AlertDialogOptions>
         height: widget.heightAlertDialog ?? 56,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
+            backgroundColor: widget.backgroundColor ?? Colors.white,
             foregroundColor: Colors.black87,
             elevation: 3,
             shape: RoundedRectangleBorder(
@@ -79,11 +85,12 @@ class AlertDialogOptionsState extends State<AlertDialogOptions>
                   selectedValue.isEmpty
                       ? widget.messageInfo ?? 'Seleccionar'
                       : selectedValue,
+                  textAlign: widget.textAlignment,
                   style: TextStyle(
                     color: selectedValue.isEmpty
                         ? Colors.grey.shade600
                         : Colors.black87,
-                    fontSize: 16,
+                    fontSize: widget.textSize ?? 16,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),

@@ -16,4 +16,5 @@ abstract class CoordinatorRepository {
   Future<({String name, String? urlPhoto, bool isLocal})?> getNameAndPhoto(
     Coordinator coordinator,
   );
+  Future<List<Coordinator>> getCoordinators();
 }

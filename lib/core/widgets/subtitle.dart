@@ -5,10 +5,11 @@ Widget subTitle(
   String texto, {
   Color textColor = white,
   FontWeight fontWeight = FontWeight.w500,
+  TextAlign textAlign = TextAlign.center,
 }) {
   return Text(
     texto,
-    textAlign: TextAlign.center,
+    textAlign: textAlign,
     style: TextStyle(fontSize: 18, fontWeight: fontWeight, color: textColor),
   );
 }
