@@ -12,7 +12,7 @@ class PlaceRegistrationScreen extends ConsumerStatefulWidget {
 }
 
 class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScreen> {
-  // Método para mostrar el diálogo de agregar lugar
+
   void _showAddPlaceDialog() {
     final TextEditingController nameController = TextEditingController();
     final TextEditingController countryController = TextEditingController();
@@ -244,7 +244,6 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
     }
   }
 
-  // Confirmación para "eliminar" (cambiar estado a deleted)
   Future<void> _confirmDelete(PlaceEntity placeToDelete) async {
     final bool? confirm = await showDialog<bool>(
       context: context,
@@ -343,6 +342,8 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
                         itemBuilder: (context, index) {
                           final place = visiblePlaces[index];
                           final bool isActive = place.state == PlaceState.active;
+                          final bool isInactive = place.state == PlaceState.blocked;
+
                           return Card(
                             margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
                             elevation: 2,
@@ -361,7 +362,7 @@ class _PlaceRegistrationScreenState extends ConsumerState<PlaceRegistrationScree
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
                                   color: isActive ? Colors.black87 : Colors.grey.shade600,
-                                  decoration: isActive ? TextDecoration.none : TextDecoration.lineThrough,
+                                  decoration: isInactive ? TextDecoration.lineThrough : TextDecoration.none,
                                 ),
                               ),
                               subtitle: Text(
