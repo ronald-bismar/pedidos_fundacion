@@ -29,4 +29,16 @@ final menuItems = [
     icon: Icons.report,
     screenType: ScreenType.reportes,
   ),
+  //lugares
+  ItemMenu(
+    title: 'Lugares',
+    icon: Icons.place,
+    screenType: ScreenType.lugares,
+  ),
+  //grupos
+  ItemMenu(
+    title: 'Grupos',
+    icon: Icons.group,
+    screenType: ScreenType.grupos,
+  ),
 ];
