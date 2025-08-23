@@ -4,11 +4,9 @@ import 'package:pedidos_fundacion/presentation/screen_factory.dart';
 
 final menuItems = [
   ItemMenu(title: 'Pedidos', icon: Icons.list, screenType: ScreenType.pedidos),
-  ItemMenu(
-    title: 'Entregas',
-    icon: Icons.delivery_dining,
-    screenType: ScreenType.entregas,
-  ),
+  ItemMenu(title: 'Grupos', icon: Icons.place, screenType: ScreenType.grupos),
+  ItemMenu(title: 'Lugares', icon: Icons.group, screenType: ScreenType.lugares),
+  ItemMenu(title: 'Entregas', icon: Icons.delivery_dining, screenType: ScreenType.entregas),
   ItemMenu(
     title: 'Personal',
     icon: Icons.person,
@@ -30,15 +28,7 @@ final menuItems = [
     screenType: ScreenType.reportes,
   ),
   //lugares
-  ItemMenu(
-    title: 'Lugares',
-    icon: Icons.place,
-    screenType: ScreenType.lugares,
-  ),
+  ItemMenu(title: 'Lugares', icon: Icons.place, screenType: ScreenType.lugares),
   //grupos
-  ItemMenu(
-    title: 'Grupos',
-    icon: Icons.group,
-    screenType: ScreenType.grupos,
-  ),
+  ItemMenu(title: 'Grupos', icon: Icons.group, screenType: ScreenType.grupos),
 ];

@@ -1,15 +1,15 @@
 // lib/features/orders/domain/entities/place_entity.dart
 import 'package:uuid/uuid.dart';
 
-// Enumerador para los estados del lugar
+// Enumerator for the place states
 enum PlaceState { active, deleted, blocked }
 
 class PlaceEntity {
   final String id;
-  final String name;
   final String country;
   final String department;
-  final String? city;
+  final String province;
+  final String city;
   final PlaceState state;
   final DateTime registrationDate;
   final DateTime? editedDate;
@@ -18,10 +18,10 @@ class PlaceEntity {
 
   PlaceEntity({
     required this.id,
-    required this.name,
     required this.country,
     required this.department,
-    this.city,
+    required this.province,
+    required this.city,
     this.state = PlaceState.active,
     required this.registrationDate,
     this.editedDate,
@@ -29,12 +29,12 @@ class PlaceEntity {
     this.restorationDate,
   });
 
-  // Método para crear una nueva instancia con cambios
+  // Method to create a new instance with changes
   PlaceEntity copyWith({
     String? id,
-    String? name,
     String? country,
     String? department,
+    String? province,
     String? city,
     PlaceState? state,
     DateTime? registrationDate,
@@ -44,18 +44,19 @@ class PlaceEntity {
   }) {
     return PlaceEntity(
       id: id ?? this.id,
-      name: name ?? this.name,
       country: country ?? this.country,
       department: department ?? this.department,
+      province: province ?? this.province,
       city: city ?? this.city,
       state: state ?? this.state,
       registrationDate: registrationDate ?? this.registrationDate,
       editedDate: editedDate ?? this.editedDate,
       deleteDate: deleteDate ?? this.deleteDate,
+      restorationDate: restorationDate ?? this.restorationDate,
     );
   }
 
-  // Sobrescribe los operadores de igualdad para una comparación correcta
+  // Overrides the equality operators for correct comparison
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -65,4 +66,9 @@ class PlaceEntity {
 
   @override
   int get hashCode => id.hashCode;
+
+  @override
+  String toString() {
+    return 'PlaceEntity(id: $id, country: $country, department: $department, province: $province, city: $city, state: $state)';
+  }
 }

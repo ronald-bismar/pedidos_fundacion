@@ -30,7 +30,7 @@ class ScreenFactory {
   }) {
     switch (screenType) {
       case ScreenType.pedidos:
-        return GroupRegistrationScreen();
+        return AuthScreen();
       case ScreenType.entregas:
         return PlaceRegistrationScreen();
       case ScreenType.personal:
@@ -45,6 +45,8 @@ class ScreenFactory {
         return PlaceRegistrationScreen();
       case ScreenType.grupos:
         return GroupRegistrationScreen();
+      default:
+        throw UnimplementedError('ScreenType $screenType no está implementado');
     }
   }
 }
