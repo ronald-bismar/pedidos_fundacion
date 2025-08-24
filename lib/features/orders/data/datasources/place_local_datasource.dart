@@ -1,5 +1,3 @@
-// lib/features/orders/data/datasources/place_local_datasource.dart
-
 import 'package:sqflite/sqflite.dart';
 import '../../domain/entities/place_entity.dart';
 
@@ -35,24 +33,33 @@ class PlaceLocalDataSourceImpl implements PlaceLocalDataSource {
 
   @override
   Future<void> addPlace(PlaceEntity place) async {
-    // Al guardar, convierte el estado a un entero
-    final data = place.toJson();
-    data['state'] = place.state.index; 
-    await db.insert('places', data, conflictAlgorithm: ConflictAlgorithm.replace);
+    // Usamos el método toMap() de la entidad para la conversión
+    await db.insert(
+      'places',
+      place.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   @override
   Future<void> updatePlace(PlaceEntity place) async {
-    final data = place.toJson();
-    data['state'] = place.state.index;
-    await db.update('places', data, where: 'id = ?', whereArgs: [place.id]);
+    await db.update(
+      'places',
+      place.toMap(),
+      where: 'id = ?',
+      whereArgs: [place.id],
+    );
   }
 
   @override
   Future<void> deletePlace(String id) async {
     await db.update(
       'places',
-      {'state': PlaceState.deleted.index, 'delet_date': DateTime.now().toIso8601String()},
+      {
+        'state': PlaceState.deleted.index,
+        'delet_date': DateTime.now().toIso8601String(),
+        'last_modified_date': DateTime.now().toIso8601String(),
+      },
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -62,7 +69,11 @@ class PlaceLocalDataSourceImpl implements PlaceLocalDataSource {
   Future<void> restorePlace(String id) async {
     await db.update(
       'places',
-      {'state': PlaceState.active.index, 'delet_date': null, 'restoration_date': DateTime.now().toIso8601String()},
+      {
+        'state': PlaceState.active.index,
+        'restoration_date': DateTime.now().toIso8601String(),
+        'last_modified_date': DateTime.now().toIso8601String(),
+      },
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -72,7 +83,11 @@ class PlaceLocalDataSourceImpl implements PlaceLocalDataSource {
   Future<void> blockPlace(String id) async {
     await db.update(
       'places',
-      {'state': PlaceState.blocked.index, 'block_date': DateTime.now().toIso8601String()},
+      {
+        'state': PlaceState.blocked.index,
+        'block_date': DateTime.now().toIso8601String(),
+        'last_modified_date': DateTime.now().toIso8601String(),
+      },
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -82,10 +97,8 @@ class PlaceLocalDataSourceImpl implements PlaceLocalDataSource {
   Future<List<PlaceEntity>> getPlaces() async {
     final List<Map<String, dynamic>> maps = await db.query('places');
     return List.generate(maps.length, (i) {
-      // Al leer, convierte el entero de vuelta al enum
-      final data = Map<String, dynamic>.from(maps[i]);
-      data['state'] = PlaceState.values[maps[i]['state'] as int];
-      return PlaceEntity.fromJson(data);
+      // Usamos el constructor factory para convertir el Map a una entidad
+      return PlaceEntity.fromMap(maps[i]);
     });
   }
 }

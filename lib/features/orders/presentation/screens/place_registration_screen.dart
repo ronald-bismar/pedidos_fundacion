@@ -444,7 +444,7 @@ class _PlaceRegistrationScreenState
   }
 
   void _restorePlace(PlaceEntity placeToRestore) {
-    ref.read(placeProvider.notifier).restorePlace(placeToRestore);
+    ref.read(placeProvider.notifier).restorePlace(placeToRestore.id);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(

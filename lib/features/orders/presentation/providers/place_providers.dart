@@ -42,30 +42,27 @@ final placeRepositoryProvider = FutureProvider<PlaceRepository>((ref) async {
 });
 
 final placeProvider = StateNotifierProvider<PlaceNotifier, List<PlaceEntity>>((ref) {
-  // Aquí usamos ref.watch para obtener el repositorio. Riverpod se encarga
-  // de esperar a que placeRepositoryProvider resuelva su Future.
-  final placeRepository = ref.watch(placeRepositoryProvider).value;
+  final placeRepositoryAsync = ref.watch(placeRepositoryProvider);
 
-  // Si el repositorio aún no está disponible, no creamos el notificador.
-  // Esto es un patrón válido, pero lo mejor es manejar la carga en el UI.
-  if (placeRepository == null) {
+  if (placeRepositoryAsync.isLoading || placeRepositoryAsync.hasError) {
     return PlaceNotifier(placeRepository: null);
   }
 
+  final placeRepository = placeRepositoryAsync.value!;
   return PlaceNotifier(placeRepository: placeRepository);
 });
 
 class PlaceNotifier extends StateNotifier<List<PlaceEntity>> {
   final PlaceRepository? placeRepository;
 
-  // ¡Nuevo! Llama a loadPlaces() en el constructor.
   PlaceNotifier({required this.placeRepository}) : super([]) {
-    loadPlaces();
+    if (placeRepository != null) {
+      loadPlaces();
+    }
   }
 
   Future<void> loadPlaces() async {
     if (placeRepository == null) {
-      print('El repositorio no está disponible para cargar los lugares.');
       return;
     }
     try {
@@ -85,26 +82,23 @@ class PlaceNotifier extends StateNotifier<List<PlaceEntity>> {
     required String city,
   }) async {
     if (placeRepository == null) return;
-    final newPlace = PlaceEntity(
-      id: const Uuid().v4(),
+    
+    final newPlace = PlaceEntity.newPlace(
       country: country.trim(),
       department: department.trim(),
       province: province.trim(),
       city: city.trim(),
-      state: PlaceState.active,
-      registrationDate: DateTime.now(),
-      deletDate: null,
-      lastModifiedDate: null,
-      restorationDate: null,
-      blockDate: null,
     );
+
     await placeRepository!.addPlace(newPlace);
     await loadPlaces();
   }
 
   Future<void> updatePlace(PlaceEntity updatedPlace) async {
     if (placeRepository == null) return;
-    await placeRepository!.updatePlace(updatedPlace);
+    
+    final placeWithUpdatedDate = updatedPlace.copyWith(lastModifiedDate: DateTime.now());
+    await placeRepository!.updatePlace(placeWithUpdatedDate);
     await loadPlaces();
   }
 
@@ -114,15 +108,43 @@ class PlaceNotifier extends StateNotifier<List<PlaceEntity>> {
     await loadPlaces();
   }
 
-  Future<void> restorePlace(PlaceEntity place) async {
+  Future<void> restorePlace(String id) async {
     if (placeRepository == null) return;
-    await placeRepository!.restorePlace(place);
+    
+    // Busca la entidad en el estado local por su ID
+    final placeToRestore = state.firstWhere((place) => place.id == id);
+
+    // Actualiza la entidad con el nuevo estado y las fechas de restauración y modificación
+    final updatedPlace = placeToRestore.copyWith(
+      state: PlaceState.active,
+      restorationDate: DateTime.now(),
+      lastModifiedDate: DateTime.now(),
+      deletDate: null, // Aseguramos que la fecha de eliminación sea nula
+      blockDate: null, // Y la fecha de bloqueo también sea nula
+    );
+    
+    // Pasa la entidad completa al repositorio
+    await placeRepository!.restorePlace(updatedPlace);
     await loadPlaces();
   }
 
   Future<void> blockPlace(String id) async {
     if (placeRepository == null) return;
-    await placeRepository!.blockPlace(id);
+    
+    // Busca la entidad en el estado local por su ID
+    final placeToBlock = state.firstWhere((place) => place.id == id);
+    
+    // Actualiza la entidad con el nuevo estado y la fecha de bloqueo y modificación
+    final updatedPlace = placeToBlock.copyWith(
+      state: PlaceState.blocked,
+      blockDate: DateTime.now(),
+      lastModifiedDate: DateTime.now(),
+      restorationDate: null, // Aseguramos que la fecha de restauración sea nula
+      deletDate: null, // Y la fecha de eliminación también sea nula
+    );
+
+    // Pasa solo el id al repositorio
+    await placeRepository!.blockPlace(updatedPlace.id);
     await loadPlaces();
   }
 }

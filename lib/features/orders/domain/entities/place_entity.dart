@@ -1,6 +1,6 @@
 // lib/features/orders/domain/entities/place_entity.dart
 import 'package:uuid/uuid.dart';
-
+import 'dart:convert';
 
 enum PlaceState { active, deleted, blocked }
 
@@ -15,59 +15,83 @@ class PlaceEntity {
   final DateTime? deletDate;
   final DateTime lastModifiedDate;
   final DateTime? restorationDate;
-  final DateTime? blockDate; // Nuevo campo para el estado bloqueado
+  final DateTime? blockDate;
 
   PlaceEntity({
-    String? id,
+    required this.id,
     required this.country,
     required this.department,
     required this.province,
     required this.city,
-    this.state = PlaceState.active,
-    DateTime? registrationDate,
+    required this.state,
+    required this.registrationDate,
+    required this.lastModifiedDate,
     this.deletDate,
-    DateTime? lastModifiedDate,
     this.restorationDate,
-    this.blockDate, // Nuevo campo
-  })  : this.id = id ?? const Uuid().v4(),
-        this.registrationDate = registrationDate ?? DateTime.now(),
-        this.lastModifiedDate = lastModifiedDate ?? DateTime.now();
+    this.blockDate,
+  });
 
-  factory PlaceEntity.fromJson(Map<String, dynamic> json) => PlaceEntity(
-        id: json['id'],
-        country: json['country'] ?? '',
-        department: json['department'] ?? '',
-        province: json['province'] ?? '',
-        city: json['city'] ?? '',
-        state: PlaceState.values.firstWhere(
-          (e) => e.toString().split('.').last == json['state'],
-          orElse: () => PlaceState.active,
-        ),
-        registrationDate: DateTime.parse(json['registration_date']),
-        deletDate:
-            json['delet_date'] != null ? DateTime.parse(json['delet_date']) : null,
-        lastModifiedDate: DateTime.parse(json['last_modified_date']),
-        restorationDate: json['restoration_date'] != null
-            ? DateTime.parse(json['restoration_date'])
-            : null,
-        blockDate: json['block_date'] != null
-            ? DateTime.parse(json['block_date'])
-            : null,
-      );
+  // Constructor para la creación de una nueva entidad en la aplicación
+  factory PlaceEntity.newPlace({
+    required String country,
+    required String department,
+    required String province,
+    required String city,
+  }) {
+    final now = DateTime.now();
+    return PlaceEntity(
+      id: const Uuid().v4(),
+      country: country,
+      department: department,
+      province: province,
+      city: city,
+      state: PlaceState.active,
+      registrationDate: now,
+      lastModifiedDate: now,
+      deletDate: null,
+      restorationDate: null,
+      blockDate: null,
+    );
+  }
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'country': country,
-        'department': department,
-        'province': province,
-        'city': city,
-        'state': state.name,
-        'registration_date': registrationDate.toIso8601String(),
-        'delet_date': deletDate?.toIso8601String(),
-        'last_modified_date': lastModifiedDate.toIso8601String(),
-        'restoration_date': restorationDate?.toIso8601String(),
-        'block_date': blockDate?.toIso8601String(),
-      };
+  // Cambiado de fromJson a fromMap para la base de datos local
+  factory PlaceEntity.fromMap(Map<String, dynamic> map) {
+    return PlaceEntity(
+      id: map['id'],
+      country: map['country'] ?? '',
+      department: map['department'] ?? '',
+      province: map['province'] ?? '',
+      city: map['city'] ?? '',
+      // Convierte el entero de la base de datos al valor del enum
+      state: PlaceState.values[map['state'] as int],
+      registrationDate: DateTime.parse(map['registration_date']),
+      deletDate:
+          map['delet_date'] != null ? DateTime.parse(map['delet_date']) : null,
+      lastModifiedDate: DateTime.parse(map['last_modified_date']),
+      restorationDate: map['restoration_date'] != null
+          ? DateTime.parse(map['restoration_date'])
+          : null,
+      blockDate:
+          map['block_date'] != null ? DateTime.parse(map['block_date']) : null,
+    );
+  }
+
+  // Cambiado de toJson a toMap para la base de datos local
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'country': country,
+      'department': department,
+      'province': province,
+      'city': city,
+      'state': state.index, // Guarda el índice del enum (entero)
+      'registration_date': registrationDate.toIso8601String(),
+      'delet_date': deletDate?.toIso8601String(),
+      'last_modified_date': lastModifiedDate.toIso8601String(),
+      'restoration_date': restorationDate?.toIso8601String(),
+      'block_date': blockDate?.toIso8601String(),
+    };
+  }
 
   PlaceEntity copyWith({
     String? id,
