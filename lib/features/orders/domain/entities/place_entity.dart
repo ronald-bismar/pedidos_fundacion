@@ -1,7 +1,7 @@
 // lib/features/orders/domain/entities/place_entity.dart
 import 'package:uuid/uuid.dart';
 
-// Enumerator for the place states
+
 enum PlaceState { active, deleted, blocked }
 
 class PlaceEntity {
@@ -12,24 +12,63 @@ class PlaceEntity {
   final String city;
   final PlaceState state;
   final DateTime registrationDate;
-  final DateTime? editedDate;
-  final DateTime? deleteDate;
+  final DateTime? deletDate;
+  final DateTime lastModifiedDate;
   final DateTime? restorationDate;
+  final DateTime? blockDate; // Nuevo campo para el estado bloqueado
 
   PlaceEntity({
-    required this.id,
+    String? id,
     required this.country,
     required this.department,
     required this.province,
     required this.city,
     this.state = PlaceState.active,
-    required this.registrationDate,
-    this.editedDate,
-    this.deleteDate,
+    DateTime? registrationDate,
+    this.deletDate,
+    DateTime? lastModifiedDate,
     this.restorationDate,
-  });
+    this.blockDate, // Nuevo campo
+  })  : this.id = id ?? const Uuid().v4(),
+        this.registrationDate = registrationDate ?? DateTime.now(),
+        this.lastModifiedDate = lastModifiedDate ?? DateTime.now();
 
-  // Method to create a new instance with changes
+  factory PlaceEntity.fromJson(Map<String, dynamic> json) => PlaceEntity(
+        id: json['id'],
+        country: json['country'] ?? '',
+        department: json['department'] ?? '',
+        province: json['province'] ?? '',
+        city: json['city'] ?? '',
+        state: PlaceState.values.firstWhere(
+          (e) => e.toString().split('.').last == json['state'],
+          orElse: () => PlaceState.active,
+        ),
+        registrationDate: DateTime.parse(json['registration_date']),
+        deletDate:
+            json['delet_date'] != null ? DateTime.parse(json['delet_date']) : null,
+        lastModifiedDate: DateTime.parse(json['last_modified_date']),
+        restorationDate: json['restoration_date'] != null
+            ? DateTime.parse(json['restoration_date'])
+            : null,
+        blockDate: json['block_date'] != null
+            ? DateTime.parse(json['block_date'])
+            : null,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'country': country,
+        'department': department,
+        'province': province,
+        'city': city,
+        'state': state.name,
+        'registration_date': registrationDate.toIso8601String(),
+        'delet_date': deletDate?.toIso8601String(),
+        'last_modified_date': lastModifiedDate.toIso8601String(),
+        'restoration_date': restorationDate?.toIso8601String(),
+        'block_date': blockDate?.toIso8601String(),
+      };
+
   PlaceEntity copyWith({
     String? id,
     String? country,
@@ -38,9 +77,10 @@ class PlaceEntity {
     String? city,
     PlaceState? state,
     DateTime? registrationDate,
-    DateTime? editedDate,
-    DateTime? deleteDate,
+    DateTime? deletDate,
+    DateTime? lastModifiedDate,
     DateTime? restorationDate,
+    DateTime? blockDate,
   }) {
     return PlaceEntity(
       id: id ?? this.id,
@@ -50,25 +90,10 @@ class PlaceEntity {
       city: city ?? this.city,
       state: state ?? this.state,
       registrationDate: registrationDate ?? this.registrationDate,
-      editedDate: editedDate ?? this.editedDate,
-      deleteDate: deleteDate ?? this.deleteDate,
+      deletDate: deletDate ?? this.deletDate,
+      lastModifiedDate: lastModifiedDate ?? this.lastModifiedDate,
       restorationDate: restorationDate ?? this.restorationDate,
+      blockDate: blockDate ?? this.blockDate,
     );
-  }
-
-  // Overrides the equality operators for correct comparison
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is PlaceEntity &&
-          runtimeType == other.runtimeType &&
-          id == other.id;
-
-  @override
-  int get hashCode => id.hashCode;
-
-  @override
-  String toString() {
-    return 'PlaceEntity(id: $id, country: $country, department: $department, province: $province, city: $city, state: $state)';
   }
 }

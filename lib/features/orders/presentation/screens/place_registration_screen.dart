@@ -16,7 +16,6 @@ class PlaceRegistrationScreen extends ConsumerStatefulWidget {
 
 class _PlaceRegistrationScreenState
     extends ConsumerState<PlaceRegistrationScreen> {
-  // Logic for the add new place dialogue
   void _showAddPlaceDialog() {
     final TextEditingController countryController = TextEditingController();
     final TextEditingController departmentController = TextEditingController();
@@ -204,7 +203,6 @@ class _PlaceRegistrationScreenState
     );
   }
 
-  // Logic for the edit place dialogue
   Future<void> _editPlace(PlaceEntity placeToEdit) async {
     final TextEditingController countryController =
         TextEditingController(text: placeToEdit.country);
@@ -338,8 +336,7 @@ class _PlaceRegistrationScreenState
               onPressed: () => Navigator.of(dialogContext).pop(),
               style: TextButton.styleFrom(
                 foregroundColor: Colors.grey.shade700,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -363,8 +360,7 @@ class _PlaceRegistrationScreenState
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange.shade700,
                 foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -385,6 +381,7 @@ class _PlaceRegistrationScreenState
         department: result['department'],
         province: result['province'],
         city: result['city'],
+        lastModifiedDate: DateTime.now(),
       );
       ref.read(placeProvider.notifier).updatePlace(updatedPlace);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -399,7 +396,6 @@ class _PlaceRegistrationScreenState
     }
   }
 
-  // Logic for the delete confirmation dialogue
   Future<void> _confirmDelete(PlaceEntity placeToDelete) async {
     final bool? confirm = await showDialog<bool>(
       context: context,
@@ -447,9 +443,8 @@ class _PlaceRegistrationScreenState
     }
   }
 
-  // Logic for restoring a place
   void _restorePlace(PlaceEntity placeToRestore) {
-    ref.read(placeProvider.notifier).unblockPlace(placeToRestore.id);
+    ref.read(placeProvider.notifier).restorePlace(placeToRestore);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -460,7 +455,6 @@ class _PlaceRegistrationScreenState
     );
   }
 
-  // Logic for blocking a place
   void _blockPlace(PlaceEntity placeToBlock) {
     ref.read(placeProvider.notifier).blockPlace(placeToBlock.id);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -474,11 +468,23 @@ class _PlaceRegistrationScreenState
   @override
   Widget build(BuildContext context) {
     final places = ref.watch(placeProvider);
-    final allPlaces = [
-      ...places.where((p) => p.state == PlaceState.active),
-      ...places.where((p) => p.state == PlaceState.blocked),
-      ...places.where((p) => p.state == PlaceState.deleted),
-    ];
+
+    final allPlaces = [...places];
+    allPlaces.sort((a, b) {
+      if (a.state == PlaceState.active && b.state != PlaceState.active) {
+        return -1;
+      }
+      if (a.state != PlaceState.active && b.state == PlaceState.active) {
+        return 1;
+      }
+      if (a.state == PlaceState.blocked && b.state == PlaceState.deleted) {
+        return -1;
+      }
+      if (a.state == PlaceState.deleted && b.state == PlaceState.blocked) {
+        return 1;
+      }
+      return 0;
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -563,11 +569,6 @@ class _PlaceRegistrationScreenState
                               statusText = 'Bloqueado';
                               statusIcon = Icons.lock;
                               break;
-                            default:
-                              statusColor = Colors.grey;
-                              statusText = 'Desconocido';
-                              statusIcon = Icons.help_outline;
-                              break;
                           }
 
                           return Card(
@@ -597,10 +598,9 @@ class _PlaceRegistrationScreenState
                                   color: place.state == PlaceState.deleted
                                       ? Colors.grey.shade600
                                       : Colors.black87,
-                                  decoration:
-                                      place.state == PlaceState.deleted
-                                          ? TextDecoration.lineThrough
-                                          : TextDecoration.none,
+                                  decoration: place.state == PlaceState.deleted
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none,
                                 ),
                               ),
                               subtitle: Column(
@@ -649,14 +649,15 @@ class _PlaceRegistrationScreenState
                                       onPressed: () => _blockPlace(place),
                                       tooltip: 'Bloquear lugar',
                                     ),
-                                  if (place.state == PlaceState.blocked)
+                                  if (place.state == PlaceState.blocked ||
+                                      place.state == PlaceState.deleted)
                                     IconButton(
-                                      icon: const Icon(
-                                        Icons.lock_open,
+                                      icon: Icon(
+                                        Icons.restore,
                                         color: Colors.green,
                                       ),
                                       onPressed: () => _restorePlace(place),
-                                      tooltip: 'Desbloquear lugar',
+                                      tooltip: 'Restaurar lugar',
                                     ),
                                   if (place.state != PlaceState.deleted)
                                     IconButton(
