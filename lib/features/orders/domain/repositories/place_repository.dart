@@ -8,6 +8,6 @@ abstract class PlaceRepository {
   Future<void> addPlace(PlaceEntity place);
   Future<void> updatePlace(PlaceEntity place);
   Future<void> deletePlace(String id);
-  Future<void> restorePlace(PlaceEntity place);
+  Future<void> restorePlace(String id);
   Future<void> blockPlace(String id);
 }

@@ -16,6 +16,8 @@ class PlaceEntity {
   final DateTime lastModifiedDate;
   final DateTime? restorationDate;
   final DateTime? blockDate;
+  final bool isSyncedToLocal; // Nuevo campo para el estado de sincronización local
+  final bool isSyncedToFirebase; // Nuevo campo para el estado de sincronización con Firebase
 
   PlaceEntity({
     required this.id,
@@ -29,6 +31,8 @@ class PlaceEntity {
     this.deletDate,
     this.restorationDate,
     this.blockDate,
+    this.isSyncedToLocal = false, // Valor por defecto
+    this.isSyncedToFirebase = false, // Valor por defecto
   });
 
   // Constructor para la creación de una nueva entidad en la aplicación
@@ -51,6 +55,8 @@ class PlaceEntity {
       deletDate: null,
       restorationDate: null,
       blockDate: null,
+      isSyncedToLocal: false, // Por defecto, no está guardado
+      isSyncedToFirebase: false, // Por defecto, no está sincronizado
     );
   }
 
@@ -62,7 +68,6 @@ class PlaceEntity {
       department: map['department'] ?? '',
       province: map['province'] ?? '',
       city: map['city'] ?? '',
-      // Convierte el entero de la base de datos al valor del enum
       state: PlaceState.values[map['state'] as int],
       registrationDate: DateTime.parse(map['registration_date']),
       deletDate:
@@ -73,6 +78,8 @@ class PlaceEntity {
           : null,
       blockDate:
           map['block_date'] != null ? DateTime.parse(map['block_date']) : null,
+      isSyncedToLocal: (map['is_synced_to_local'] as int) == 1,
+      isSyncedToFirebase: (map['is_synced_to_firebase'] as int) == 1,
     );
   }
 
@@ -84,12 +91,14 @@ class PlaceEntity {
       'department': department,
       'province': province,
       'city': city,
-      'state': state.index, // Guarda el índice del enum (entero)
+      'state': state.index,
       'registration_date': registrationDate.toIso8601String(),
       'delet_date': deletDate?.toIso8601String(),
       'last_modified_date': lastModifiedDate.toIso8601String(),
       'restoration_date': restorationDate?.toIso8601String(),
       'block_date': blockDate?.toIso8601String(),
+      'is_synced_to_local': isSyncedToLocal ? 1 : 0,
+      'is_synced_to_firebase': isSyncedToFirebase ? 1 : 0,
     };
   }
 
@@ -105,6 +114,8 @@ class PlaceEntity {
     DateTime? lastModifiedDate,
     DateTime? restorationDate,
     DateTime? blockDate,
+    bool? isSyncedToLocal, // Nuevo
+    bool? isSyncedToFirebase, // Nuevo
   }) {
     return PlaceEntity(
       id: id ?? this.id,
@@ -118,6 +129,8 @@ class PlaceEntity {
       lastModifiedDate: lastModifiedDate ?? this.lastModifiedDate,
       restorationDate: restorationDate ?? this.restorationDate,
       blockDate: blockDate ?? this.blockDate,
+      isSyncedToLocal: isSyncedToLocal ?? this.isSyncedToLocal,
+      isSyncedToFirebase: isSyncedToFirebase ?? this.isSyncedToFirebase,
     );
   }
 }

@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:uuid/uuid.dart';
-
 import '../../domain/entities/place_entity.dart';
 import '../../domain/repositories/place_repository.dart';
 import '../../data/datasources/place_local_datasource.dart';
@@ -97,8 +96,7 @@ class PlaceNotifier extends StateNotifier<List<PlaceEntity>> {
   Future<void> updatePlace(PlaceEntity updatedPlace) async {
     if (placeRepository == null) return;
     
-    final placeWithUpdatedDate = updatedPlace.copyWith(lastModifiedDate: DateTime.now());
-    await placeRepository!.updatePlace(placeWithUpdatedDate);
+    await placeRepository!.updatePlace(updatedPlace);
     await loadPlaces();
   }
 
@@ -108,43 +106,15 @@ class PlaceNotifier extends StateNotifier<List<PlaceEntity>> {
     await loadPlaces();
   }
 
-  Future<void> restorePlace(String id) async {
+  Future<void> restorePlace(PlaceEntity place) async {
     if (placeRepository == null) return;
-    
-    // Busca la entidad en el estado local por su ID
-    final placeToRestore = state.firstWhere((place) => place.id == id);
-
-    // Actualiza la entidad con el nuevo estado y las fechas de restauración y modificación
-    final updatedPlace = placeToRestore.copyWith(
-      state: PlaceState.active,
-      restorationDate: DateTime.now(),
-      lastModifiedDate: DateTime.now(),
-      deletDate: null, // Aseguramos que la fecha de eliminación sea nula
-      blockDate: null, // Y la fecha de bloqueo también sea nula
-    );
-    
-    // Pasa la entidad completa al repositorio
-    await placeRepository!.restorePlace(updatedPlace);
+    await placeRepository!.restorePlace(place.id);
     await loadPlaces();
   }
 
   Future<void> blockPlace(String id) async {
     if (placeRepository == null) return;
-    
-    // Busca la entidad en el estado local por su ID
-    final placeToBlock = state.firstWhere((place) => place.id == id);
-    
-    // Actualiza la entidad con el nuevo estado y la fecha de bloqueo y modificación
-    final updatedPlace = placeToBlock.copyWith(
-      state: PlaceState.blocked,
-      blockDate: DateTime.now(),
-      lastModifiedDate: DateTime.now(),
-      restorationDate: null, // Aseguramos que la fecha de restauración sea nula
-      deletDate: null, // Y la fecha de eliminación también sea nula
-    );
-
-    // Pasa solo el id al repositorio
-    await placeRepository!.blockPlace(updatedPlace.id);
+    await placeRepository!.blockPlace(id);
     await loadPlaces();
   }
 }

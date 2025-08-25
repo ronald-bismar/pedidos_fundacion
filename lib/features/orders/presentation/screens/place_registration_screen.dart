@@ -1,4 +1,3 @@
-// lib/features/orders/presentation/screens/place_registration_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -33,10 +32,7 @@ class _PlaceRegistrationScreenState
           ),
           title: const Text(
             'Registrar Nuevo Lugar',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.blue,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
           ),
           content: SingleChildScrollView(
             child: Form(
@@ -49,10 +45,7 @@ class _PlaceRegistrationScreenState
                     decoration: InputDecoration(
                       labelText: 'País',
                       hintText: 'Ej. Bolivia',
-                      prefixIcon: const Icon(
-                        Icons.public,
-                        color: Colors.blue,
-                      ),
+                      prefixIcon: const Icon(Icons.public, color: Colors.blue),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                         borderSide: BorderSide.none,
@@ -165,7 +158,9 @@ class _PlaceRegistrationScreenState
             ElevatedButton(
               onPressed: () {
                 if (formKey.currentState!.validate()) {
-                  ref.read(placeProvider.notifier).addPlace(
+                  ref
+                      .read(placeProvider.notifier)
+                      .addPlace(
                         country: countryController.text.trim(),
                         department: departmentController.text.trim(),
                         province: provinceController.text.trim(),
@@ -175,7 +170,8 @@ class _PlaceRegistrationScreenState
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                          'Lugar "${cityController.text.trim()}" registrado.'),
+                        'Lugar "${cityController.text.trim()}" registrado.',
+                      ),
                       backgroundColor: Colors.green.shade600,
                     ),
                   );
@@ -204,14 +200,18 @@ class _PlaceRegistrationScreenState
   }
 
   Future<void> _editPlace(PlaceEntity placeToEdit) async {
-    final TextEditingController countryController =
-        TextEditingController(text: placeToEdit.country);
-    final TextEditingController departmentController =
-        TextEditingController(text: placeToEdit.department);
-    final TextEditingController provinceController =
-        TextEditingController(text: placeToEdit.province);
-    final TextEditingController cityController =
-        TextEditingController(text: placeToEdit.city);
+    final TextEditingController countryController = TextEditingController(
+      text: placeToEdit.country,
+    );
+    final TextEditingController departmentController = TextEditingController(
+      text: placeToEdit.department,
+    );
+    final TextEditingController provinceController = TextEditingController(
+      text: placeToEdit.province,
+    );
+    final TextEditingController cityController = TextEditingController(
+      text: placeToEdit.city,
+    );
     final GlobalKey<FormState> editFormKey = GlobalKey<FormState>();
 
     final result = await showDialog<Map<String, String>>(
@@ -224,10 +224,7 @@ class _PlaceRegistrationScreenState
           ),
           title: const Text(
             'Editar Lugar',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.orange,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange),
           ),
           content: SingleChildScrollView(
             child: Form(
@@ -336,7 +333,10 @@ class _PlaceRegistrationScreenState
               onPressed: () => Navigator.of(dialogContext).pop(),
               style: TextButton.styleFrom(
                 foregroundColor: Colors.grey.shade700,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -360,7 +360,10 @@ class _PlaceRegistrationScreenState
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange.shade700,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -444,12 +447,10 @@ class _PlaceRegistrationScreenState
   }
 
   void _restorePlace(PlaceEntity placeToRestore) {
-    ref.read(placeProvider.notifier).restorePlace(placeToRestore.id);
+    ref.read(placeProvider.notifier).restorePlace(placeToRestore);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          'Lugar restaurado a activo.',
-        ),
+        content: Text('Lugar restaurado a activo.'),
         backgroundColor: Colors.green.shade600,
       ),
     );
@@ -468,23 +469,6 @@ class _PlaceRegistrationScreenState
   @override
   Widget build(BuildContext context) {
     final places = ref.watch(placeProvider);
-
-    final allPlaces = [...places];
-    allPlaces.sort((a, b) {
-      if (a.state == PlaceState.active && b.state != PlaceState.active) {
-        return -1;
-      }
-      if (a.state != PlaceState.active && b.state == PlaceState.active) {
-        return 1;
-      }
-      if (a.state == PlaceState.blocked && b.state == PlaceState.deleted) {
-        return -1;
-      }
-      if (a.state == PlaceState.deleted && b.state == PlaceState.blocked) {
-        return 1;
-      }
-      return 0;
-    });
 
     return Scaffold(
       appBar: AppBar(
@@ -511,7 +495,7 @@ class _PlaceRegistrationScreenState
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Text(
-                  'Lugares Registrados (${allPlaces.length}):',
+                  'Lugares Registrados (${places.length}):',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -521,7 +505,7 @@ class _PlaceRegistrationScreenState
               ),
               const Divider(height: 20, thickness: 1.5, color: Colors.blue),
               Expanded(
-                child: allPlaces.isEmpty
+                child: places.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -546,12 +530,12 @@ class _PlaceRegistrationScreenState
                       )
                     : ListView.builder(
                         physics: const BouncingScrollPhysics(),
-                        itemCount: allPlaces.length,
+                        itemCount: places.length,
                         itemBuilder: (context, index) {
-                          final place = allPlaces[index];
-                          MaterialColor statusColor;
-                          String statusText;
-                          IconData statusIcon;
+                          final place = places[index];
+                          MaterialColor statusColor = Colors.grey;
+                          String statusText = 'Desconocido';
+                          IconData statusIcon = Icons.help_outline;
 
                           switch (place.state) {
                             case PlaceState.active:
@@ -570,10 +554,11 @@ class _PlaceRegistrationScreenState
                               statusIcon = Icons.lock;
                               break;
                           }
-
                           return Card(
                             margin: const EdgeInsets.symmetric(
-                                vertical: 6, horizontal: 2),
+                              vertical: 6,
+                              horizontal: 2,
+                            ),
                             elevation: 2,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -626,11 +611,60 @@ class _PlaceRegistrationScreenState
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                  const SizedBox(
+                                    height: 8,
+                                  ), // Agrega un espacio entre el texto y los íconos
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // ICONOS DE ESTADO DE SINCRONIZACIÓN
+                                      if (place.isSyncedToLocal)
+                                        const Tooltip(
+                                          message: 'Guardado localmente',
+                                          child: Icon(
+                                            Icons.check_circle,
+                                            color: Colors.green,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      if (!place.isSyncedToLocal)
+                                        const Tooltip(
+                                          message:
+                                              'Pendiente de guardar localmente',
+                                          child: Icon(
+                                            Icons.save_outlined,
+                                            color: Colors.orange,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      const SizedBox(width: 8),
+                                      if (place.isSyncedToFirebase)
+                                        const Tooltip(
+                                          message: 'Sincronizado con Firebase',
+                                          child: Icon(
+                                            Icons.cloud_done,
+                                            color: Colors.blue,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      if (!place.isSyncedToFirebase)
+                                        const Tooltip(
+                                          message: 'Pendiente de sincronizar',
+                                          child: Icon(
+                                            Icons.cloud_upload,
+                                            color: Colors.red,
+                                            size: 20,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ],
                               ),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  // ICONOS DE ACCIÓN
                                   if (place.state == PlaceState.active)
                                     IconButton(
                                       icon: Icon(
@@ -652,7 +686,7 @@ class _PlaceRegistrationScreenState
                                   if (place.state == PlaceState.blocked ||
                                       place.state == PlaceState.deleted)
                                     IconButton(
-                                      icon: Icon(
+                                      icon: const Icon(
                                         Icons.restore,
                                         color: Colors.green,
                                       ),
@@ -682,10 +716,7 @@ class _PlaceRegistrationScreenState
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddPlaceDialog,
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          'Nuevo Lugar',
-          style: TextStyle(color: Colors.white),
-        ),
+        label: const Text('Nuevo Lugar', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.blue.shade700,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

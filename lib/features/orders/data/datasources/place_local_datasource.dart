@@ -5,9 +5,9 @@ abstract class PlaceLocalDataSource {
   Future<List<PlaceEntity>> getPlaces();
   Future<void> addPlace(PlaceEntity place);
   Future<void> updatePlace(PlaceEntity place);
-  Future<void> deletePlace(String id);
-  Future<void> blockPlace(String id);
-  Future<void> restorePlace(String id);
+  Future<void> deletePlace(PlaceEntity place);
+  Future<void> blockPlace(PlaceEntity place);
+  Future<void> restorePlace(PlaceEntity place);
 }
 
 class PlaceLocalDataSourceImpl implements PlaceLocalDataSource {
@@ -16,20 +16,22 @@ class PlaceLocalDataSourceImpl implements PlaceLocalDataSource {
   PlaceLocalDataSourceImpl(this.db);
 
   static const String places = '''
-    CREATE TABLE places(
-      id TEXT PRIMARY KEY,
-      country TEXT,
-      department TEXT,
-      province TEXT,
-      city TEXT,
-      state INTEGER,
-      registration_date TEXT,
-      delet_date TEXT,
-      last_modified_date TEXT,
-      restoration_date TEXT,
-      block_date TEXT
-    )
-  ''';
+  CREATE TABLE places(
+    id TEXT PRIMARY KEY,
+    country TEXT,
+    department TEXT,
+    province TEXT,
+    city TEXT,
+    state INTEGER,
+    registration_date TEXT,
+    delet_date TEXT,
+    last_modified_date TEXT,
+    restoration_date TEXT,
+    block_date TEXT,
+    is_synced_to_local INTEGER,
+    is_synced_to_firebase INTEGER
+  )
+''';
 
   @override
   Future<void> addPlace(PlaceEntity place) async {
@@ -52,44 +54,32 @@ class PlaceLocalDataSourceImpl implements PlaceLocalDataSource {
   }
 
   @override
-  Future<void> deletePlace(String id) async {
+  Future<void> deletePlace(PlaceEntity place) async {
     await db.update(
       'places',
-      {
-        'state': PlaceState.deleted.index,
-        'delet_date': DateTime.now().toIso8601String(),
-        'last_modified_date': DateTime.now().toIso8601String(),
-      },
+      place.toMap(), // Ahora pasamos el mapa de la entidad completa
       where: 'id = ?',
-      whereArgs: [id],
+      whereArgs: [place.id],
     );
   }
 
   @override
-  Future<void> restorePlace(String id) async {
+  Future<void> restorePlace(PlaceEntity place) async {
     await db.update(
       'places',
-      {
-        'state': PlaceState.active.index,
-        'restoration_date': DateTime.now().toIso8601String(),
-        'last_modified_date': DateTime.now().toIso8601String(),
-      },
+      place.toMap(), // Ahora pasamos el mapa de la entidad completa
       where: 'id = ?',
-      whereArgs: [id],
+      whereArgs: [place.id],
     );
   }
 
   @override
-  Future<void> blockPlace(String id) async {
+  Future<void> blockPlace(PlaceEntity place) async {
     await db.update(
       'places',
-      {
-        'state': PlaceState.blocked.index,
-        'block_date': DateTime.now().toIso8601String(),
-        'last_modified_date': DateTime.now().toIso8601String(),
-      },
+      place.toMap(), // Ahora pasamos el mapa de la entidad completa
       where: 'id = ?',
-      whereArgs: [id],
+      whereArgs: [place.id],
     );
   }
 
