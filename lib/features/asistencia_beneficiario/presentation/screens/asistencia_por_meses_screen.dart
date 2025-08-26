@@ -8,7 +8,7 @@ import 'package:pedidos_fundacion/core/widgets/title.dart';
 import 'package:pedidos_fundacion/domain/entities/asistencia.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/providers/asistencia_mensual_provider.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/screens/asistencia_screen.dart';
-import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/screens/historial_asistencia_screen.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/screens/asistencia_grupo_mes_screen.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/widgets/card_asistencia_mensual.dart';
 
 class ListMonthlyAttendance extends ConsumerStatefulWidget {
@@ -139,7 +139,11 @@ class _ListMonthlyAttendanceScreenState
             onTap: () {
               cambiarPantalla(
                 context,
-                AttendanceHistoryBeneficiaryScreen(attendanceId: attendances[index].id),
+                AttendanceGroupMonthScreen(
+                  idAttendance: attendances[index].id,
+                  nameGroup: attendances[index].nameGroup,
+                  date: attendances[index].date,
+                ),
               );
             },
           );

@@ -135,28 +135,28 @@ class AttendanceRepositoryImpl extends AttendanceRepository {
   }
 
   @override
-  Future<List<AttendanceBeneficiary>> listByAttendance(
+  Stream<List<AttendanceBeneficiary>> listGroupByAttendance(
     String idAttendance,
-  ) async {
+  ) async* {
     try {
       final attendancesBeneficiary = await attendanceBeneficiaryLocalDataSource
           .listByAttendance(idAttendance);
-      if (attendancesBeneficiary.isEmpty) {
-        final attendancesBeneficiaryRemote =
-            await attendanceBeneficiaryRemoteDataSource.listByAttendance(
-              idAttendance,
-            );
-        if (attendancesBeneficiaryRemote.isNotEmpty) {
-          await attendanceBeneficiaryLocalDataSource.insertOrUpdate(
-            attendancesBeneficiaryRemote,
+
+      yield attendancesBeneficiary;
+
+      final attendancesBeneficiaryRemote =
+          await attendanceBeneficiaryRemoteDataSource.listByAttendance(
+            idAttendance,
           );
-          return attendancesBeneficiaryRemote;
-        }
+      if (attendancesBeneficiaryRemote.isNotEmpty) {
+        await attendanceBeneficiaryLocalDataSource.insertOrUpdate(
+          attendancesBeneficiaryRemote,
+        );
+        yield attendancesBeneficiaryRemote;
       }
-      return [];
     } catch (e) {
       log('Error al obtener la asistencia del beneficiario: $e');
-      return [];
+      yield [];
     }
   }
 
