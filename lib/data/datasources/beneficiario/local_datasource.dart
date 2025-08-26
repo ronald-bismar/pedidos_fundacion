@@ -45,7 +45,7 @@ class BeneficiaryLocalDataSource {
     Database database = await _dbHelper.openDB();
     database.insert(
       tableName,
-      BeneficiaryMapper.toJson(c),
+      BeneficiaryMapper.toMap(c),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
@@ -60,7 +60,7 @@ class BeneficiaryLocalDataSource {
 
     return List.generate(
       cMap.length,
-      (i) => BeneficiaryMapper.fromJson(cMap[i]),
+      (i) => BeneficiaryMapper.fromMap(cMap[i]),
     );
   }
 
@@ -73,7 +73,7 @@ class BeneficiaryLocalDataSource {
     Database database = await _dbHelper.openDB();
     await database.insert(
       tableName,
-      BeneficiaryMapper.toJson(beneficiary),
+      BeneficiaryMapper.toMap(beneficiary),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
@@ -85,7 +85,7 @@ class BeneficiaryLocalDataSource {
       for (var m in beneficiaries) {
         batch.insert(
           tableName,
-          BeneficiaryMapper.toJson(m),
+          BeneficiaryMapper.toMap(m),
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
       }
@@ -104,7 +104,7 @@ class BeneficiaryLocalDataSource {
     );
 
     if (cMap.isNotEmpty) {
-      return BeneficiaryMapper.fromJson(cMap.first);
+      return BeneficiaryMapper.fromMap(cMap.first);
     }
     return null;
   }

@@ -56,20 +56,22 @@ class AttendanceRepositoryImpl extends AttendanceRepository {
   }
 
   @override
-  Future<List<Attendance>> getAllAttendance() async {
+  Stream<List<Attendance>> getAllAttendance() async* {
     try {
       final attendances = await localDataSource.getAll();
-      if (attendances.isEmpty) {
-        final attendancesRemote = await remoteDataSource.getAll();
-        if (attendancesRemote.isNotEmpty) {
-          await localDataSource.insertOrUpdate(attendancesRemote);
-          return attendancesRemote;
-        }
+      if (attendances.isNotEmpty) {
+        yield attendances;
       }
-      return [];
+
+      final attendancesRemote = await remoteDataSource.getAll();
+      if (attendancesRemote.isNotEmpty) {
+        await localDataSource.insertOrUpdate(attendancesRemote);
+        yield attendancesRemote;
+      }
+      yield attendances;
     } catch (e) {
       log('Error al obtener la asistencia: $e');
-      return [];
+      yield [];
     }
   }
 
@@ -164,18 +166,20 @@ class AttendanceRepositoryImpl extends AttendanceRepository {
     DateTime date,
   ) async {
     try {
-      final attendance = await localDataSource.getAttendanceByDate(idGroup, date) ?? 
-                        await remoteDataSource.getAttendanceByDate(idGroup, date);
-      
+      final attendance =
+          await localDataSource.getAttendanceByDate(idGroup, date) ??
+          await remoteDataSource.getAttendanceByDate(idGroup, date);
+
       if (attendance == null) return [];
 
-      final localBeneficiaries = 
-          await attendanceBeneficiaryLocalDataSource.listByAttendance(attendance.id);
-      
+      final localBeneficiaries = await attendanceBeneficiaryLocalDataSource
+          .listByAttendance(attendance.id);
+
       if (localBeneficiaries.isNotEmpty) return localBeneficiaries;
 
-      return await attendanceBeneficiaryRemoteDataSource.listByAttendance(attendance.id);
-      
+      return await attendanceBeneficiaryRemoteDataSource.listByAttendance(
+        attendance.id,
+      );
     } catch (e) {
       log('Error al obtener la asistencia del beneficiario: $e');
       return [];

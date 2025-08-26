@@ -12,7 +12,12 @@ import 'package:pedidos_fundacion/features/beneficiarios/presentation/providers/
 import 'package:pedidos_fundacion/features/beneficiarios/presentation/providers/grupos_provider.dart';
 
 class AttendanceHistoryBeneficiaryScreen extends ConsumerStatefulWidget {
-  const AttendanceHistoryBeneficiaryScreen({super.key});
+  final String attendanceId;
+
+  const AttendanceHistoryBeneficiaryScreen({
+    super.key,
+    required this.attendanceId,
+  });
 
   @override
   ConsumerState<AttendanceHistoryBeneficiaryScreen> createState() =>

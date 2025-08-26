@@ -5,28 +5,31 @@ import 'package:pedidos_fundacion/core/utils/change_screen.dart';
 import 'package:pedidos_fundacion/core/widgets/subtitle.dart';
 import 'package:pedidos_fundacion/core/widgets/text_normal.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
-import 'package:pedidos_fundacion/domain/entities/encargado.dart';
-import 'package:pedidos_fundacion/features/encargados/presentation/providers/encargados_provider.dart';
-import 'package:pedidos_fundacion/features/encargados/presentation/screens/auth_screen.dart';
-import 'package:pedidos_fundacion/features/encargados/presentation/widgets/card_encargado.dart';
+import 'package:pedidos_fundacion/domain/entities/asistencia.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/providers/asistencia_mensual_provider.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/screens/asistencia_screen.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/screens/historial_asistencia_screen.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/widgets/card_asistencia_mensual.dart';
 
-class ListCoordinatorsScreen extends ConsumerStatefulWidget {
-  final String coordinatorId;
-  const ListCoordinatorsScreen({this.coordinatorId = '', super.key});
+class ListMonthlyAttendance extends ConsumerStatefulWidget {
+  const ListMonthlyAttendance({super.key});
 
   @override
-  ConsumerState<ListCoordinatorsScreen> createState() =>
-      _ListaCoordinatorsScreenState();
+  ConsumerState<ListMonthlyAttendance> createState() =>
+      _ListMonthlyAttendanceScreenState();
 }
 
-class _ListaCoordinatorsScreenState
-    extends ConsumerState<ListCoordinatorsScreen> {
+class _ListMonthlyAttendanceScreenState
+    extends ConsumerState<ListMonthlyAttendance> {
   @override
   Widget build(BuildContext context) {
-    final coordinatorsAsyncValue = ref.watch(coordinatorsProvider);
+    final monthlyAttendanceAsyncValue = ref.watch(monthlyAttendanceProvider);
 
     return Scaffold(
       body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+
         color: primary,
         child: SafeArea(
           child: Padding(
@@ -35,10 +38,10 @@ class _ListaCoordinatorsScreenState
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 40),
-                title('Lista de Encargados'),
+                title('Lista de Asistencias por Mes'),
                 const SizedBox(height: 20),
                 Expanded(
-                  child: coordinatorsAsyncValue.when(
+                  child: monthlyAttendanceAsyncValue.when(
                     loading: () => _loadingState(),
 
                     error: (error, stackTrace) => _errorState(error),
@@ -58,7 +61,7 @@ class _ListaCoordinatorsScreenState
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          cambiarPantalla(context, AuthCoordinatorScreen());
+          cambiarPantalla(context, AttendanceBeneficiaryScreen());
         },
         backgroundColor: quaternary,
         foregroundColor: dark,
@@ -82,14 +85,14 @@ class _ListaCoordinatorsScreenState
         children: [
           Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
           const SizedBox(height: 16),
-          subTitle('Error al cargar encargados', fontWeight: FontWeight.w600),
+          subTitle('Error al cargar asistencias', fontWeight: FontWeight.w600),
           const SizedBox(height: 8),
           textNormal(error.toString(), textColor: white.withOpacity(0.8)),
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: () {
               // Refrescar los datos
-              ref.invalidate(coordinatorsProvider);
+              ref.invalidate(monthlyAttendanceProvider);
             },
             icon: const Icon(Icons.refresh),
             label: const Text('Reintentar'),
@@ -115,23 +118,31 @@ class _ListaCoordinatorsScreenState
             color: Colors.white.withOpacity(0.6),
           ),
           const SizedBox(height: 16),
-          subTitle('No hay encargados', fontWeight: FontWeight.w600),
+          subTitle('No hay asistencias', fontWeight: FontWeight.w600),
           const SizedBox(height: 8),
-          textNormal('Aún no se han registrado encargados'),
+          textNormal('Aún no se han registrado asistencias'),
         ],
       ),
     );
   }
 
-  Widget _loadedState(List<Coordinator> coordinators) {
+  Widget _loadedState(List<Attendance> attendances) {
     return RefreshIndicator(
       onRefresh: () async {
-        ref.invalidate(coordinatorsProvider);
+        ref.invalidate(monthlyAttendanceProvider);
       },
       child: ListView.builder(
-        itemCount: coordinators.length,
+        itemCount: attendances.length,
         itemBuilder: (context, index) {
-          return CardCoordinator(coordinators[index]);
+          return CardMonthlyAttendance(
+            attendances[index],
+            onTap: () {
+              cambiarPantalla(
+                context,
+                AttendanceHistoryBeneficiaryScreen(attendanceId: attendances[index].id),
+              );
+            },
+          );
         },
       ),
     );

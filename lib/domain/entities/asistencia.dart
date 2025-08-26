@@ -50,9 +50,7 @@ class Attendance {
       type: map['type'] ?? '',
       idGroup: map['idGroup'] ?? '',
       nameGroup: map['nameGroup'] ?? '',
-      date: map['date'] != null
-          ? DateTime.parse(map['date'] + 'T00:00:00')
-          : DateTime.now(),
+      date: DateTime.parse(map['date'] ?? DateTime.now().toIso8601String()),
     );
   }
 }

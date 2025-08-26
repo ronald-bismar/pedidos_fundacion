@@ -5,7 +5,7 @@ abstract class AttendanceRepository {
   Future<void> insertAttendance(Attendance attendance);
   Future<void> deleteAttendance(Attendance attendance);
   Future<void> updateAttendance(Attendance attendance);
-  Future<List<Attendance>> getAllAttendance();
+  Stream<List<Attendance>> getAllAttendance();
 
   //AttendanceBeneficiary
 
