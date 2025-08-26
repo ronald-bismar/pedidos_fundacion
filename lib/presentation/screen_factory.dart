@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/screens/auth_screen.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/screens/lista_beneficiarios_screen.dart';
 import 'package:pedidos_fundacion/features/orders/presentation/screens/group_registration_screen.dart';
-import 'package:pedidos_fundacion/features/orders/presentation/screens/place_registration_screen.dart';
+import 'package:pedidos_fundacion/features/places/presentation/screens/place_registration_screen.dart';
 
 enum ScreenType {
   pedidos,
