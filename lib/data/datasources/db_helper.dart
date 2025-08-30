@@ -6,7 +6,7 @@ import 'package:pedidos_fundacion/data/datasources/beneficiario/local_datasource
 import 'package:pedidos_fundacion/data/datasources/encargado/local_datasource.dart';
 import 'package:pedidos_fundacion/data/datasources/foto/local_datasource.dart';
 import 'package:pedidos_fundacion/data/datasources/grupo/local_datasources.dart';
-import 'package:pedidos_fundacion/features/orders/data/datasources/place_local_datasource.dart';
+import 'package:pedidos_fundacion/features/places/data/datasources/place_local_datasource.dart';
 import 'package:sqflite/sqflite.dart';
 
 // Provider para la dependencia DatabaseHelper
@@ -26,8 +26,8 @@ class DatabaseHelper {
         await db.execute(BeneficiaryLocalDataSource.beneficiaries);
         await db.execute(PhotoLocalDataSource.photos);
         await db.execute(GroupLocalDataSource.groups);
+        await db.execute(PlaceLocalDataSourceImpl.places);
 
-           await db.execute(PlaceLocalDataSourceImpl.places);
       },
     );
   }

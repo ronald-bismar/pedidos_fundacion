@@ -1,5 +1,3 @@
-// lib/features/orders/data/repositories_impl/place_repository_impl.dart
-
 import 'dart:developer';
 
 import 'package:collection/collection.dart';
@@ -19,27 +17,28 @@ class PlaceRepositoryImpl implements PlaceRepository {
 
   @override
   Future<void> addPlace(PlaceEntity place) async {
-    final newPlace = place.copyWith(
+    final placeToSave = place.copyWith(
       lastModifiedDate: DateTime.now(),
+      isSyncedToLocal: true,
       isSyncedToFirebase: false,
     );
-    await localDataSource.addPlace(newPlace);
 
     try {
-      final syncedPlace = await remoteDataSource.addPlace(newPlace);
-      await localDataSource.updatePlace(syncedPlace.copyWith(
-        isSyncedToFirebase: true,
-      ));
+      final placeFromFirebase = await remoteDataSource.addPlace(placeToSave);
+      await localDataSource.addPlace(placeFromFirebase);
     } catch (e) {
-      log('Error de conexión a Firebase: $e');
+      await localDataSource.addPlace(placeToSave);
     }
+    log('Lugar añadido localmente: ${placeToSave.id}');
   }
 
   @override
   Future<void> deletePlace(String id) async {
-    final localPlace = (await localDataSource.getPlaces()).firstWhereOrNull((p) => p.id == id);
+    final localPlace = (await localDataSource.getPlaces()).firstWhereOrNull(
+      (p) => p.id == id,
+    );
     if (localPlace == null) return;
-    
+
     final updatedPlace = localPlace.copyWith(
       state: PlaceState.deleted,
       deletDate: DateTime.now(),
@@ -52,7 +51,9 @@ class PlaceRepositoryImpl implements PlaceRepository {
 
     try {
       await remoteDataSource.updatePlace(updatedPlace);
-      await localDataSource.updatePlace(updatedPlace.copyWith(isSyncedToFirebase: true));
+      await localDataSource.updatePlace(
+        updatedPlace.copyWith(isSyncedToFirebase: true),
+      );
       log('Lugar eliminado y sincronizado con Firebase: ${updatedPlace.id}');
     } catch (e) {
       log('Error al sincronizar con Firebase: $e');
@@ -62,7 +63,7 @@ class PlaceRepositoryImpl implements PlaceRepository {
   @override
   Future<List<PlaceEntity>> getPlaces() async {
     log('Iniciando proceso de sincronización completa.');
-    
+
     await syncPendingChanges();
 
     try {
@@ -70,7 +71,7 @@ class PlaceRepositoryImpl implements PlaceRepository {
       final remotePlaces = await remoteDataSource.getPlaces();
 
       final localPlaces = await localDataSource.getPlaces();
-      
+
       await _updateLocalWithRemote(localPlaces, remotePlaces);
 
       log('Sincronización completa. Devolviendo datos locales.');
@@ -83,7 +84,10 @@ class PlaceRepositoryImpl implements PlaceRepository {
 
   @override
   Future<void> updatePlace(PlaceEntity place) async {
-    var localPlace = place.copyWith(isSyncedToLocal: true, isSyncedToFirebase: false);
+    var localPlace = place.copyWith(
+      isSyncedToLocal: true,
+      isSyncedToFirebase: false,
+    );
     await localDataSource.updatePlace(localPlace);
 
     try {
@@ -92,13 +96,17 @@ class PlaceRepositoryImpl implements PlaceRepository {
       await localDataSource.updatePlace(syncedPlace);
       log('Lugar actualizado y sincronizado: ${syncedPlace.id}');
     } catch (e) {
-      log('Error al guardar en Firebase, se mantendrá en estado de no sincronizado: $e');
+      log(
+        'Error al guardar en Firebase, se mantendrá en estado de no sincronizado: $e',
+      );
     }
   }
 
   @override
   Future<void> restorePlace(String id) async {
-    final localPlace = (await localDataSource.getPlaces()).firstWhereOrNull((p) => p.id == id);
+    final localPlace = (await localDataSource.getPlaces()).firstWhereOrNull(
+      (p) => p.id == id,
+    );
     if (localPlace == null) return;
 
     final updatedPlace = localPlace.copyWith(
@@ -114,7 +122,9 @@ class PlaceRepositoryImpl implements PlaceRepository {
 
     try {
       await remoteDataSource.updatePlace(updatedPlace);
-      await localDataSource.updatePlace(updatedPlace.copyWith(isSyncedToFirebase: true));
+      await localDataSource.updatePlace(
+        updatedPlace.copyWith(isSyncedToFirebase: true),
+      );
       log('Lugar restaurado y sincronizado: ${updatedPlace.id}');
     } catch (e) {
       log('Error al sincronizar restauración: $e');
@@ -123,7 +133,9 @@ class PlaceRepositoryImpl implements PlaceRepository {
 
   @override
   Future<void> blockPlace(String id) async {
-    final localPlace = (await localDataSource.getPlaces()).firstWhereOrNull((p) => p.id == id);
+    final localPlace = (await localDataSource.getPlaces()).firstWhereOrNull(
+      (p) => p.id == id,
+    );
     if (localPlace == null) return;
 
     final updatedPlace = localPlace.copyWith(
@@ -140,7 +152,9 @@ class PlaceRepositoryImpl implements PlaceRepository {
 
     try {
       await remoteDataSource.updatePlace(updatedPlace);
-      await localDataSource.updatePlace(updatedPlace.copyWith(isSyncedToFirebase: true));
+      await localDataSource.updatePlace(
+        updatedPlace.copyWith(isSyncedToFirebase: true),
+      );
       log('Lugar bloqueado y sincronizado con Firebase: ${updatedPlace.id}');
     } catch (e) {
       log('Error al sincronizar bloqueo: $e');
@@ -153,19 +167,19 @@ class PlaceRepositoryImpl implements PlaceRepository {
         .where((place) => !place.isSyncedToFirebase)
         .toList();
 
-    log('Lugares pendientes de sincronizar: ${pendingPlaces.length}');
-
     for (var place in pendingPlaces) {
       try {
-        await remoteDataSource.updatePlace(place);
-        await localDataSource.updatePlace(place.copyWith(isSyncedToFirebase: true));
-        log('Sincronizado con éxito: ${place.id}');
+        await remoteDataSource.addPlace(place);
+        await localDataSource.updatePlace(
+          place.copyWith(isSyncedToFirebase: true),
+        );
+        log('Lugar sincronizado con Firebase: ${place.id}');
       } catch (e) {
         log('Fallo al sincronizar: ${place.id}, Error: $e');
       }
     }
   }
-  
+
   Future<void> _updateLocalWithRemote(
     List<PlaceEntity> localPlaces,
     List<PlaceEntity> remotePlaces,
@@ -185,11 +199,15 @@ class PlaceRepositoryImpl implements PlaceRepository {
 
       if (remotePlace == null) {
         await localDataSource.deletePlace(localPlace);
-        log('Lugar eliminado en Firebase, se eliminó localmente: ${localPlace.id}');
+        log(
+          'Lugar eliminado en Firebase, se eliminó localmente: ${localPlace.id}',
+        );
       } else {
         if (remotePlace.lastModifiedDate.isAfter(localPlace.lastModifiedDate)) {
           await localDataSource.updatePlace(remotePlace);
-          log('Lugar local actualizado con cambios de Firebase: ${remotePlace.id}');
+          log(
+            'Lugar local actualizado con cambios de Firebase: ${remotePlace.id}',
+          );
         }
       }
     }

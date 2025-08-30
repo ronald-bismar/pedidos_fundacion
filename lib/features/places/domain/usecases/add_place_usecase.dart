@@ -19,6 +19,7 @@ class AddPlaceUseCase {
       province: province.trim(),
       city: city.trim(),
     );
+    print('UseCase: creando lugar con id ${newPlace.id} y ciudad ${newPlace.city}');
     await repository.addPlace(newPlace);
   }
 }

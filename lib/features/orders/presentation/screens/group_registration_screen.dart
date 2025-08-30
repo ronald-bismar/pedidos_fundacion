@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../../features/orders/domain/entities/group_entity.dart';
-import '../../../../features/orders/presentation/providers/group_providers.dart';
+import '../../domain/entities/group_entity.dart';
+import '../providers/group_providers.dart';
 
 class GroupRegistrationScreen extends ConsumerStatefulWidget {
   const GroupRegistrationScreen({super.key});

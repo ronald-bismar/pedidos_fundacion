@@ -1,6 +1,6 @@
 // lib/features/orders/domain/repositories/place_repository.dart
 
-import '../../domain/entities/place_entity.dart';
+import '../entities/place_entity.dart';
 
 
 abstract class PlaceRepository {
