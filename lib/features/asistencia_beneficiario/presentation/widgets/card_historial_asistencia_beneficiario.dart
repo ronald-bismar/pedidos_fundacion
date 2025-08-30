@@ -96,14 +96,11 @@ class _CardHistoryAttendanceBeneficiaryState
 
   Widget _getAttendanceWidget(String state) {
     switch (state.toLowerCase()) {
-      case 'asistió':
       case 'attended':
         return optionAssisted();
-      case 'permiso':
       case 'permission':
         return optionPermission();
-      case 'no asistió':
-      case 'not_attended':
+      case 'notattended':
         return optionNotAssisted();
       default:
         return optionNotRegistered();

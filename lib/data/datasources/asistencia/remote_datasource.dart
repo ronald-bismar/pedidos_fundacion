@@ -97,4 +97,21 @@ class AttendanceRemoteDataSource {
       throw Exception('Error getting attendance by date: $e');
     }
   }
+
+  Future<List<Attendance>> getAttendanceOfMonth(
+    String idMonthlyAttendance,
+  ) async {
+    try {
+      final querySnapshot = await service
+          .collection(_collection)
+          .where('idMonthlyAttendance', isEqualTo: idMonthlyAttendance)
+          .get();
+
+      return querySnapshot.docs.map((doc) {
+        return Attendance.fromMap(doc.data());
+      }).toList();
+    } catch (e) {
+      throw Exception('Error getting attendance: $e');
+    }
+  }
 }

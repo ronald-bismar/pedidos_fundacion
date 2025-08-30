@@ -86,19 +86,67 @@ class AttendanceBeneficiaryRemoteDataSource {
     }
   }
 
-  Future<void> insertOrUpdate(List<AttendanceBeneficiary> beneficiaries) async {
-  try {
-    final batch = service.batch();
+  Future<List<AttendanceBeneficiary>> listByAttendances(
+    List<String> idAttendances,
+  ) async {
+    try {
+      // Validación: Si no hay IDs, retorna lista vacía
+      if (idAttendances.isEmpty) {
+        return [];
+      }
 
-    for (final beneficiary in beneficiaries) {
-      final docRef = service.collection(_collection).doc(beneficiary.id);
-      batch.set(docRef, beneficiary.toMap());
+      // Firestore tiene límite de 10 elementos en whereIn
+      // Si hay más de 10, necesitamos hacer múltiples consultas
+      if (idAttendances.length <= 10) {
+        final querySnapshot = await service
+            .collection(_collection)
+            .where('idAttendance', whereIn: idAttendances)
+            .get();
+
+        return querySnapshot.docs.map((doc) {
+          return AttendanceBeneficiary.fromMap(doc.data());
+        }).toList();
+      } else {
+        // Para más de 10 elementos, dividir en chunks
+        List<AttendanceBeneficiary> allResults = [];
+
+        for (int i = 0; i < idAttendances.length; i += 10) {
+          final chunk = idAttendances.sublist(
+            i,
+            (i + 10 > idAttendances.length) ? idAttendances.length : i + 10,
+          );
+
+          final querySnapshot = await service
+              .collection(_collection)
+              .where('idAttendance', whereIn: chunk)
+              .get();
+
+          final chunkResults = querySnapshot.docs.map((doc) {
+            return AttendanceBeneficiary.fromMap(doc.data());
+          }).toList();
+
+          allResults.addAll(chunkResults);
+        }
+
+        return allResults;
+      }
+    } catch (e) {
+      throw Exception('Error getting attendance beneficiaries: $e');
     }
-
-    await batch.commit();
-  } catch (e) {
-    throw Exception('Error inserting multiple attendance beneficiaries: $e');
   }
-}
 
+  Future<void> insertOrUpdate(List<AttendanceBeneficiary> beneficiaries) async {
+    try {
+      final batch = service.batch();
+
+      for (final beneficiary in beneficiaries) {
+        final docRef = service.collection(_collection).doc(beneficiary.id);
+        batch.set(docRef, beneficiary.toMap());
+      }
+
+      await batch.commit();
+    } catch (e) {
+      throw Exception('Error inserting multiple attendance beneficiaries: $e');
+    }
+  }
 }

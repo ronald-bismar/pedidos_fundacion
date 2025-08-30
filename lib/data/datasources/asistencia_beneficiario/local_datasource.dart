@@ -103,4 +103,22 @@ class AttendanceBeneficiaryLocalDataSource {
     );
   } //Despues hacer una agrupacion por el id beneficiario
 
+  Future<List<AttendanceBeneficiary>> listByAttendances(
+    List<String> idsAttendances,
+  ) async {
+    Database database = await _dbHelper.openDB();
+
+    String placeholders = List.filled(idsAttendances.length, '?').join(', ');
+
+    final List<Map<String, dynamic>> cMap = await database.query(
+      tableName,
+      where: 'idAttendance IN ($placeholders)',
+      whereArgs: idsAttendances,
+    );
+
+    return List.generate(
+      cMap.length,
+      (i) => AttendanceBeneficiary.fromMap(cMap[i]),
+    );
+  }
 }

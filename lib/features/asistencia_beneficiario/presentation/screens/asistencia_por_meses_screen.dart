@@ -140,7 +140,7 @@ class _ListMonthlyAttendanceScreenState
               cambiarPantalla(
                 context,
                 AttendanceGroupMonthScreen(
-                  idAttendance: attendances[index].id,
+                  idMonthlyAttendance: attendances[index].id,
                   nameGroup: attendances[index].nameGroup,
                   month: attendances[index].month,
                   year: attendances[index].year,

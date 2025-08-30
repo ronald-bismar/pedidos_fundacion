@@ -11,14 +11,14 @@ import 'package:pedidos_fundacion/features/beneficiarios/presentation/providers/
 import 'package:pedidos_fundacion/features/beneficiarios/presentation/providers/beneficiaries_provider.dart';
 
 class AttendanceGroupMonthScreen extends ConsumerStatefulWidget {
-  final String idAttendance;
+  final String idMonthlyAttendance;
   final String nameGroup;
   final int month;
   final int year;
 
   const AttendanceGroupMonthScreen({
     super.key,
-    required this.idAttendance,
+    required this.idMonthlyAttendance,
     required this.nameGroup,
     required this.month,
     required this.year,
@@ -105,7 +105,7 @@ class _AttendanceGroupMonthScreenState
                             builder: (context, ref, child) {
                               final attendancesAsyncValue = ref.watch(
                                 attendanceGroupStreamProvider(
-                                  widget.idAttendance,
+                                  widget.idMonthlyAttendance,
                                 ),
                               );
 

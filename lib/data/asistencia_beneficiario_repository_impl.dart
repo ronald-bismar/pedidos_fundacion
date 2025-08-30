@@ -140,28 +140,48 @@ class AttendanceRepositoryImpl extends AttendanceRepository {
   }
 
   @override
-  Stream<List<AttendanceBeneficiary>> listGroupByAttendance(
-    String idAttendance,
-  ) async* {
+  Future<List<AttendanceBeneficiary>> listGroupByAttendance(
+    String idMonthlyAttendance,
+  ) async {
     try {
-      final attendancesBeneficiary = await attendanceBeneficiaryLocalDataSource
-          .listByAttendance(idAttendance);
+      List<Attendance> attendancesOfMonth = [];
+      attendancesOfMonth = await attendanceLocalDataSource.getAttendanceOfMonth(
+        idMonthlyAttendance,
+      );
 
-      yield attendancesBeneficiary;
+      if (attendancesOfMonth.isEmpty) {
+        attendancesOfMonth = await attendanceRemoteDataSource
+            .getAttendanceOfMonth(idMonthlyAttendance);
+
+        if (attendancesOfMonth.isNotEmpty) {
+          await attendanceLocalDataSource.insertOrUpdate(attendancesOfMonth);
+        }
+      }
+
+      if (attendancesOfMonth.isEmpty) return [];
+
+      final idsAttendances = attendancesOfMonth.map((e) => e.id).toList();
+
+      final attendancesBeneficiary = await attendanceBeneficiaryLocalDataSource
+          .listByAttendances(idsAttendances);
+
+      if (attendancesBeneficiary.isNotEmpty) return attendancesBeneficiary;
 
       final attendancesBeneficiaryRemote =
-          await attendanceBeneficiaryRemoteDataSource.listByAttendance(
-            idAttendance,
+          await attendanceBeneficiaryRemoteDataSource.listByAttendances(
+            idsAttendances,
           );
+
       if (attendancesBeneficiaryRemote.isNotEmpty) {
         await attendanceBeneficiaryLocalDataSource.insertOrUpdate(
           attendancesBeneficiaryRemote,
         );
-        yield attendancesBeneficiaryRemote;
+        return attendancesBeneficiaryRemote;
       }
+      return [];
     } catch (e) {
       log('Error al obtener la asistencia del beneficiario: $e');
-      yield [];
+      return [];
     }
   }
 

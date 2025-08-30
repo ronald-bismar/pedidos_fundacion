@@ -104,4 +104,15 @@ class AttendanceLocalDataSource {
 
     return List.generate(cMap.length, (i) => Attendance.fromMap(cMap[i]));
   }
+
+   Future<List<Attendance>> getAttendanceOfMonth(String idMonthlyAttendance) async {
+    Database database = await _dbHelper.openDB();
+    final List<Map<String, dynamic>> cMap = await database.query(
+      tableName,
+      where: 'idMonthlyAttendance = ?',
+      whereArgs: [idMonthlyAttendance],
+    );
+
+    return List.generate(cMap.length, (i) => Attendance.fromMap(cMap[i]));
+  }
 }

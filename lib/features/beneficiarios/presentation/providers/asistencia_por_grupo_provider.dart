@@ -4,12 +4,14 @@ import 'package:pedidos_fundacion/domain/entities/asistencia_beneficiario.dart';
 import 'package:pedidos_fundacion/domain/entities/programa.dart';
 
 final attendanceGroupStreamProvider =
-    StreamProvider.family<List<AttendanceBeneficiary>, String>((
+    FutureProvider.family<List<AttendanceBeneficiary>, String>((
       ref,
-      idAttendance,
-    ) {
+      idMonthlyAttendance,
+    ) async {
       final attendanceRepository = ref.watch(attendanceRepoProvider);
-      return attendanceRepository.listGroupByAttendance(idAttendance);
+      return await attendanceRepository.listGroupByAttendance(
+        idMonthlyAttendance,
+      );
     });
 
 final selectedGroupProvider = StateProvider<Group?>((ref) => null);

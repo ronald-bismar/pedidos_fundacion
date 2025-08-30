@@ -20,7 +20,7 @@ abstract class AttendanceRepository {
   Future<void> deleteAttendanceBeneficiary(AttendanceBeneficiary attendance);
   Future<void> updateAttendanceBeneficiary(AttendanceBeneficiary attendance);
   Future<AttendanceBeneficiary?> getAttendanceBeneficiary(String id);
-  Stream<List<AttendanceBeneficiary>> listGroupByAttendance(
+  Future<List<AttendanceBeneficiary>> listGroupByAttendance(
     String idAttendance,
   );
   Future<void> insertAttendanceBeneficiaries(
