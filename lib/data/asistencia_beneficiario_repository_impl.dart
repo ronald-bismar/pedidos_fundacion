@@ -293,7 +293,7 @@ class AttendanceRepositoryImpl extends AttendanceRepository {
       log('Error al eliminar la asistencia mensual: $e');
     }
   }
-  
+
   @override
   Future<MonthlyAttendance?> getMonthlyAttendanceByGroupAndMonth(
     String idGroup,
@@ -309,24 +309,25 @@ class AttendanceRepositoryImpl extends AttendanceRepository {
           .getMonthlyAttendanceByGroupAndMonth(idGroup, month);
     } catch (e) {
       log('Error al obtener la asistencia mensual: $e');
+      return null;
     }
   }
 
-    @override
-  Future<String?> getMonthlyAttendanceId(
-    String idGroup,
-    int month,
-  ) async {
+  @override
+  Future<String?> getMonthlyAttendanceId(String idGroup, int month) async {
     try {
       final monthlyAttendance = await monthlyAttendanceLocalDataSource
           .getMonthlyAttendanceId(idGroup, month);
       if (monthlyAttendance != null) {
         return monthlyAttendance;
       }
-      return await monthlyAttendanceRemoteDataSource
-          .getMonthlyAttendanceId(idGroup, month);
+      return await monthlyAttendanceRemoteDataSource.getMonthlyAttendanceId(
+        idGroup,
+        month,
+      );
     } catch (e) {
       log('Error al obtener la asistencia mensual: $e');
+      return null;
     }
   }
 }

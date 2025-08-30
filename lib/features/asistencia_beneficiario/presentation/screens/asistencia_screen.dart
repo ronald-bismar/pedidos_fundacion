@@ -7,6 +7,7 @@ import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/utils/change_screen.dart';
 import 'package:pedidos_fundacion/core/widgets/alert_dialog_options.dart';
 import 'package:pedidos_fundacion/core/widgets/drop_down_options.dart';
+import 'package:pedidos_fundacion/core/widgets/snackbar.dart';
 import 'package:pedidos_fundacion/core/widgets/subtitle.dart';
 import 'package:pedidos_fundacion/core/widgets/text_normal.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
@@ -47,7 +48,7 @@ class _AttendanceBeneficiaryScreenState
 
   @override
   Widget build(BuildContext context) {
-    final selectedGroup = ref.watch(selectedGroupProvider);
+    final selectedGroup = ref.watch(selectedAttendanceGroupProvider);
     final List<Group> groups = ref
         .watch(groupsProvider)
         .maybeWhen(data: (data) => data, orElse: () => []);
@@ -128,7 +129,7 @@ class _AttendanceBeneficiaryScreenState
                   messageNotShow:
                       'Guarda primero la asistencia de este grupo para seleccionar otro',
                   itemInitial: 'Selecciona un grupo',
-                  onSelect: (value) => {_onGroupSelected(value, groups)},
+                  onSelect: (value) => _onGroupSelected(value, groups),
                   items: groups.map((group) => group.groupName).toList(),
                 ),
                 const SizedBox(height: 15),
@@ -216,7 +217,7 @@ class _AttendanceBeneficiaryScreenState
       orElse: () => groups.first,
     );
 
-    ref.read(selectedGroupProvider.notifier).state = foundGroup;
+    ref.read(selectedAttendanceGroupProvider.notifier).state = foundGroup;
   }
 
   // Helper method to save attendance and update group
@@ -226,16 +227,18 @@ class _AttendanceBeneficiaryScreenState
         log('Attendance: ${attendance.toString()}');
       }
 
+      final selectedGroup = ref
+          .read(selectedAttendanceGroupProvider.notifier)
+          .state;
+      if (selectedGroup == null) {
+        MySnackBar.error(context, 'Seleccione un grupo');
+        return;
+      }
       if (attendanceList.isNotEmpty) {
         attendance = attendance.copyWith(id: attendanceList.first.idAttendance);
         await ref
             .watch(registerAttendanceProvider)
-            .call(
-              attendance,
-              attendanceList,
-              ref.read(selectedGroupProvider.notifier).state?.id ?? '',
-              context,
-            );
+            .call(attendance, attendanceList, selectedGroup, context);
 
         dropDownKey.currentState?.enableDropDown(true);
       } else {

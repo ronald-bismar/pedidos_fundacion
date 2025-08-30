@@ -22,17 +22,17 @@ class AttendanceLocalDataSource {
   static String attendance =
       'CREATE TABLE $tableName('
       'id TEXT PRIMARY KEY, '
-      'type TEXT, '
       'idGroup TEXT, '
-      'nameGroup TEXT, '
-      'date TEXT '
+      'type TEXT, '
+      'date TEXT, '
+      'idMonthlyAttendance TEXT '
       ')';
 
-  Future<void> insert(Attendance c) async {
+  Future<void> insert(Attendance attendance) async {
     Database database = await _dbHelper.openDB();
     database.insert(
       tableName,
-      c.toMap(),
+      attendance.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }

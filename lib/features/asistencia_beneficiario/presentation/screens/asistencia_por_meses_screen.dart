@@ -5,10 +5,10 @@ import 'package:pedidos_fundacion/core/utils/change_screen.dart';
 import 'package:pedidos_fundacion/core/widgets/subtitle.dart';
 import 'package:pedidos_fundacion/core/widgets/text_normal.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
-import 'package:pedidos_fundacion/domain/entities/asistencia.dart';
+import 'package:pedidos_fundacion/domain/entities/asistencia_mensual.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/providers/asistencia_mensual_provider.dart';
-import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/screens/asistencia_screen.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/screens/asistencia_grupo_mes_screen.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/screens/asistencia_screen.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/widgets/card_asistencia_mensual.dart';
 
 class ListMonthlyAttendance extends ConsumerStatefulWidget {
@@ -46,11 +46,11 @@ class _ListMonthlyAttendanceScreenState
 
                     error: (error, stackTrace) => _errorState(error),
 
-                    data: (coordinators) {
-                      if (coordinators.isEmpty) {
+                    data: (monthlyAttendances) {
+                      if (monthlyAttendances.isEmpty) {
                         return _emptyState();
                       }
-                      return _loadedState(coordinators);
+                      return _loadedState(monthlyAttendances);
                     },
                   ),
                 ),
@@ -126,7 +126,7 @@ class _ListMonthlyAttendanceScreenState
     );
   }
 
-  Widget _loadedState(List<Attendance> attendances) {
+  Widget _loadedState(List<MonthlyAttendance> attendances) {
     return RefreshIndicator(
       onRefresh: () async {
         ref.invalidate(monthlyAttendanceProvider);
@@ -142,7 +142,8 @@ class _ListMonthlyAttendanceScreenState
                 AttendanceGroupMonthScreen(
                   idAttendance: attendances[index].id,
                   nameGroup: attendances[index].nameGroup,
-                  date: attendances[index].date,
+                  month: attendances[index].month,
+                  year: attendances[index].year,
                 ),
               );
             },

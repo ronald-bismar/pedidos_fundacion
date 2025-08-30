@@ -172,10 +172,13 @@ class BeneficiaryRemoteDataSource {
 
   Future<List<Beneficiary>> getByGroup(String idGroup) async {
     try {
+      log('Consultando beneficiarios al servidor remoto');
       final querySnapshot = await service
           .collection(_collection)
           .where('idGroup', isEqualTo: idGroup)
           .get();
+
+      log('Retornando: ${querySnapshot.docs.length} beneficiarios');
 
       return querySnapshot.docs
           .where((doc) => doc.exists)

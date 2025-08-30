@@ -99,10 +99,26 @@ class MonthlyAttendanceRemoteDataSource {
     }
   }
 
-  Future<Future<MonthlyAttendance?>> getMonthlyAttendanceByGroupAndMonth(
+  Future<MonthlyAttendance?> getMonthlyAttendanceByGroupAndMonth(
     String idGroup,
     int month,
-  ) async {}
+  ) async {
+       try {
+      final querySnapshot = await service
+          .collection(_collection)
+          .where('idGroup', isEqualTo: idGroup)
+          .where('month', isEqualTo: month)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return MonthlyAttendance.fromMap(querySnapshot.docs.first.data());
+      }
+      return null;
+    } catch (e) {
+      log('Error getting monthly attendance by group and month: $e');
+      return null;
+    }
+  }
 
   Future<String?> getMonthlyAttendanceId(String idGroup, int month) async {
     try {

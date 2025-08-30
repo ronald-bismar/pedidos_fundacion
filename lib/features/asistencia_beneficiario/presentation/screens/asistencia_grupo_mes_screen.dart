@@ -13,13 +13,15 @@ import 'package:pedidos_fundacion/features/beneficiarios/presentation/providers/
 class AttendanceGroupMonthScreen extends ConsumerStatefulWidget {
   final String idAttendance;
   final String nameGroup;
-  final DateTime date;
+  final int month;
+  final int year;
 
   const AttendanceGroupMonthScreen({
     super.key,
     required this.idAttendance,
     required this.nameGroup,
-    required this.date,
+    required this.month,
+    required this.year,
   });
 
   @override
@@ -35,7 +37,7 @@ class _AttendanceGroupMonthScreenState
     String formattedDate = DateFormat(
       "MMMM 'de' y",
       'es_ES',
-    ).format(widget.date);
+    ).format(DateTime(widget.year, widget.month));
 
     formattedDate = formattedDate[0].toUpperCase() + formattedDate.substring(1);
 

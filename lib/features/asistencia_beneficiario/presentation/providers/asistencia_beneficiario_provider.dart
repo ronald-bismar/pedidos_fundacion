@@ -12,16 +12,13 @@ final attendanceBeneficiariesStreamProvider =
       params,
     ) async {
       final (idGroup, date) = params;
-
       final attendanceRepository = ref.watch(attendanceRepoProvider);
       final attendances = await attendanceRepository
           .listAttendanceBeneficiaries(idGroup, date);
-
       if (attendances.isEmpty) {
         final beneficiariesRepo = ref.watch(beneficiaryRepoProvider);
         final beneficiaries = await beneficiariesRepo
-            .getBeneficiariesByGroup(idGroup)
-            .first;
+            .getBeneficiariesByGroupFuture(idGroup);
 
         final idAttendance = UUID.generateUUID();
 

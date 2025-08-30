@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/widgets/text_normal.dart';
-import 'package:pedidos_fundacion/domain/entities/asistencia.dart';
+import 'package:pedidos_fundacion/domain/entities/asistencia_mensual.dart';
 
 class CardMonthlyAttendance extends ConsumerStatefulWidget {
-  final Attendance attendance;
+  final MonthlyAttendance attendance;
   final VoidCallback? onTap;
   const CardMonthlyAttendance(this.attendance, {this.onTap, super.key});
 
@@ -18,10 +18,8 @@ class CardMonthlyAttendance extends ConsumerStatefulWidget {
 class _CardMonthlyAttendanceState extends ConsumerState<CardMonthlyAttendance> {
   @override
   Widget build(BuildContext context) {
-    final formattedDate = DateFormat(
-      "MMMM 'de' y",
-      'es_ES',
-    ).format(widget.attendance.date);
+    final formattedDate =
+        '${DateFormat('MMMM', 'es_ES').format(DateTime(widget.attendance.year, widget.attendance.month)).toLowerCase()} de ${widget.attendance.year}';
 
     return InkWell(
       onTap: widget.onTap,
@@ -57,7 +55,11 @@ class _CardMonthlyAttendanceState extends ConsumerState<CardMonthlyAttendance> {
                     ],
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey,
+                ),
               ],
             ),
           ),
