@@ -5,8 +5,11 @@ import 'package:pedidos_fundacion/data/datasources/asistencia/local_datasource.d
 import 'package:pedidos_fundacion/data/datasources/asistencia/remote_datasource.dart';
 import 'package:pedidos_fundacion/data/datasources/asistencia_beneficiario/local_datasource.dart';
 import 'package:pedidos_fundacion/data/datasources/asistencia_beneficiario/remote_datasource.dart';
+import 'package:pedidos_fundacion/data/datasources/asistencia_mensual/local_datasource.dart';
+import 'package:pedidos_fundacion/data/datasources/asistencia_mensual/remote_datasource.dart';
 import 'package:pedidos_fundacion/domain/entities/asistencia.dart';
 import 'package:pedidos_fundacion/domain/entities/asistencia_beneficiario.dart';
+import 'package:pedidos_fundacion/domain/entities/asistencia_mensual.dart';
 import 'package:pedidos_fundacion/domain/repositories/asistencia_repository.dart';
 
 final attendanceRepoProvider = Provider(
@@ -15,57 +18,45 @@ final attendanceRepoProvider = Provider(
     ref.watch(attendanceRemoteDataSourceProvider),
     ref.watch(attendanceBeneficiaryLocalDataSourceProvider),
     ref.watch(attendanceBeneficiaryRemoteDataSourceProvider),
+    ref.watch(monthlyAttendanceLocalDataSourceProvider),
+    ref.watch(monthlyAttendanceRemoteDataSourceProvider),
   ),
 );
 
 class AttendanceRepositoryImpl extends AttendanceRepository {
-  final AttendanceLocalDataSource localDataSource;
-  final AttendanceRemoteDataSource remoteDataSource;
+  final AttendanceLocalDataSource attendanceLocalDataSource;
+  final AttendanceRemoteDataSource attendanceRemoteDataSource;
   final AttendanceBeneficiaryLocalDataSource
   attendanceBeneficiaryLocalDataSource;
   final AttendanceBeneficiaryRemoteDataSource
   attendanceBeneficiaryRemoteDataSource;
+  final MonthlyAttendanceLocalDataSource monthlyAttendanceLocalDataSource;
+  final MonthlyAttendanceRemoteDataSource monthlyAttendanceRemoteDataSource;
 
   AttendanceRepositoryImpl(
-    this.localDataSource,
-    this.remoteDataSource,
+    this.attendanceLocalDataSource,
+    this.attendanceRemoteDataSource,
     this.attendanceBeneficiaryLocalDataSource,
     this.attendanceBeneficiaryRemoteDataSource,
+    this.monthlyAttendanceLocalDataSource,
+    this.monthlyAttendanceRemoteDataSource,
   );
 
-  @override
-  Future<void> deleteAttendance(Attendance attendance) async {
-    try {
-      await localDataSource.delete(attendance);
-      remoteDataSource.delete(attendance.id);
-    } catch (e) {
-      log('Error al eliminar la asistencia: $e');
-    }
-  }
-
-  @override
-  Future<void> deleteAttendanceBeneficiary(
-    AttendanceBeneficiary attendance,
-  ) async {
-    try {
-      await attendanceBeneficiaryLocalDataSource.delete(attendance);
-      attendanceBeneficiaryRemoteDataSource.delete(attendance.id);
-    } catch (e) {
-      log('Error al eliminar la asistencia del beneficiario: $e');
-    }
-  }
+  // ============================================================================
+  // ATTENDANCE METHODS
+  // ============================================================================
 
   @override
   Stream<List<Attendance>> getAllAttendance() async* {
     try {
-      final attendances = await localDataSource.getAll();
+      final attendances = await attendanceLocalDataSource.getAll();
       if (attendances.isNotEmpty) {
         yield attendances;
       }
 
-      final attendancesRemote = await remoteDataSource.getAll();
+      final attendancesRemote = await attendanceRemoteDataSource.getAll();
       if (attendancesRemote.isNotEmpty) {
-        await localDataSource.insertOrUpdate(attendancesRemote);
+        await attendanceLocalDataSource.insertOrUpdate(attendancesRemote);
         yield attendancesRemote;
       }
       yield attendances;
@@ -74,6 +65,56 @@ class AttendanceRepositoryImpl extends AttendanceRepository {
       yield [];
     }
   }
+
+  @override
+  Future<void> insertAttendance(Attendance attendance) async {
+    try {
+      await attendanceLocalDataSource.insert(attendance);
+      attendanceRemoteDataSource.insert(attendance);
+    } catch (e) {
+      log('Error al insertar la asistencia: $e');
+    }
+  }
+
+  @override
+  Future<void> updateAttendance(Attendance attendance) async {
+    try {
+      await attendanceLocalDataSource.update(attendance);
+      attendanceRemoteDataSource.update(attendance);
+    } catch (e) {
+      log('Error al actualizar la asistencia: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteAttendance(Attendance attendance) async {
+    try {
+      await attendanceLocalDataSource.delete(attendance);
+      attendanceRemoteDataSource.delete(attendance.id);
+    } catch (e) {
+      log('Error al eliminar la asistencia: $e');
+    }
+  }
+
+  @override
+  Future<bool> saveAttendance(
+    Attendance attendance,
+    List<AttendanceBeneficiary> attendanceBeneficiaries,
+  ) async {
+    try {
+      log('Guardando la asistencia');
+      await insertAttendance(attendance);
+      await insertAttendanceBeneficiaries(attendanceBeneficiaries);
+      return true;
+    } catch (e) {
+      log('Error al guardar la asistencia: $e');
+      return false;
+    }
+  }
+
+  // ============================================================================
+  // ATTENDANCE BENEFICIARY METHODS
+  // ============================================================================
 
   @override
   Future<AttendanceBeneficiary?> getAttendanceBeneficiary(String id) async {
@@ -95,42 +136,6 @@ class AttendanceRepositoryImpl extends AttendanceRepository {
     } catch (e) {
       log('Error al obtener la asistencia: $e');
       return null;
-    }
-  }
-
-  @override
-  Future<void> insertAttendance(Attendance attendance) async {
-    try {
-      await localDataSource.insert(attendance);
-      remoteDataSource.insert(attendance);
-    } catch (e) {
-      log('Error al insertar la asistencia: $e');
-    }
-  }
-
-  @override
-  Future<void> insertAttendanceBeneficiary(AttendanceBeneficiary c) async {
-    try {
-      await attendanceBeneficiaryLocalDataSource.insert(c);
-      attendanceBeneficiaryRemoteDataSource.insert(c);
-    } catch (e) {
-      log('Error al insertar la asistencia del beneficiario: $e');
-    }
-  }
-
-  @override
-  Future<void> insertAttendanceBeneficiaries(
-    List<AttendanceBeneficiary> attendanceBeneficiaries,
-  ) async {
-    try {
-      await attendanceBeneficiaryLocalDataSource.insertOrUpdate(
-        attendanceBeneficiaries,
-      );
-      attendanceBeneficiaryRemoteDataSource.insertOrUpdate(
-        attendanceBeneficiaries,
-      );
-    } catch (e) {
-      log('Error al insertar las asistencias de los beneficiarios: $e');
     }
   }
 
@@ -167,8 +172,8 @@ class AttendanceRepositoryImpl extends AttendanceRepository {
   ) async {
     try {
       final attendance =
-          await localDataSource.getAttendanceByDate(idGroup, date) ??
-          await remoteDataSource.getAttendanceByDate(idGroup, date);
+          await attendanceLocalDataSource.getAttendanceByDate(idGroup, date) ??
+          await attendanceRemoteDataSource.getAttendanceByDate(idGroup, date);
 
       if (attendance == null) return [];
 
@@ -187,12 +192,28 @@ class AttendanceRepositoryImpl extends AttendanceRepository {
   }
 
   @override
-  Future<void> updateAttendance(Attendance attendance) async {
+  Future<void> insertAttendanceBeneficiary(AttendanceBeneficiary c) async {
     try {
-      await localDataSource.update(attendance);
-      remoteDataSource.update(attendance);
+      await attendanceBeneficiaryLocalDataSource.insert(c);
+      attendanceBeneficiaryRemoteDataSource.insert(c);
     } catch (e) {
-      log('Error al actualizar la asistencia: $e');
+      log('Error al insertar la asistencia del beneficiario: $e');
+    }
+  }
+
+  @override
+  Future<void> insertAttendanceBeneficiaries(
+    List<AttendanceBeneficiary> attendanceBeneficiaries,
+  ) async {
+    try {
+      await attendanceBeneficiaryLocalDataSource.insertOrUpdate(
+        attendanceBeneficiaries,
+      );
+      attendanceBeneficiaryRemoteDataSource.insertOrUpdate(
+        attendanceBeneficiaries,
+      );
+    } catch (e) {
+      log('Error al insertar las asistencias de los beneficiarios: $e');
     }
   }
 
@@ -209,18 +230,67 @@ class AttendanceRepositoryImpl extends AttendanceRepository {
   }
 
   @override
-  Future<bool> saveAttendance(
-    Attendance attendance,
-    List<AttendanceBeneficiary> attendanceBeneficiaries,
+  Future<void> deleteAttendanceBeneficiary(
+    AttendanceBeneficiary attendance,
   ) async {
     try {
-      log('Guardando la asistencia');
-      await insertAttendance(attendance);
-      await insertAttendanceBeneficiaries(attendanceBeneficiaries);
-      return true;
+      await attendanceBeneficiaryLocalDataSource.delete(attendance);
+      attendanceBeneficiaryRemoteDataSource.delete(attendance.id);
     } catch (e) {
-      log('Error al guardar la asistencia: $e');
-      return false;
+      log('Error al eliminar la asistencia del beneficiario: $e');
+    }
+  }
+
+  // ============================================================================
+  // MONTHLY ATTENDANCE METHODS
+  // ============================================================================
+
+  @override
+  Stream<List<MonthlyAttendance>> getAllMonthlyAttendance() async* {
+    try {
+      final monthlyAttendance = await monthlyAttendanceLocalDataSource.getAll();
+      yield monthlyAttendance;
+      final monthlyAttendanceRemote = await monthlyAttendanceRemoteDataSource
+          .getAll();
+      if (monthlyAttendanceRemote.isNotEmpty) {
+        await monthlyAttendanceLocalDataSource.insertOrUpdate(
+          monthlyAttendanceRemote,
+        );
+        yield monthlyAttendanceRemote;
+      }
+    } catch (e) {
+      log('Error al obtener la asistencia mensual: $e');
+      yield [];
+    }
+  }
+
+  @override
+  Future<void> insertMonthlyAttendance(MonthlyAttendance attendance) async {
+    try {
+      await monthlyAttendanceLocalDataSource.insert(attendance);
+      monthlyAttendanceRemoteDataSource.insert(attendance);
+    } catch (e) {
+      log('Error al insertar la asistencia mensual: $e');
+    }
+  }
+
+  @override
+  Future<void> updateMonthlyAttendance(MonthlyAttendance attendance) async {
+    try {
+      await monthlyAttendanceLocalDataSource.update(attendance);
+      monthlyAttendanceRemoteDataSource.update(attendance);
+    } catch (e) {
+      log('Error al actualizar la asistencia mensual: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteMonthlyAttendance(MonthlyAttendance attendance) async {
+    try {
+      await monthlyAttendanceLocalDataSource.delete(attendance);
+      monthlyAttendanceRemoteDataSource.delete(attendance.id);
+    } catch (e) {
+      log('Error al eliminar la asistencia mensual: $e');
     }
   }
 }
