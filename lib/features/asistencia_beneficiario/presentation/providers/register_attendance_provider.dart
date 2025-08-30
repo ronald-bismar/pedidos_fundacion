@@ -11,6 +11,7 @@ final registerAttendanceProvider =
       Future<void> Function(
         Attendance,
         List<AttendanceBeneficiary>,
+        String idGroup,
         BuildContext,
       )
     >((ref) {
@@ -21,6 +22,7 @@ final registerAttendanceProvider =
       return (
         Attendance attendance,
         List<AttendanceBeneficiary> attendanceBeneficiaries,
+        String idGroup,
         BuildContext context,
       ) async {
         MySnackBar.show(
@@ -33,6 +35,7 @@ final registerAttendanceProvider =
         final result = await registerAttendanceUseCase.call(
           attendance,
           attendanceBeneficiaries,
+          idGroup,
         );
 
         if (context.mounted) {

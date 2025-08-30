@@ -5,12 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/di/services_provider.dart';
 import 'package:pedidos_fundacion/domain/entities/asistencia_mensual.dart';
 
-final monthlyAttendanceRemoteDataSourceProvider = Provider<MonthlyAttendanceRemoteDataSource>(
-  (ref) {
-    final service = ref.watch(firestoreProvider);
-    return MonthlyAttendanceRemoteDataSource(service);
-  },
-);
+final monthlyAttendanceRemoteDataSourceProvider =
+    Provider<MonthlyAttendanceRemoteDataSource>((ref) {
+      final service = ref.watch(firestoreProvider);
+      return MonthlyAttendanceRemoteDataSource(service);
+    });
 
 class MonthlyAttendanceRemoteDataSource {
   final FirebaseFirestore service;
@@ -62,7 +61,7 @@ class MonthlyAttendanceRemoteDataSource {
     }
   }
 
-  Future<List<MonthlyAttendance>> getAll() async {  
+  Future<List<MonthlyAttendance>> getAll() async {
     try {
       final querySnapshot = await service.collection(_collection).get();
 
@@ -74,22 +73,51 @@ class MonthlyAttendanceRemoteDataSource {
     }
   }
 
-  Future<MonthlyAttendance?> getAttendanceByDate(String idGroup, DateTime date) async {
-  try {
-    String dateOnly = '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-    
-    final querySnapshot = await service
-        .collection(_collection)
-        .where('idGroup', isEqualTo: idGroup)
-        .where('dateOnly', isEqualTo: dateOnly) // Sin índice necesario si hay pocos docs
-        .get();
+  Future<MonthlyAttendance?> getAttendanceByDate(
+    String idGroup,
+    DateTime date,
+  ) async {
+    try {
+      String dateOnly =
+          '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
-    if (querySnapshot.docs.isNotEmpty) {
-      return MonthlyAttendance.fromMap(querySnapshot.docs.first.data());
+      final querySnapshot = await service
+          .collection(_collection)
+          .where('idGroup', isEqualTo: idGroup)
+          .where(
+            'dateOnly',
+            isEqualTo: dateOnly,
+          ) // Sin índice necesario si hay pocos docs
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return MonthlyAttendance.fromMap(querySnapshot.docs.first.data());
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Error getting monthly attendance by date: $e');
     }
-    return null;
-  } catch (e) {
-    throw Exception('Error getting monthly attendance by date: $e');
   }
-}
+
+  Future<Future<MonthlyAttendance?>> getMonthlyAttendanceByGroupAndMonth(
+    String idGroup,
+    int month,
+  ) async {}
+
+  Future<String?> getMonthlyAttendanceId(String idGroup, int month) async {
+    try {
+      final querySnapshot = await service
+          .collection(_collection)
+          .where('idGroup', isEqualTo: idGroup)
+          .where('month', isEqualTo: month)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        return querySnapshot.docs.first.id;
+      }
+      return null;
+    } catch (e) {
+      log('Error getting monthly attendance by group and month: $e');
+      return null;
+    }
+  }
 }

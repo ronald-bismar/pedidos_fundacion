@@ -34,4 +34,6 @@ abstract class AttendanceRepository {
     String idGroup,
     DateTime date,
   );
+
+  Future<MonthlyAttendance?> getMonthlyAttendanceByGroupAndMonth(String idGroup, int month);
 }

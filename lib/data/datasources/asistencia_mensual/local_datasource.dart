@@ -109,4 +109,37 @@ class MonthlyAttendanceLocalDataSource {
       (i) => MonthlyAttendance.fromMap(cMap[i]),
     );
   }
+
+  Future<MonthlyAttendance?> getMonthlyAttendanceByGroupAndMonth(
+    String idGroup,
+    int month,
+  ) async {
+    Database database = await _dbHelper.openDB();
+    final List<Map<String, dynamic>> cMap = await database.query(
+      tableName,
+      where: 'idGroup = ? AND month = ?',
+      whereArgs: [idGroup, month],
+      limit: 1,
+    );
+    if (cMap.isNotEmpty) {
+      return MonthlyAttendance.fromMap(cMap.first);
+    }
+    return null;
+  }
+
+  Future<String?> getMonthlyAttendanceId(String idGroup, int month) async {
+    Database database = await _dbHelper.openDB();
+    final List<Map<String, dynamic>> cMap = await database.query(
+      tableName,
+      where: 'idGroup = ? AND month = ?',
+      whereArgs: [idGroup, month],
+      limit: 1,
+    );
+
+    log('cMap: $cMap');
+    if (cMap.isNotEmpty) {
+      return cMap.first['id'] as String;
+    }
+    return null;
+  }
 }

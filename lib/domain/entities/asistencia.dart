@@ -1,36 +1,32 @@
 class Attendance {
   String id;
   String type;
-  String idGroup;
-  String nameGroup;
   DateTime date;
+  String idMonthlyAttendance;
 
   Attendance({
     this.id = '',
     this.type = '',
-    this.idGroup = '',
-    this.nameGroup = '',
     required this.date,
+    this.idMonthlyAttendance = '',
   });
 
   @override
   String toString() {
-    return 'Attendance{id: $id, type: $type, idGroup: $idGroup, nameGroup: $nameGroup, date: $date}';
+    return 'Attendance{id: $id, type: $type, date: $date, idMonthlyAttendance: $idMonthlyAttendance}';
   }
 
   Attendance copyWith({
     String? id,
     String? type,
-    String? idGroup,
-    String? nameGroup,
     DateTime? date,
+    String? idMonthlyAttendance,
   }) {
     return Attendance(
       id: id ?? this.id,
       type: type ?? this.type,
-      idGroup: idGroup ?? this.idGroup,
-      nameGroup: nameGroup ?? this.nameGroup,
       date: date ?? this.date,
+      idMonthlyAttendance: idMonthlyAttendance ?? this.idMonthlyAttendance,
     );
   }
 
@@ -38,9 +34,8 @@ class Attendance {
     return {
       'id': id,
       'type': type,
-      'idGroup': idGroup,
-      'nameGroup': nameGroup,
       'date': date.toIso8601String().substring(0, 10),
+      'idMonthlyAttendance': idMonthlyAttendance,
     };
   }
 
@@ -48,9 +43,8 @@ class Attendance {
     return Attendance(
       id: map['id'] ?? '',
       type: map['type'] ?? '',
-      idGroup: map['idGroup'] ?? '',
-      nameGroup: map['nameGroup'] ?? '',
       date: DateTime.parse(map['date'] ?? DateTime.now().toIso8601String()),
+      idMonthlyAttendance: map['idMonthlyAttendance'] ?? '',
     );
   }
 }

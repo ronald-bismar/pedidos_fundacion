@@ -17,7 +17,17 @@ class RegisterAttendanceUseCase {
   Future<Result> call(
     Attendance attendance,
     List<AttendanceBeneficiary> attendanceBeneficiary,
+    String idGroup,
   ) async {
+    final hasMonthlyAttendance = attendance.idMonthlyAttendance.isNotEmpty;
+
+    //Si no tiene asistencia de mes buscamos una del grupo y del mes...
+    if (!hasMonthlyAttendance) {
+      final monthlyAttendance = await _attendanceRepository
+          .getMonthlyAttendanceByGroupAndMonth(idGroup, attendance.date.month);
+    }
+
+    //Si no hay una asistencia del mes para este grupo, la creamos
     final isSuccess = await _attendanceRepository.saveAttendance(
       attendance,
       attendanceBeneficiary,

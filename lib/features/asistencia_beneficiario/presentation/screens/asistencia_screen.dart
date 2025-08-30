@@ -23,8 +23,7 @@ import 'package:pedidos_fundacion/features/beneficiarios/presentation/providers/
 import 'package:pedidos_fundacion/toDataDynamic/tipos_de_asistencia.dart';
 
 class AttendanceBeneficiaryScreen extends ConsumerStatefulWidget {
-  final String beneficiaryId;
-  const AttendanceBeneficiaryScreen({this.beneficiaryId = '', super.key});
+  const AttendanceBeneficiaryScreen({super.key});
 
   @override
   ConsumerState<AttendanceBeneficiaryScreen> createState() =>
@@ -217,10 +216,6 @@ class _AttendanceBeneficiaryScreenState
       orElse: () => groups.first,
     );
 
-    attendance = attendance.copyWith(
-      idGroup: foundGroup.id,
-      nameGroup: foundGroup.groupName,
-    );
     ref.read(selectedGroupProvider.notifier).state = foundGroup;
   }
 
@@ -235,7 +230,12 @@ class _AttendanceBeneficiaryScreenState
         attendance = attendance.copyWith(id: attendanceList.first.idAttendance);
         await ref
             .watch(registerAttendanceProvider)
-            .call(attendance, attendanceList, context);
+            .call(
+              attendance,
+              attendanceList,
+              ref.read(selectedGroupProvider.notifier).state?.id ?? '',
+              context,
+            );
 
         dropDownKey.currentState?.enableDropDown(true);
       } else {
