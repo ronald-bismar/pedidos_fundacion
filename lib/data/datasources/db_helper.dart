@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart';
 import 'package:pedidos_fundacion/data/datasources/asistencia/local_datasource.dart';
 import 'package:pedidos_fundacion/data/datasources/asistencia_beneficiario/local_datasource.dart';
+import 'package:pedidos_fundacion/data/datasources/asistencia_mensual/local_datasource.dart';
 import 'package:pedidos_fundacion/data/datasources/beneficiario/local_datasource.dart';
 import 'package:pedidos_fundacion/data/datasources/encargado/local_datasource.dart';
 import 'package:pedidos_fundacion/data/datasources/foto/local_datasource.dart';
@@ -31,6 +32,7 @@ class DatabaseHelper {
         await db.execute(
           AttendanceBeneficiaryLocalDataSource.attendanceBeneficiary,
         );
+        await db.execute(MonthlyAttendanceLocalDataSource.monthlyAttendance);
       },
     );
   }

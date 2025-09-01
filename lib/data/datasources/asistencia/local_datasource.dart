@@ -22,17 +22,17 @@ class AttendanceLocalDataSource {
   static String attendance =
       'CREATE TABLE $tableName('
       'id TEXT PRIMARY KEY, '
-      'type TEXT, '
       'idGroup TEXT, '
-      'nameGroup TEXT, '
-      'date TEXT '
+      'type TEXT, '
+      'date TEXT, '
+      'idMonthlyAttendance TEXT '
       ')';
 
-  Future<void> insert(Attendance c) async {
+  Future<void> insert(Attendance attendance) async {
     Database database = await _dbHelper.openDB();
     database.insert(
       tableName,
-      c.toMap(),
+      attendance.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
@@ -101,6 +101,17 @@ class AttendanceLocalDataSource {
   Future<List<Attendance>> getAll() async {
     Database database = await _dbHelper.openDB();
     final List<Map<String, dynamic>> cMap = await database.query(tableName);
+
+    return List.generate(cMap.length, (i) => Attendance.fromMap(cMap[i]));
+  }
+
+   Future<List<Attendance>> getAttendanceOfMonth(String idMonthlyAttendance) async {
+    Database database = await _dbHelper.openDB();
+    final List<Map<String, dynamic>> cMap = await database.query(
+      tableName,
+      where: 'idMonthlyAttendance = ?',
+      whereArgs: [idMonthlyAttendance],
+    );
 
     return List.generate(cMap.length, (i) => Attendance.fromMap(cMap[i]));
   }

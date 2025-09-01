@@ -8,7 +8,7 @@ import 'package:pedidos_fundacion/core/widgets/title.dart';
 import 'package:pedidos_fundacion/domain/entities/encargado.dart';
 import 'package:pedidos_fundacion/features/encargados/presentation/providers/encargados_provider.dart';
 import 'package:pedidos_fundacion/features/encargados/presentation/screens/auth_screen.dart';
-import 'package:pedidos_fundacion/features/encargados/presentation/widgets/card_coordinator.dart';
+import 'package:pedidos_fundacion/features/encargados/presentation/widgets/card_encargado.dart';
 
 class ListCoordinatorsScreen extends ConsumerStatefulWidget {
   final String coordinatorId;

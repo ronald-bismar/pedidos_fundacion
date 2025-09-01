@@ -4,6 +4,7 @@ import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/widgets/snackbar.dart';
 import 'package:pedidos_fundacion/domain/entities/asistencia.dart';
 import 'package:pedidos_fundacion/domain/entities/asistencia_beneficiario.dart';
+import 'package:pedidos_fundacion/domain/entities/programa.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/usecases/registrar_asistencia.dart';
 
 final registerAttendanceProvider =
@@ -11,6 +12,7 @@ final registerAttendanceProvider =
       Future<void> Function(
         Attendance,
         List<AttendanceBeneficiary>,
+        Group group,
         BuildContext,
       )
     >((ref) {
@@ -21,6 +23,7 @@ final registerAttendanceProvider =
       return (
         Attendance attendance,
         List<AttendanceBeneficiary> attendanceBeneficiaries,
+        Group group,
         BuildContext context,
       ) async {
         MySnackBar.show(
@@ -33,6 +36,7 @@ final registerAttendanceProvider =
         final result = await registerAttendanceUseCase.call(
           attendance,
           attendanceBeneficiaries,
+          group,
         );
 
         if (context.mounted) {

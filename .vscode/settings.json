@@ -1,4 +1,27 @@
 {
   "java.configuration.updateBuildConfiguration": "disabled",
-  "dart.flutterSdkPath": ".fvm/versions/3.32.1"
+  "dart.flutterSdkPath": ".fvm/versions/3.32.1",
+
+    "git.autofetch": true,
+    "git.enableSmartCommit": true,
+    "editor.formatOnSave": true,
+    "terminal.integrated.enableMultiLinePasteWarning": "never",
+    "explorer.confirmDelete": false,
+    "git.confirmSync": false,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    },
+    "dart.openDevTools": "flutter",
+    "diffEditor.ignoreTrimWhitespace": false,
+    "[dart]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+        },
+        "editor.suggest.snippetsPreventQuickSuggestions": false,
+        "editor.tabCompletion": "onlySnippets",
+        "editor.rulers": [
+            120
+        ]
+    }
 }

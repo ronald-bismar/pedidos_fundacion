@@ -1,45 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
-import 'package:pedidos_fundacion/core/widgets/drop_down_options.dart';
 import 'package:pedidos_fundacion/core/widgets/subtitle.dart';
 import 'package:pedidos_fundacion/core/widgets/text_normal.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
-import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
-import 'package:pedidos_fundacion/domain/entities/programa.dart';
+import 'package:pedidos_fundacion/domain/entities/asistencia_beneficiario.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/widgets/card_historial_asistencia_beneficiario.dart';
+import 'package:pedidos_fundacion/features/beneficiarios/presentation/providers/asistencia_por_grupo_provider.dart';
 import 'package:pedidos_fundacion/features/beneficiarios/presentation/providers/beneficiaries_provider.dart';
-import 'package:pedidos_fundacion/features/beneficiarios/presentation/providers/grupos_provider.dart';
 
-class AttendanceHistoryBeneficiaryScreen extends ConsumerStatefulWidget {
-  const AttendanceHistoryBeneficiaryScreen({super.key});
+class AttendanceGroupMonthScreen extends ConsumerStatefulWidget {
+  final String idMonthlyAttendance;
+  final String nameGroup;
+  final int month;
+  final int year;
+
+  const AttendanceGroupMonthScreen({
+    super.key,
+    required this.idMonthlyAttendance,
+    required this.nameGroup,
+    required this.month,
+    required this.year,
+  });
 
   @override
-  ConsumerState<AttendanceHistoryBeneficiaryScreen> createState() =>
-      _AttendanceHistoryBeneficiaryScreenState();
+  ConsumerState<AttendanceGroupMonthScreen> createState() =>
+      _AttendanceGroupMonthScreenState();
 }
 
-class _AttendanceHistoryBeneficiaryScreenState
-    extends ConsumerState<AttendanceHistoryBeneficiaryScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final groups = ref
-          .read(groupsProvider)
-          .maybeWhen(data: (data) => data, orElse: () => []);
-      if (groups.isNotEmpty) {
-        ref.read(selectedGroupProvider.notifier).state = groups.first;
-      }
-    });
-  }
-
+class _AttendanceGroupMonthScreenState
+    extends ConsumerState<AttendanceGroupMonthScreen> {
+  int cantAttendances = 0;
   @override
   Widget build(BuildContext context) {
-    final selectedGroup = ref.watch(selectedGroupProvider);
-    final List<Group> groups = ref
-        .watch(groupsProvider)
-        .maybeWhen(data: (data) => data, orElse: () => []);
+    String formattedDate = DateFormat(
+      "MMMM 'de' y",
+      'es_ES',
+    ).format(DateTime(widget.year, widget.month));
+
+    formattedDate = formattedDate[0].toUpperCase() + formattedDate.substring(1);
 
     return Scaffold(
       body: Container(
@@ -53,16 +53,8 @@ class _AttendanceHistoryBeneficiaryScreenState
                 const SizedBox(height: 5),
 
                 title('Historial de Asistencias'),
-
                 const SizedBox(height: 15),
-                DropDownOptions(
-                  itemInitial:
-                      selectedGroup?.groupName ?? 'Selecciona un grupo',
-                  onSelect: (value) => _onGroupSelected(value, groups),
-                  items: groups
-                      .map((group) => '${group.groupName} ${group.ageRange}')
-                      .toList(),
-                ),
+                title(widget.nameGroup),
                 const SizedBox(height: 15),
                 Expanded(
                   child: Container(
@@ -84,10 +76,10 @@ class _AttendanceHistoryBeneficiaryScreenState
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  subTitle('Marzo 2025', textColor: dark),
+                                  subTitle(formattedDate, textColor: dark),
                                   const SizedBox(height: 4),
                                   textNormal(
-                                    'Beneficiarios registrados: 100',
+                                    'Beneficiarios registrados: $cantAttendances',
                                     textAlign: TextAlign.left,
                                     textColor: dark.withAlpha(200),
                                     fontWeight: FontWeight.normal,
@@ -111,21 +103,23 @@ class _AttendanceHistoryBeneficiaryScreenState
                         Expanded(
                           child: Consumer(
                             builder: (context, ref, child) {
-                              final beneficiariesAsyncValue = ref.watch(
-                                beneficiariesStreamProvider(
-                                  selectedGroup?.id ?? '',
+                              final attendancesAsyncValue = ref.watch(
+                                attendanceGroupStreamProvider(
+                                  widget.idMonthlyAttendance,
                                 ),
                               );
 
-                              return beneficiariesAsyncValue.when(
+                              return attendancesAsyncValue.when(
                                 loading: () => _loadingState(),
                                 error: (error, stackTrace) =>
                                     _errorState(error),
-                                data: (beneficiaries) {
-                                  if (beneficiaries.isEmpty) {
+                                data: (attendances) {
+                                  cantAttendances = attendances.length;
+                                  if (attendances.isEmpty) {
                                     return _emptyState();
                                   }
-                                  return _loadedState(beneficiaries);
+
+                                  return _loadedState(attendances);
                                 },
                               );
                             },
@@ -141,15 +135,6 @@ class _AttendanceHistoryBeneficiaryScreenState
         ),
       ),
     );
-  }
-
-  void _onGroupSelected(String groupDisplayName, List<Group> groups) {
-    final Group foundGroup = groups.firstWhere(
-      (group) => '${group.groupName} ${group.ageRange}' == groupDisplayName,
-      orElse: () => groups.first,
-    );
-
-    ref.read(selectedGroupProvider.notifier).state = foundGroup;
   }
 
   Widget _loadingState() {
@@ -211,11 +196,32 @@ class _AttendanceHistoryBeneficiaryScreenState
     );
   }
 
-  Widget _loadedState(List<Beneficiary> beneficiaries) {
+  Widget _loadedState(List<AttendanceBeneficiary> attendances) {
+    Map<String, List<AttendanceBeneficiary>> groupedAttendances = {};
+
+    for (var attendance in attendances) {
+      if (groupedAttendances.containsKey(attendance.idBeneficiary)) {
+        groupedAttendances[attendance.idBeneficiary]!.add(attendance);
+      } else {
+        groupedAttendances[attendance.idBeneficiary] = [attendance];
+      }
+    }
+
+    List<MapEntry<String, List<AttendanceBeneficiary>>> beneficiaries =
+        groupedAttendances.entries.toList();
+
     return ListView.builder(
       itemCount: beneficiaries.length,
       itemBuilder: (context, index) {
-        return CardHistoryAttendanceBeneficiary(beneficiaries[index]);
+        var beneficiaryEntry = beneficiaries[index];
+        String beneficiaryName = beneficiaryEntry.value.first.nameBeneficiary;
+        List<AttendanceBeneficiary> beneficiaryAttendances =
+            beneficiaryEntry.value;
+
+        return CardHistoryAttendanceBeneficiary(
+          beneficiaryName,
+          beneficiaryAttendances,
+        );
       },
     );
   }

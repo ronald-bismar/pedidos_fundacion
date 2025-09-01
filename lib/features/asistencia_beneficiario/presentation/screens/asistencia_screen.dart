@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
+import 'package:pedidos_fundacion/core/utils/change_screen.dart';
 import 'package:pedidos_fundacion/core/widgets/alert_dialog_options.dart';
 import 'package:pedidos_fundacion/core/widgets/drop_down_options.dart';
+import 'package:pedidos_fundacion/core/widgets/snackbar.dart';
 import 'package:pedidos_fundacion/core/widgets/subtitle.dart';
 import 'package:pedidos_fundacion/core/widgets/text_normal.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
@@ -15,14 +17,14 @@ import 'package:pedidos_fundacion/domain/entities/programa.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/model/estados_asistencia.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/providers/asistencia_beneficiario_provider.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/providers/register_attendance_provider.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/screens/asistencia_por_meses_screen.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/widgets/card_asistencia_beneficario.dart';
 import 'package:pedidos_fundacion/features/beneficiarios/presentation/providers/beneficiaries_provider.dart';
 import 'package:pedidos_fundacion/features/beneficiarios/presentation/providers/grupos_provider.dart';
 import 'package:pedidos_fundacion/toDataDynamic/tipos_de_asistencia.dart';
 
 class AttendanceBeneficiaryScreen extends ConsumerStatefulWidget {
-  final String beneficiaryId;
-  const AttendanceBeneficiaryScreen({this.beneficiaryId = '', super.key});
+  const AttendanceBeneficiaryScreen({super.key});
 
   @override
   ConsumerState<AttendanceBeneficiaryScreen> createState() =>
@@ -46,7 +48,7 @@ class _AttendanceBeneficiaryScreenState
 
   @override
   Widget build(BuildContext context) {
-    final selectedGroup = ref.watch(selectedGroupProvider);
+    final selectedGroup = ref.watch(selectedAttendanceGroupProvider);
     final List<Group> groups = ref
         .watch(groupsProvider)
         .maybeWhen(data: (data) => data, orElse: () => []);
@@ -69,22 +71,35 @@ class _AttendanceBeneficiaryScreenState
                   children: [
                     const Spacer(),
                     Expanded(
-                      flex: 2,
+                      flex: 1,
                       child: Center(child: title('Asistencia')),
                     ),
                     Expanded(
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.check_rounded,
-                            color: white,
-                            size: 35,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min, // Agregamos esta línea
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.list_alt,
+                              color: white,
+                              size: 35,
+                            ),
+                            onPressed: () {
+                              cambiarPantalla(context, ListMonthlyAttendance());
+                            },
                           ),
-                          onPressed: () {
-                            _saveAttendance();
-                          },
-                        ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.check_rounded,
+                              color: white,
+                              size: 35,
+                            ),
+                            onPressed: () {
+                              _saveAttendance();
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -114,7 +129,7 @@ class _AttendanceBeneficiaryScreenState
                   messageNotShow:
                       'Guarda primero la asistencia de este grupo para seleccionar otro',
                   itemInitial: 'Selecciona un grupo',
-                  onSelect: (value) => {_onGroupSelected(value, groups)},
+                  onSelect: (value) => _onGroupSelected(value, groups),
                   items: groups.map((group) => group.groupName).toList(),
                 ),
                 const SizedBox(height: 15),
@@ -202,24 +217,28 @@ class _AttendanceBeneficiaryScreenState
       orElse: () => groups.first,
     );
 
-    attendance = attendance.copyWith(idGroup: foundGroup.id);
-
-    ref.read(selectedGroupProvider.notifier).state = foundGroup;
+    ref.read(selectedAttendanceGroupProvider.notifier).state = foundGroup;
   }
 
   // Helper method to save attendance and update group
   void _saveAttendance() async {
     if (attendanceList.isNotEmpty) {
-      log('Attendance: Tamanio de la lista actual: ${attendanceList.length}');
       for (var attendance in attendanceList) {
         log('Attendance: ${attendance.toString()}');
       }
 
+      final selectedGroup = ref
+          .read(selectedAttendanceGroupProvider.notifier)
+          .state;
+      if (selectedGroup == null) {
+        MySnackBar.error(context, 'Seleccione un grupo');
+        return;
+      }
       if (attendanceList.isNotEmpty) {
         attendance = attendance.copyWith(id: attendanceList.first.idAttendance);
         await ref
             .watch(registerAttendanceProvider)
-            .call(attendance, attendanceList, context);
+            .call(attendance, attendanceList, selectedGroup, context);
 
         dropDownKey.currentState?.enableDropDown(true);
       } else {

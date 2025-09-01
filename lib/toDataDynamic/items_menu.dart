@@ -4,6 +4,8 @@ import 'package:pedidos_fundacion/presentation/screen_factory.dart';
 
 final menuItems = [
   ItemMenu(title: 'Pedidos', icon: Icons.list, screenType: ScreenType.pedidos),
+  ItemMenu(title: 'Lugares', icon: Icons.place, screenType: ScreenType.lugares),
+  ItemMenu(title: 'Grupos', icon: Icons.group, screenType: ScreenType.grupos),
   ItemMenu(
     title: 'Entregas',
     icon: Icons.delivery_dining,
