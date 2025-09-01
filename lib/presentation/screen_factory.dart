@@ -4,6 +4,8 @@ import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/
 import 'package:pedidos_fundacion/features/beneficiarios/presentation/screens/lista_beneficiarios_screen.dart';
 import 'package:pedidos_fundacion/features/encargados/presentation/screens/auth_screen.dart';
 import 'package:pedidos_fundacion/features/encargados/presentation/screens/lista_encargados_screen.dart';
+import 'package:pedidos_fundacion/features/orders/presentation/screens/group_registration_screen.dart';
+import 'package:pedidos_fundacion/features/places/presentation/screens/place_registration_screen.dart';
 
 enum ScreenType {
   pedidos,
@@ -12,6 +14,8 @@ enum ScreenType {
   asistenciaBeneficiarios,
   beneficiarios,
   reportes,
+  lugares,
+  grupos,
 }
 
 // Factory para crear las pantallas
@@ -39,6 +43,10 @@ class ScreenFactory {
         return ListBeneficiariesScreen();
       case ScreenType.reportes:
         return AuthCoordinatorScreen();
+      case ScreenType.lugares:
+        return PlaceRegistrationScreen();
+      case ScreenType.grupos:
+        return GroupRegistrationScreen();
     }
   }
 }

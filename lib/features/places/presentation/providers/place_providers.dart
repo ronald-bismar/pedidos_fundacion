@@ -1,24 +1,22 @@
 // lib/features/orders/presentation/providers/place_providers.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:uuid/uuid.dart';
+import 'package:sqflite/sqflite.dart';
 
-import '../../domain/entities/place_entity.dart';
-import '../../domain/repositories/place_repository.dart';
 import '../../data/datasources/place_local_datasource.dart';
 import '../../data/datasources/place_remote_datasource.dart';
 import '../../data/repositories_impl/place_repository_impl.dart';
-import '../notifiers/place_notifier.dart';
-
+import '../../domain/entities/place_entity.dart';
+import '../../domain/repositories/place_repository.dart';
 // Importacion de los casos de uso
 import '../../domain/usecases/add_place_usecase.dart';
-import '../../domain/usecases/get_places_usecase.dart';
-import '../../domain/usecases/update_place_usecase.dart';
-import '../../domain/usecases/delete_place_usecase.dart';
-import '../../domain/usecases/restore_place_usecase.dart';
 import '../../domain/usecases/block_place_usecase.dart';
+import '../../domain/usecases/delete_place_usecase.dart';
+import '../../domain/usecases/get_places_usecase.dart';
+import '../../domain/usecases/restore_place_usecase.dart';
+import '../../domain/usecases/update_place_usecase.dart';
+import '../notifiers/place_notifier.dart';
 
 // -----------------------------------------------------------
 // Providers de la capa de datos
