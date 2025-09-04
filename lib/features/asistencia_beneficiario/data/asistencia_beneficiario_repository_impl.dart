@@ -7,10 +7,10 @@ import 'package:pedidos_fundacion/data/datasources/asistencia_beneficiario/local
 import 'package:pedidos_fundacion/data/datasources/asistencia_beneficiario/remote_datasource.dart';
 import 'package:pedidos_fundacion/data/datasources/asistencia_mensual/local_datasource.dart';
 import 'package:pedidos_fundacion/data/datasources/asistencia_mensual/remote_datasource.dart';
-import 'package:pedidos_fundacion/domain/entities/asistencia.dart';
-import 'package:pedidos_fundacion/domain/entities/asistencia_beneficiario.dart';
-import 'package:pedidos_fundacion/domain/entities/asistencia_mensual.dart';
-import 'package:pedidos_fundacion/domain/repositories/asistencia_repository.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/domain/entities/asistencia.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/domain/entities/asistencia_beneficiario.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/domain/entities/asistencia_mensual.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/domain/repositories/asistencia_repository.dart';
 
 final attendanceRepoProvider = Provider(
   (ref) => AttendanceRepositoryImpl(

@@ -5,7 +5,7 @@ import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/widgets/subtitle.dart';
 import 'package:pedidos_fundacion/core/widgets/text_normal.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
-import 'package:pedidos_fundacion/domain/entities/asistencia_beneficiario.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/domain/entities/asistencia_beneficiario.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/widgets/card_historial_asistencia_beneficiario.dart';
 import 'package:pedidos_fundacion/features/beneficiarios/presentation/providers/asistencia_por_grupo_provider.dart';
 import 'package:pedidos_fundacion/features/beneficiarios/presentation/providers/beneficiaries_provider.dart';

@@ -1,6 +1,6 @@
-import 'package:pedidos_fundacion/domain/entities/asistencia.dart';
-import 'package:pedidos_fundacion/domain/entities/asistencia_beneficiario.dart';
-import 'package:pedidos_fundacion/domain/entities/asistencia_mensual.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/domain/entities/asistencia.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/domain/entities/asistencia_beneficiario.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/domain/entities/asistencia_mensual.dart';
 
 abstract class AttendanceRepository {
   //MonthlyAttendanceBeneficiary

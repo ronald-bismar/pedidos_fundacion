@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:pedidos_fundacion/data/datasources/db_helper.dart';
-import 'package:pedidos_fundacion/domain/entities/asistencia.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/domain/entities/asistencia.dart';
 import 'package:sqflite/sqflite.dart';
 
 final attendanceLocalDataSourceProvider = Provider<AttendanceLocalDataSource>((

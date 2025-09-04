@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/widgets/snackbar.dart';
-import 'package:pedidos_fundacion/domain/entities/asistencia.dart';
-import 'package:pedidos_fundacion/domain/entities/asistencia_beneficiario.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/domain/entities/asistencia.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/domain/entities/asistencia_beneficiario.dart';
 import 'package:pedidos_fundacion/domain/entities/programa.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/usecases/registrar_asistencia.dart';
 

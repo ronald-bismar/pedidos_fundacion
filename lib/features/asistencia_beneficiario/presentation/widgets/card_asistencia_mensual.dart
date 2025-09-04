@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/widgets/text_normal.dart';
-import 'package:pedidos_fundacion/domain/entities/asistencia_mensual.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/domain/entities/asistencia_mensual.dart';
 
 class CardMonthlyAttendance extends ConsumerStatefulWidget {
   final MonthlyAttendance attendance;
