@@ -33,10 +33,11 @@ abstract class EntregaRepository {
   Stream<List<DeliveryBeneficiary>> getDeliveriesBeneficiaries(
     String idDelivery,
   );
-  );
+
   Future<Photo?> savePhotoDelivery(File photoFile, String nameBeneficiary);
   Future<void> saveProductsBeneficiary(
     List<ProductBeneficiary> productsBeneficiary,
+  );
   Future<Result> saveDeliveryBeneficiary(
     DeliveryBeneficiary deliveryBeneficiary,
   );
