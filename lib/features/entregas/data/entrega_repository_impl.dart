@@ -466,41 +466,6 @@ class EntregaRepositoryImpl extends EntregaRepository {
   }
 
   @override
-  Future<Result> saveDeliveryFinancialAidBeneficiary(
-    DeliveryBeneficiary deliveryBeneficiary,
-    Photo photoDelivery,
-    List<Benefit> benefits,
-    List<ProductBeneficiary> productsDeliveried,
-  ) async {
-    try {
-      await deliveryBeneficiaryLocalDataSource.update(deliveryBeneficiary);
-      deliveryBeneficiaryRemoteDataSource.update(deliveryBeneficiary);
-
-      // Save photo
-      // Assuming you have a method to save photo locally and remotely
-      // await photoLocalDataSource.savePhoto(photoDelivery);
-      // await photoRemoteDataSource.savePhoto(photoDelivery);
-
-      // Update benefits if needed
-      for (var benefit in benefits) {
-        await benefitLocalDataSource.update(benefit);
-        await benefitRemoteDataSource.update(benefit);
-      }
-
-      // Save products delivered
-      for (var product in productsDeliveried) {
-        await productBeneficiaryLocalDataSource.insert(product);
-        await productBeneficiaryRemoteDataSource.insert(product);
-      }
-
-      return Result.success('Delivery beneficiary saved successfully');
-    } catch (e) {
-      log('Error saving delivery beneficiary: $e');
-      return Result.failure('Error saving delivery beneficiary');
-    }
-  }
-
-  @override
   Future<DeliveryBeneficiary> getDeliveryBeneficiary(idDeliveryBeneficiary) {
     // TODO: implement getDeliveryBeneficiary
     throw UnimplementedError();
@@ -542,9 +507,14 @@ class EntregaRepositoryImpl extends EntregaRepository {
   }
 
   @override
-  Future<List<ProductBeneficiary>> getProductsBeneficiary(idBenefit) {
-    // TODO: implement getProductsBeneficiary
-    throw UnimplementedError();
+  Future<List<ProductBeneficiary>> getProductsBeneficiary(idBenefit) async {
+    try {
+      // return productBeneficiaryLocalDataSource.getByBenefit(idBenefit);
+      return [];
+    } catch (e) {
+      log('Error getting products beneficiary: $e');
+      return [];
+    }
   }
 
   @override

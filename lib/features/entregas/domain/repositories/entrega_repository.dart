@@ -41,12 +41,6 @@ abstract class EntregaRepository {
   Future<Result> saveDeliveryBeneficiary(
     DeliveryBeneficiary deliveryBeneficiary,
   );
-  Future<Result> saveDeliveryFinancialAidBeneficiary(
-    DeliveryBeneficiary deliveryBeneficiary,
-    Photo photoDelivery,
-    List<Benefit> benefits,
-    List<ProductBeneficiary> productsDeliveried,
-  );
   Future<DeliveryBeneficiary> getDeliveryBeneficiary(
     String idDeliveryBeneficiary,
   );
