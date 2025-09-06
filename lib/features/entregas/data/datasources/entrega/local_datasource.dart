@@ -18,7 +18,7 @@ class DeliveryLocalDataSource {
 
   DeliveryLocalDataSource(this._dbHelper);
 
-  static String createTable =
+  static String delivery =
       'CREATE TABLE $tableName('
       'id TEXT PRIMARY KEY, '
       'nameDelivery TEXT, '

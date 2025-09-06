@@ -73,6 +73,10 @@ class _AuthBeneficiaryScreenState extends ConsumerState<AuthBeneficiaryScreen> {
     });
 
     final registerState = ref.watch(registerBeneficiaryProvider);
+    final minAge = 0;
+    final maxAge = 18;
+    DateTime firstDate = DateTime.now().subtract(Duration(days: maxAge * 365));
+    DateTime lastDate = DateTime.now().subtract(Duration(days: minAge * 365));
 
     return backgroundScreen(
       SizedBox(
@@ -133,6 +137,9 @@ class _AuthBeneficiaryScreenState extends ConsumerState<AuthBeneficiaryScreen> {
                         controller: birthDateController,
                         marginVertical: 8,
                         onDateSelected: (newDate) => birthdate = newDate,
+                        firstDate: firstDate,
+                        lastDate: lastDate,
+                        titleAlertDialog: 'Fecha de nacimiento',
                       ),
 
                       AutoCompleteTextField(

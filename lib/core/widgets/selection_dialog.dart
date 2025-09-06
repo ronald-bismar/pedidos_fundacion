@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 
-/// Widget independiente para mostrar un diálogo de selección con animaciones
 class SelectionDialog {
-  /// Muestra un diálogo de selección con animaciones personalizadas
   static Future<String?> show({
     required BuildContext context,
     required List<String> items,

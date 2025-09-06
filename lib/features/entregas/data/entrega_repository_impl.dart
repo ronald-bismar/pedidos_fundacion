@@ -35,7 +35,7 @@ import 'package:pedidos_fundacion/features/orders/domain/entities/order_entity.d
 import 'package:pedidos_fundacion/toDataDynamic/estados_entrega.dart';
 import 'package:pedidos_fundacion/toDataDynamic/nombre_fundacion.dart';
 
-final entregaRepoProvider = Provider(
+final deliveryRepoProvider = Provider(
   (ref) => EntregaRepositoryImpl(
     financialAidLocalDataSource: ref.watch(financialAidLocalDataSourceProvider),
     financialAidRemoteDataSource: ref.watch(

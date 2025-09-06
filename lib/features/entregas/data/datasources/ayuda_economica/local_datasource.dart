@@ -17,7 +17,7 @@ class FinancialAidLocalDataSource {
 
   FinancialAidLocalDataSource(this._dbHelper);
 
-  static String createTable =
+  static String financialAid =
       'CREATE TABLE $tableName('
       'id TEXT PRIMARY KEY, '
       'idBenefit TEXT, '

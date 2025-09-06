@@ -11,7 +11,7 @@ import 'package:pedidos_fundacion/toDataDynamic/estados_entrega.dart';
 
 final registerDeliveryFinancialAidToBeneficiaryUseCaseProvider = Provider(
   (ref) => RegisterDeliveryFinancialAidBeneficiary(
-    entregaRepository: ref.watch(entregaRepoProvider),
+    entregaRepository: ref.watch(deliveryRepoProvider),
   ),
 );
 

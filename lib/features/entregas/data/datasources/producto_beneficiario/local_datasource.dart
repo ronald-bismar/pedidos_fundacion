@@ -17,7 +17,7 @@ class ProductBeneficiaryLocalDataSource {
 
   ProductBeneficiaryLocalDataSource(this._dbHelper);
 
-  static String createTable =
+  static String productBeneficiary =
       'CREATE TABLE $tableName('
       'idProductoBeneficiario TEXT PRIMARY KEY, '
       'idBeneficio TEXT, '

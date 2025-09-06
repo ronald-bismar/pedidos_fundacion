@@ -16,7 +16,7 @@ class BenefitLocalDataSource {
 
   BenefitLocalDataSource(this._dbHelper);
 
-  static String createTable =
+  static String benefits =
       'CREATE TABLE $tableName('
       'id TEXT PRIMARY KEY, '
       'type TEXT, '

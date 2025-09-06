@@ -4,6 +4,7 @@ import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/
 import 'package:pedidos_fundacion/features/beneficiarios/presentation/screens/lista_beneficiarios_screen.dart';
 import 'package:pedidos_fundacion/features/encargados/presentation/screens/auth_screen.dart';
 import 'package:pedidos_fundacion/features/encargados/presentation/screens/lista_encargados_screen.dart';
+import 'package:pedidos_fundacion/features/entregas/presentation/screens/lista_entregas_screen.dart';
 import 'package:pedidos_fundacion/features/orders/presentation/screens/group_registration_screen.dart';
 import 'package:pedidos_fundacion/features/places/presentation/screens/place_registration_screen.dart';
 
@@ -34,7 +35,7 @@ class ScreenFactory {
       case ScreenType.pedidos:
         return AuthCoordinatorScreen();
       case ScreenType.entregas:
-        return AuthCoordinatorScreen();
+        return ListDeliveriesScreen();
       case ScreenType.personal:
         return ListCoordinatorsScreen();
       case ScreenType.asistenciaBeneficiarios:
