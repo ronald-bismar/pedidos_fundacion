@@ -4,7 +4,7 @@ class DeliveryBeneficiary {
   String nameBeneficiary;
   String state;
   String idPhotoDelivery;
-  DateTime deliveryDate;
+  DateTime? deliveryDate;
   DateTime updatedAt;
   String idDelivery;
 
@@ -14,7 +14,7 @@ class DeliveryBeneficiary {
     this.nameBeneficiary = '',
     this.state = '',
     this.idPhotoDelivery = '',
-    required this.deliveryDate,
+    this.deliveryDate,
     DateTime? updatedAt,
     this.idDelivery = '',
   }) : updatedAt = updatedAt ?? DateTime.now();
@@ -26,7 +26,7 @@ class DeliveryBeneficiary {
       'nameBeneficiary': nameBeneficiary,
       'state': state,
       'idPhotoDelivery': idPhotoDelivery,
-      'deliveryDate': deliveryDate.toIso8601String().substring(0, 10),
+      'deliveryDate': deliveryDate?.toIso8601String().substring(0, 10),
       'updatedAt': updatedAt.toIso8601String(),
       'idDelivery': idDelivery,
     };
@@ -79,7 +79,7 @@ class DeliveryBeneficiary {
         'nameBeneficiary: $nameBeneficiary, '
         'state: $state, '
         'idPhotoDelivery: $idPhotoDelivery, '
-        'deliveryDate: ${deliveryDate.toIso8601String().substring(0, 10)}, '
+        'deliveryDate: ${deliveryDate?.toIso8601String().substring(0, 10)}, '
         'updatedAt: ${updatedAt.toIso8601String()}, '
         'idDelivery: $idDelivery'
         '}';

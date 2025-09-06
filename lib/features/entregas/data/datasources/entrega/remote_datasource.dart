@@ -125,4 +125,40 @@ class DeliveryRemoteDataSource {
       throw Exception('Error getting deliveries by date range: $e');
     }
   }
+
+  Future<void> insertDeliveryList(List<Delivery> deliveries) async {
+    try {
+      // Validar que la lista no esté vacía
+      if (deliveries.isEmpty) {
+        throw Exception('La lista de deliveries no puede estar vacía');
+      }
+
+      // Validar que no exceda el límite de Firestore (500 operaciones por batch)
+      if (deliveries.length > 500) {
+        throw Exception(
+          'La lista excede el límite máximo de 500 deliveries por batch',
+        );
+      }
+
+      // Crear un batch para operaciones atómicas
+      WriteBatch batch = service.batch();
+
+      // Agregar cada delivery al batch
+      for (Delivery delivery in deliveries) {
+        DocumentReference docRef = service
+            .collection(_collection)
+            .doc(delivery.id);
+
+        batch.set(docRef, delivery.toMap());
+      }
+
+      // Ejecutar todas las operaciones en una sola transacción
+      await batch.commit();
+
+      log('${deliveries.length} deliveries guardados exitosamente');
+    } catch (e) {
+      throw Exception('Error guardando lista de deliveries: $e');
+    }
+  }
+
 }

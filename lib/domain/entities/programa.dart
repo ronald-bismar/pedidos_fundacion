@@ -2,14 +2,14 @@ import 'package:pedidos_fundacion/domain/entities/rango_edad.dart';
 
 class Group {
   String id;
-  String idTutor;
+  String idCoordinator;
   String groupName;
   AgeRange ageRange;
   DateTime updatedAt;
 
   Group({
     this.id = '',
-    this.idTutor = '',
+    this.idCoordinator = '',
     this.groupName = '',
     required this.ageRange,
     DateTime? updatedAt,
@@ -18,7 +18,7 @@ class Group {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'idTutor': idTutor,
+      'idTutor': idCoordinator,
       'groupName': groupName,
       'minAge': ageRange.minAge,
       'maxAge': ageRange.maxAge,
@@ -29,7 +29,7 @@ class Group {
   factory Group.fromMap(Map<String, dynamic> map) {
     return Group(
       id: map['id'] ?? '',
-      idTutor: map['idTutor'] ?? '',
+      idCoordinator: map['idTutor'] ?? '',
       groupName: map['groupName'] ?? '',
       ageRange: AgeRange((map['minAge'] as int), map['maxAge'] as int),
       updatedAt: map['updatedAt'] != null
@@ -40,7 +40,7 @@ class Group {
 
   @override
   String toString() {
-    return 'Group{id: $id, idTutor: $idTutor, groupName: $groupName, '
+    return 'Group{id: $id, idTutor: $idCoordinator, groupName: $groupName, '
         'ageRange: ${ageRange.toString()}, updatedAt: ${updatedAt.toIso8601String()}}';
   }
 }

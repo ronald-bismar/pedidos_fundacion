@@ -34,7 +34,9 @@ final databaseProvider = FutureProvider<Database>((ref) async {
   );
 });
 
-final placeLocalDataSourceProvider = FutureProvider<PlaceLocalDataSource>((ref) async {
+final placeLocalDataSourceProvider = FutureProvider<PlaceLocalDataSource>((
+  ref,
+) async {
   final db = await ref.watch(databaseProvider.future);
   return PlaceLocalDataSourceImpl(db);
 });
@@ -94,7 +96,9 @@ final blockPlaceUseCaseProvider = Provider<BlockPlaceUseCase>((ref) {
 // Provider del Notifier (La capa de Presentación)
 // -----------------------------------------------------------
 
-final placeProvider = StateNotifierProvider<PlaceNotifier, List<PlaceEntity>>((ref) {
+final placeProvider = StateNotifierProvider<PlaceNotifier, List<PlaceEntity>>((
+  ref,
+) {
   // Manejo de estado de carga y error.
   final placeRepositoryAsync = ref.watch(placeRepositoryProvider);
   if (placeRepositoryAsync.isLoading || placeRepositoryAsync.hasError) {
