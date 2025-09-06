@@ -24,7 +24,7 @@ final coordinatorRepoProvider = Provider(
     coordinatorRemoteDataSource: ref.watch(coordinatorDataSourceProvider),
     coordinatorLocalDatasource: ref.watch(localDataSourceProvider),
     photoLocalDataSource: ref.watch(photoLocalDataSourceProvider),
-    photoRemoteDataSource: ref.watch(photoDataSourceProvider),
+    photoRemoteDataSource: ref.watch(photoRemoteDataSourceProvider),
     preferencesUsuario: ref.watch(preferencesUsuarioProvider),
   ),
 );

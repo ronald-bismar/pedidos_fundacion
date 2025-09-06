@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:pedidos_fundacion/core/results/result_global.dart';
 import 'package:pedidos_fundacion/domain/entities/foto.dart';
 import 'package:pedidos_fundacion/domain/entities/programa.dart';
@@ -20,7 +22,7 @@ abstract class EntregaRepository {
   Future<Result> generarEntregasDeAyudaEconomica(
     Delivery baseDelivery,
     List<Group> groups,
-    FinancialAid financialAid,
+    Benefit benefit,
   );
   Future<Result> generarEntregaDeMaterialEscolar(
     Delivery baseDelivery,
@@ -31,13 +33,24 @@ abstract class EntregaRepository {
   Stream<List<DeliveryBeneficiary>> getDeliveriesBeneficiaries(
     String idDelivery,
   );
+  );
+  Future<Photo?> savePhotoDelivery(File photoFile, String nameBeneficiary);
+  Future<void> saveProductsBeneficiary(
+    List<ProductBeneficiary> productsBeneficiary,
   Future<Result> saveDeliveryBeneficiary(
+    DeliveryBeneficiary deliveryBeneficiary,
+  );
+  Future<Result> saveDeliveryFinancialAidBeneficiary(
     DeliveryBeneficiary deliveryBeneficiary,
     Photo photoDelivery,
     List<Benefit> benefits,
     List<ProductBeneficiary> productsDeliveried,
   );
-  Future<DeliveryBeneficiary> getDeliveryBeneficiary(idDeliveryBeneficiary);
-  Future<Photo?> getPhotoOfDeliver(idDeliveryBeneficiary);
-  Future<List<ProductBeneficiary>> getProductsBeneficiary(idBenefit);
+  Future<DeliveryBeneficiary> getDeliveryBeneficiary(
+    String idDeliveryBeneficiary,
+  );
+  Future<Photo?> getPhotoOfDelivery(String idDeliveryBeneficiary);
+  Future<List<ProductBeneficiary>> getProductsBeneficiary(String idBenefit);
+
+  Future<void> saveFinancialAid(FinancialAid financialAid);
 }

@@ -103,4 +103,34 @@ class BenefitRemoteDataSource {
       throw Exception('Error getting benefits by type: $e');
     }
   }
+
+  Future<void> insertList(List<Benefit> benefits) async {
+    try {
+      // Validar que no exceda el límite de Firestore (500 operaciones por batch)
+      if (benefits.length > 500) {
+        throw Exception(
+          'La lista excede el límite máximo de 500 deliveries por batch',
+        );
+      }
+
+      // Crear un batch para operaciones atómicas
+      WriteBatch batch = service.batch();
+
+      // Agregar cada delivery al batch
+      for (Benefit benefit in benefits) {
+        DocumentReference docRef = service
+            .collection(_collection)
+            .doc(benefit.id);
+
+        batch.set(docRef, benefit.toMap());
+      }
+
+      // Ejecutar todas las operaciones en una sola transacción
+      await batch.commit();
+
+      log('${benefits.length} benefits guardados exitosamente');
+    } catch (e) {
+      throw Exception('Error guardando lista de benefits: $e');
+    }
+  }
 }

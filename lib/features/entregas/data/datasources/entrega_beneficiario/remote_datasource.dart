@@ -119,4 +119,34 @@ class DeliveryBeneficiaryRemoteDataSource {
       throw Exception('Error getting delivery beneficiaries by state: $e');
     }
   }
+
+  void insertList(List<DeliveryBeneficiary> deliveryBeneficiaries) async {
+    try {
+      // Validar que no exceda el límite de Firestore (500 operaciones por batch)
+      if (deliveryBeneficiaries.length > 500) {
+        throw Exception(
+          'La lista excede el límite máximo de 500 deliveries por batch',
+        );
+      }
+
+      // Crear un batch para operaciones atómicas
+      WriteBatch batch = service.batch();
+
+      // Agregar cada delivery al batch
+      for (DeliveryBeneficiary delivery in deliveryBeneficiaries) {
+        DocumentReference docRef = service
+            .collection(_collection)
+            .doc(delivery.id);
+
+        batch.set(docRef, delivery.toMap());
+      }
+
+      // Ejecutar todas las operaciones en una sola transacción
+      await batch.commit();
+
+      log('${deliveryBeneficiaries.length} deliveries guardados exitosamente');
+    } catch (e) {
+      throw Exception('Error guardando lista de deliveries: $e');
+    }
+  }
 }

@@ -126,12 +126,8 @@ class DeliveryRemoteDataSource {
     }
   }
 
-  Future<void> insertDeliveryList(List<Delivery> deliveries) async {
+  Future<void> insertList(List<Delivery> deliveries) async {
     try {
-      // Validar que la lista no esté vacía
-      if (deliveries.isEmpty) {
-        throw Exception('La lista de deliveries no puede estar vacía');
-      }
 
       // Validar que no exceda el límite de Firestore (500 operaciones por batch)
       if (deliveries.length > 500) {
@@ -160,5 +156,4 @@ class DeliveryRemoteDataSource {
       throw Exception('Error guardando lista de deliveries: $e');
     }
   }
-
 }

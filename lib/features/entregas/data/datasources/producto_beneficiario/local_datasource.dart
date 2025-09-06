@@ -39,7 +39,7 @@ class ProductBeneficiaryLocalDataSource {
     database.delete(
       tableName,
       where: 'idProductoBeneficiario = ?',
-      whereArgs: [productBeneficiary.idProductoBeneficiario],
+      whereArgs: [productBeneficiary.id],
     );
   }
 
@@ -49,7 +49,7 @@ class ProductBeneficiaryLocalDataSource {
       tableName,
       productBeneficiary.toMap(),
       where: 'idProductoBeneficiario = ?',
-      whereArgs: [productBeneficiary.idProductoBeneficiario],
+      whereArgs: [productBeneficiary.id],
     );
   }
 

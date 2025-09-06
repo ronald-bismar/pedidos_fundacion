@@ -21,7 +21,7 @@ class ProductBeneficiaryRemoteDataSource {
     try {
       await service
           .collection(_collection)
-          .doc(productBeneficiary.idProductoBeneficiario)
+          .doc(productBeneficiary.id)
           .set(productBeneficiary.toMap());
     } catch (e) {
       throw Exception('Error creating product beneficiary: $e');
@@ -40,7 +40,7 @@ class ProductBeneficiaryRemoteDataSource {
     try {
       await service
           .collection(_collection)
-          .doc(productBeneficiary.idProductoBeneficiario)
+          .doc(productBeneficiary.id)
           .update(productBeneficiary.toMap());
     } catch (e) {
       throw Exception('Error updating product beneficiary: $e');
@@ -100,6 +100,38 @@ class ProductBeneficiaryRemoteDataSource {
       }).toList();
     } catch (e) {
       throw Exception('Error getting product beneficiaries by estado: $e');
+    }
+  }
+
+  void insertList(List<ProductBeneficiary> productsBeneficiary) async {
+    try {
+      // Validar que no exceda el límite de Firestore (500 operaciones por batch)
+      if (productsBeneficiary.length > 500) {
+        throw Exception(
+          'La lista excede el límite máximo de 500 deliveries por batch',
+        );
+      }
+
+      // Crear un batch para operaciones atómicas
+      WriteBatch batch = service.batch();
+
+      // Agregar cada delivery al batch
+      for (ProductBeneficiary product in productsBeneficiary) {
+        DocumentReference docRef = service
+            .collection(_collection)
+            .doc(product.id);
+
+        batch.set(docRef, product.toMap());
+      }
+
+      // Ejecutar todas las operaciones en una sola transacción
+      await batch.commit();
+
+      log(
+        '${productsBeneficiary.length} productsBeneficiary guardados exitosamente',
+      );
+    } catch (e) {
+      throw Exception('Error guardando lista de productsBeneficiary: $e');
     }
   }
 }
