@@ -12,7 +12,8 @@ import 'package:pedidos_fundacion/features/entregas/domain/entities/entrega.dart
 import 'package:pedidos_fundacion/features/entregas/domain/entities/tipos_de_entregas.dart';
 import 'package:pedidos_fundacion/features/entregas/presentation/providers/entregas_provider.dart';
 import 'package:pedidos_fundacion/features/entregas/presentation/screens/datos_de_entrega.dart';
-import 'package:pedidos_fundacion/features/entregas/presentation/widgets/card_delivery.dart';
+import 'package:pedidos_fundacion/features/entregas/presentation/screens/lista_entregas_beneficiarios_screen.dart';
+import 'package:pedidos_fundacion/features/entregas/presentation/widgets/card_entrega.dart';
 
 class ListDeliveriesScreen extends ConsumerStatefulWidget {
   const ListDeliveriesScreen({super.key});
@@ -73,11 +74,11 @@ class _ListDeliveriesScreenState extends ConsumerState<ListDeliveriesScreen>
 
                     error: (error, stackTrace) => _errorState(error),
 
-                    data: (coordinators) {
-                      if (coordinators.isEmpty) {
+                    data: (deliveries) {
+                      if (deliveries.isEmpty) {
                         return _emptyState();
                       }
-                      return _loadedState(coordinators);
+                      return _loadedState(deliveries);
                     },
                   ),
                 ),
@@ -145,15 +146,23 @@ class _ListDeliveriesScreenState extends ConsumerState<ListDeliveriesScreen>
     );
   }
 
-  Widget _loadedState(List<Delivery> coordinators) {
+  Widget _loadedState(List<Delivery> deliveries) {
     return RefreshIndicator(
       onRefresh: () async {
         ref.invalidate(coordinatorsProvider);
       },
       child: ListView.builder(
-        itemCount: coordinators.length,
+        itemCount: deliveries.length,
         itemBuilder: (context, index) {
-          return CardDelivery(coordinators[index]);
+          return CardDelivery(
+            deliveries[index],
+            onTap: () {
+              cambiarPantalla(
+                context,
+                ListDeliveriesBeneficiaryScreen(deliveries[index]),
+              );
+            },
+          );
         },
       ),
     );

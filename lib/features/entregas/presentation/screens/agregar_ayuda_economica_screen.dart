@@ -275,7 +275,7 @@ class _AddBenefitsFinancialAidScreenState
       ),
     );
   }
-
+ 
   void _nextStep() {
     if (benefits.isEmpty) return;
 
