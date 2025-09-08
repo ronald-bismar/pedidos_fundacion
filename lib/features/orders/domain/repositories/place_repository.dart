@@ -2,6 +2,7 @@
 
 import '../entities/place_entity.dart';
 
+
 abstract class PlaceRepository {
   Future<List<PlaceEntity>> getPlaces();
   Future<void> addPlace(PlaceEntity place);
@@ -10,4 +11,3 @@ abstract class PlaceRepository {
   Future<void> restorePlace(String id);
   Future<void> blockPlace(String id);
 }
-

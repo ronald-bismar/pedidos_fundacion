@@ -8,7 +8,6 @@ import 'package:pedidos_fundacion/core/widgets/subtitle.dart';
 import 'package:pedidos_fundacion/core/widgets/title.dart';
 import 'package:pedidos_fundacion/features/entregas/domain/entities/beneficio.dart';
 import 'package:pedidos_fundacion/features/orders/domain/entities/order_entity.dart';
-import 'package:pedidos_fundacion/domain/entities/order.dart';
 
 class AddBenefitsScreen extends ConsumerStatefulWidget {
   final String nameDelivery;

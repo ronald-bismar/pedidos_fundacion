@@ -217,20 +217,4 @@ class BeneficiaryRemoteDataSource {
       log('Error saving correlative: $e');
     }
   }
-
-   //  NUEVO MÉTODO
-  Stream<List<Beneficiary>> streamByGroup(String idGroup) {
-    try {
-      return service
-          .collection(_collection)
-          .where('idGroup', isEqualTo: idGroup)
-          .snapshots()
-          .map((querySnapshot) => querySnapshot.docs
-              .where((doc) => doc.exists)
-              .map((doc) => BeneficiaryMapper.fromJson(doc.data()))
-              .toList());
-    } catch (e) {
-      throw Exception('Error getting beneficiaries by group: $e');
-    }
-  }
 }

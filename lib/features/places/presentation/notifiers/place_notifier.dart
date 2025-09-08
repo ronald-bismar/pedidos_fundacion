@@ -1,6 +1,5 @@
 // lib/features/orders/presentation/notifiers/place_notifier.dart
 
-import 'dart:developer';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/place_entity.dart';
 import '../../domain/usecases/add_place_usecase.dart';
@@ -9,85 +8,79 @@ import '../../domain/usecases/update_place_usecase.dart';
 import '../../domain/usecases/delete_place_usecase.dart';
 import '../../domain/usecases/restore_place_usecase.dart';
 import '../../domain/usecases/block_place_usecase.dart';
-import '../../domain/usecases/sync_places_usecase.dart';
-import '../providers/place_providers.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
-class PlaceNotifier extends AsyncNotifier<List<PlaceEntity>> {
-  @override
-  Future<List<PlaceEntity>> build() async {
-    log('Iniciando carga y sincronización de datos...');
-    final syncPlacesUseCase = await ref.watch(syncPlacesUseCaseProvider.future);
-    final getPlacesUseCase = await ref.watch(getPlacesUseCaseProvider.future);
-    
-    await syncPlacesUseCase.call();
-    return await getPlacesUseCase.call();
+class PlaceNotifier extends StateNotifier<List<PlaceEntity>> {
+  final GetPlacesUseCase getPlacesUseCase;
+  final AddPlaceUseCase addPlaceUseCase;
+  final UpdatePlaceUseCase updatePlaceUseCase;
+  final DeletePlaceUseCase deletePlaceUseCase;
+  final RestorePlaceUseCase restorePlaceUseCase;
+  final BlockPlaceUseCase blockPlaceUseCase;
+
+  PlaceNotifier({
+    required this.getPlacesUseCase,
+    required this.addPlaceUseCase,
+    required this.updatePlaceUseCase,
+    required this.deletePlaceUseCase,
+    required this.restorePlaceUseCase,
+    required this.blockPlaceUseCase,
+  }) : super([]) {
+    loadPlaces();
   }
 
-  Future<void> refreshData() async {
-    await ref.container.refresh(placeNotifierProvider.future);
+  Future<void> loadPlaces() async {
+    try {
+      final places = await getPlacesUseCase();
+      state = places;
+      print('¡Lugares cargados con éxito! Total de lugares: ${state.length}');
+    } catch (e) {
+      print('Error cargando lugares: $e');
+      state = [];
+    }
   }
 
-  Future<void> addPlace({
+ Future<void> addPlace({
     required String country,
     required String department,
     required String province,
     required String city,
   }) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final addPlaceUseCase = await ref.read(addPlaceUseCaseProvider.future);
-      final getPlacesUseCase = await ref.read(getPlacesUseCaseProvider.future);
-      await addPlaceUseCase.call(
-        country: country,
-        department: department,
-        province: province,
-        city: city,
-      );
-      return await getPlacesUseCase.call();
-    });
+    // Verificar la conexión a internet antes de intentar guardar en Firebase
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      // mostrar un mensaje de error al usuario
+      print('No hay conexión a internet. No se puede guardar el lugar.');
+      return;
+    }
+    
+    // Si hay conexión, se procede con la lógica de guardar en la nube
+    await addPlaceUseCase(
+      country: country,
+      department: department,
+      province: province,
+      city: city,
+    );
+    await loadPlaces();
   }
 
   Future<void> updatePlace(PlaceEntity updatedPlace) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final updatePlaceUseCase = await ref.read(updatePlaceUseCaseProvider.future);
-      final getPlacesUseCase = await ref.read(getPlacesUseCaseProvider.future);
-      await updatePlaceUseCase.call(updatedPlace);
-      return await getPlacesUseCase.call();
-    });
+    await updatePlaceUseCase(updatedPlace);
+    await loadPlaces();
   }
 
   Future<void> deletePlace(String id) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final deletePlaceUseCase = await ref.read(deletePlaceUseCaseProvider.future);
-      final getPlacesUseCase = await ref.read(getPlacesUseCaseProvider.future);
-      await deletePlaceUseCase.call(id);
-      return await getPlacesUseCase.call();
-    });
+    await deletePlaceUseCase(id);
+    await loadPlaces();
   }
 
-  Future<void> restorePlace(String id) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final restorePlaceUseCase = await ref.read(restorePlaceUseCaseProvider.future);
-      final getPlacesUseCase = await ref.read(getPlacesUseCaseProvider.future);
-      await restorePlaceUseCase.call(id);
-      return await getPlacesUseCase.call();
-    });
+  Future<void> restorePlace(PlaceEntity place) async {
+    await restorePlaceUseCase(place.id);
+    await loadPlaces();
   }
 
   Future<void> blockPlace(String id) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final blockPlaceUseCase = await ref.read(blockPlaceUseCaseProvider.future);
-      final getPlacesUseCase = await ref.read(getPlacesUseCaseProvider.future);
-      await blockPlaceUseCase.call(id);
-      return await getPlacesUseCase.call();
-    });
+    await blockPlaceUseCase(id);
+    await loadPlaces();
   }
 }
-
-final placeNotifierProvider = AsyncNotifierProvider<PlaceNotifier, List<PlaceEntity>>(() {
-  return PlaceNotifier();
-});

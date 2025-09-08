@@ -1,27 +1,27 @@
-// lib/features/orders/data/datasources/place_local_datasource.dart
-
 import 'package:sqflite/sqflite.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/place_entity.dart';
-import 'dart:developer'; // Necesario para los logs
+import '../../data/models/place_model.dart';
 
 abstract class PlaceLocalDataSource {
-  Future<List<PlaceEntity>> getPlaces(); // Obtiene todos los lugares almacenados localmente
-  Future<void> addPlace(PlaceEntity place); // Inserta un nuevo lugar en la base de datos local
-  Future<void> updatePlace(PlaceEntity place); // Actualiza los datos de un lugar existente
-  Future<void> deletePlace(String id); // Marca un lugar como eliminado (soft delete)
-  Future<void> hardDeletePlace(String id); // Elimina un lugar permanentemente de la base de datos
-  Future<void> blockPlace(PlaceEntity place); // Bloquea un lugar en la base de datos
-  Future<void> restorePlace(PlaceEntity place); // Restaura un lugar previamente eliminado o bloqueado
-  Future<List<PlaceEntity>> getPlacesToSync(); // Obtiene los lugares pendientes de sincronización con Firebase
-  Future<void> insertOrUpdate(List<PlaceEntity> places); // Inserta o actualiza en lote los lugares recibidos
+  Future<List<PlaceEntity>> getPlaces();
+  Future<void> addPlace(PlaceEntity place);
+  Future<void> updatePlace(PlaceEntity place);
+  Future<void> deletePlace(PlaceEntity place);
+  Future<void> blockPlace(PlaceEntity place);
+  Future<void> restorePlace(PlaceEntity place);
+  Future<List<PlaceModel>> getPlacesToSync();
+  Future<void> syncPlaceToFirebase(PlaceModel place, {int retries = 3});
+  Future<void> syncPendingPlaces();
 }
 
 class PlaceLocalDataSourceImpl implements PlaceLocalDataSource {
   final Database db;
+  final CollectionReference _placesCollection =
+      FirebaseFirestore.instance.collection('places');
 
   PlaceLocalDataSourceImpl(this.db);
 
-  // Estructura SQL de la tabla 'places'
   static const String places = '''
   CREATE TABLE places(
     id TEXT PRIMARY KEY,
@@ -42,53 +42,53 @@ class PlaceLocalDataSourceImpl implements PlaceLocalDataSource {
 
   @override
   Future<void> addPlace(PlaceEntity place) async {
-    // Inserta un nuevo registro en la tabla 'places'
+    final model = PlaceModel.fromEntity(place);
     await db.insert(
       'places',
-      place.toMap(),
+      model.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+
+    await syncPlaceToFirebase(model);
   }
 
   @override
   Future<void> updatePlace(PlaceEntity place) async {
-    // Actualiza los datos de un lugar identificado por su ID
+    final model = PlaceModel.fromEntity(place);
     await db.update(
       'places',
-      place.toMap(),
+      model.toMap(),
+      where: 'id = ?',
+      whereArgs: [place.id],
+    );
+
+    await syncPlaceToFirebase(model);
+  }
+
+  @override
+  Future<void> deletePlace(PlaceEntity place) async {
+    await db.update(
+      'places',
+      {
+        'state': PlaceState.deleted.index,
+        'delet_date': DateTime.now().toIso8601String(),
+        'last_modified_date': DateTime.now().toIso8601String(),
+        'is_synced_to_local': 0,
+      },
       where: 'id = ?',
       whereArgs: [place.id],
     );
   }
 
   @override
-  Future<void> deletePlace(String id) async {
-    // Realiza un "soft delete" marcando el estado como eliminado y guardando la fecha
-    await db.update(
-      'places',
-      {
-        'state': PlaceState.deleted.value,
-        'delet_date': DateTime.now().toIso8601String(),
-        'last_modified_date': DateTime.now().toIso8601String(),
-        'is_synced_to_local': 0,
-        'is_synced_to_firebase': 0,
-      },
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-  }
-
-  @override
   Future<void> blockPlace(PlaceEntity place) async {
-    // Marca un lugar como bloqueado y registra la fecha
     await db.update(
       'places',
       {
-        'state': PlaceState.blocked.value,
+        'state': PlaceState.blocked.index,
         'block_date': DateTime.now().toIso8601String(),
         'last_modified_date': DateTime.now().toIso8601String(),
         'is_synced_to_local': 0,
-        'is_synced_to_firebase': 0,
       },
       where: 'id = ?',
       whereArgs: [place.id],
@@ -97,16 +97,14 @@ class PlaceLocalDataSourceImpl implements PlaceLocalDataSource {
 
   @override
   Future<void> restorePlace(PlaceEntity place) async {
-    // Restaura un lugar activo eliminando fechas de eliminación y registrando restauración
     await db.update(
       'places',
       {
-        'state': PlaceState.active.value,
+        'state': PlaceState.active.index,
         'delet_date': null,
         'restoration_date': DateTime.now().toIso8601String(),
         'last_modified_date': DateTime.now().toIso8601String(),
         'is_synced_to_local': 0,
-        'is_synced_to_firebase': 0,
       },
       where: 'id = ?',
       whereArgs: [place.id],
@@ -114,50 +112,51 @@ class PlaceLocalDataSourceImpl implements PlaceLocalDataSource {
   }
 
   @override
-  Future<void> hardDeletePlace(String id) async {
-    // Elimina permanentemente un lugar de la tabla 'places'
-    await db.delete(
-      'places',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-  }
-
-  @override
   Future<List<PlaceEntity>> getPlaces() async {
-    // Recupera todos los lugares de la base de datos
-    final List<Map<String, dynamic>> maps = await db.query('places');
-    return List.generate(maps.length, (i) => PlaceEntity.fromMap(maps[i]));
+    final maps = await db.query('places');
+    return maps.map((m) => PlaceModel.fromMap(m)).toList();
   }
 
   @override
-  Future<List<PlaceEntity>> getPlacesToSync() async {
-    // Obtiene los lugares que no se han sincronizado con Firebase
+  Future<List<PlaceModel>> getPlacesToSync() async {
     final maps = await db.query(
       'places',
-      where: 'is_synced_to_firebase = ?',
+      where: 'is_synced_to_local = ?',
       whereArgs: [0],
     );
-    return List.generate(maps.length, (i) => PlaceEntity.fromMap(maps[i]));
+    return maps.map((m) => PlaceModel.fromMap(m)).toList();
   }
 
   @override
-  Future<void> insertOrUpdate(List<PlaceEntity> places) async {
-    // Inserta o actualiza en lote una lista de lugares en la tabla 'places'
-    try {
-      final Batch batch = db.batch();
-      for (var place in places) {
-        batch.insert(
+  Future<void> syncPlaceToFirebase(PlaceModel place, {int retries = 3}) async {
+    int attempt = 0;
+    while (attempt < retries) {
+      try {
+        await _placesCollection.doc(place.id).set(place.toFirestore());
+        await db.update(
           'places',
-          place.toMap(),
-          conflictAlgorithm: ConflictAlgorithm.replace,
+          {'is_synced_to_local': 1, 'is_synced_to_firebase': 1},
+          where: 'id = ?',
+          whereArgs: [place.id],
         );
+        print('Sincronización exitosa para lugar: ${place.id}');
+        return;
+      } catch (e) {
+        attempt++;
+        print('Error sincronizando lugar a Firebase (intento $attempt): $e');
+        if (attempt >= retries) {
+          print('Se agotaron los reintentos para ${place.id}, quedará pendiente');
+        }
+        await Future.delayed(const Duration(seconds: 2)); // esperar antes de reintentar
       }
-      await batch.commit(noResult: true);
-      log('Lote de ${places.length} lugares insertado/actualizado exitosamente.');
-    } catch (e) {
-      log('Error insertando o actualizando lote de lugares: $e');
-      throw Exception('Failed to insert or update places batch: $e');
+    }
+  }
+
+  @override
+  Future<void> syncPendingPlaces() async {
+    final pending = await getPlacesToSync();
+    for (final place in pending) {
+      await syncPlaceToFirebase(place);
     }
   }
 }

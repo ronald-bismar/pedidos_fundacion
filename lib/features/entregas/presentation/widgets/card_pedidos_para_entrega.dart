@@ -8,7 +8,7 @@ import 'package:pedidos_fundacion/core/widgets/title.dart';
 import 'package:pedidos_fundacion/features/orders/domain/entities/order_entity.dart';
 
 class CardOrderByDelivery extends ConsumerStatefulWidget {
-  final OrderEntity order;
+  final Order order;
   final Function(bool)?
   onSelectionChanged; // Callback para manejar la selección
 

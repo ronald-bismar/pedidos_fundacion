@@ -1,23 +1,22 @@
-// lib/features/places/presentation/providers/place_providers.dart
+// lib/features/orders/presentation/providers/place_providers.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:uuid/uuid.dart';
+import 'package:sqflite/sqflite.dart';
 
-import '../../domain/entities/place_entity.dart';
-import '../../presentation/providers/place_providers.dart';
-import '../../domain/repositories/place_repository.dart';
 import '../../data/datasources/place_local_datasource.dart';
 import '../../data/datasources/place_remote_datasource.dart';
 import '../../data/repositories_impl/place_repository_impl.dart';
+import '../../domain/entities/place_entity.dart';
+import '../../domain/repositories/place_repository.dart';
+// Importacion de los casos de uso
 import '../../domain/usecases/add_place_usecase.dart';
-import '../../domain/usecases/get_places_usecase.dart';
-import '../../domain/usecases/update_place_usecase.dart';
-import '../../domain/usecases/delete_place_usecase.dart';
-import '../../domain/usecases/restore_place_usecase.dart';
 import '../../domain/usecases/block_place_usecase.dart';
-import '../../domain/usecases/sync_places_usecase.dart';
+import '../../domain/usecases/delete_place_usecase.dart';
+import '../../domain/usecases/get_places_usecase.dart';
+import '../../domain/usecases/restore_place_usecase.dart';
+import '../../domain/usecases/update_place_usecase.dart';
+import '../notifiers/place_notifier.dart';
 
 // -----------------------------------------------------------
 // Providers de la capa de datos
@@ -35,7 +34,9 @@ final databaseProvider = FutureProvider<Database>((ref) async {
   );
 });
 
-final placeLocalDataSourceProvider = FutureProvider<PlaceLocalDataSource>((ref) async {
+final placeLocalDataSourceProvider = FutureProvider<PlaceLocalDataSource>((
+  ref,
+) async {
   final db = await ref.watch(databaseProvider.future);
   return PlaceLocalDataSourceImpl(db);
 });
@@ -61,172 +62,84 @@ final placeRepositoryProvider = FutureProvider<PlaceRepository>((ref) async {
 // Providers de los Casos de Uso
 // -----------------------------------------------------------
 
-final getPlacesUseCaseProvider = FutureProvider<GetPlacesUseCase>((ref) async {
-  final placeRepo = await ref.watch(placeRepositoryProvider.future);
+final getPlacesUseCaseProvider = Provider<GetPlacesUseCase>((ref) {
+  final placeRepo = ref.watch(placeRepositoryProvider).value!;
   return GetPlacesUseCase(placeRepo);
 });
 
-final addPlaceUseCaseProvider = FutureProvider<AddPlaceUseCase>((ref) async {
-  final placeRepo = await ref.watch(placeRepositoryProvider.future);
+final addPlaceUseCaseProvider = Provider<AddPlaceUseCase>((ref) {
+  final placeRepo = ref.watch(placeRepositoryProvider).value!;
   return AddPlaceUseCase(placeRepo);
 });
 
-final updatePlaceUseCaseProvider = FutureProvider<UpdatePlaceUseCase>((ref) async {
-  final placeRepo = await ref.watch(placeRepositoryProvider.future);
+final updatePlaceUseCaseProvider = Provider<UpdatePlaceUseCase>((ref) {
+  final placeRepo = ref.watch(placeRepositoryProvider).value!;
   return UpdatePlaceUseCase(placeRepo);
 });
 
-final deletePlaceUseCaseProvider = FutureProvider<DeletePlaceUseCase>((ref) async {
-  final placeRepo = await ref.watch(placeRepositoryProvider.future);
+final deletePlaceUseCaseProvider = Provider<DeletePlaceUseCase>((ref) {
+  final placeRepo = ref.watch(placeRepositoryProvider).value!;
   return DeletePlaceUseCase(placeRepo);
 });
 
-final restorePlaceUseCaseProvider = FutureProvider<RestorePlaceUseCase>((ref) async {
-  final placeRepo = await ref.watch(placeRepositoryProvider.future);
+final restorePlaceUseCaseProvider = Provider<RestorePlaceUseCase>((ref) {
+  final placeRepo = ref.watch(placeRepositoryProvider).value!;
   return RestorePlaceUseCase(placeRepo);
 });
 
-final blockPlaceUseCaseProvider = FutureProvider<BlockPlaceUseCase>((ref) async {
-  final placeRepo = await ref.watch(placeRepositoryProvider.future);
+final blockPlaceUseCaseProvider = Provider<BlockPlaceUseCase>((ref) {
+  final placeRepo = ref.watch(placeRepositoryProvider).value!;
   return BlockPlaceUseCase(placeRepo);
-});
-
-final syncPlacesUseCaseProvider = FutureProvider<SyncPlacesUseCase>((ref) async {
-  final placeRepo = await ref.watch(placeRepositoryProvider.future);
-  return SyncPlacesUseCase(placeRepo);
 });
 
 // -----------------------------------------------------------
 // Provider del Notifier (La capa de Presentación)
 // -----------------------------------------------------------
 
-class PlaceNotifier extends AsyncNotifier<List<PlaceEntity>> {
-
-
-  @override
-  Future<List<PlaceEntity>> build() async {
-    final remoteDataSource = ref.watch(placeRemoteDataSourceProvider);
-    return remoteDataSource.getPlaces();
+final placeProvider = StateNotifierProvider<PlaceNotifier, List<PlaceEntity>>((
+  ref,
+) {
+  // Manejo de estado de carga y error.
+  final placeRepositoryAsync = ref.watch(placeRepositoryProvider);
+  if (placeRepositoryAsync.isLoading || placeRepositoryAsync.hasError) {
+    // Si el repositorio no está listo, devuelve un notifier "vacío"
+    // para evitar un error de Null Safety.
+    return PlaceNotifier(
+      getPlacesUseCase: throw Exception('Repository not ready'),
+      addPlaceUseCase: throw Exception('Repository not ready'),
+      updatePlaceUseCase: throw Exception('Repository not ready'),
+      deletePlaceUseCase: throw Exception('Repository not ready'),
+      restorePlaceUseCase: throw Exception('Repository not ready'),
+      blockPlaceUseCase: throw Exception('Repository not ready'),
+    );
   }
 
-  // @override
-  // Future<List<PlaceEntity>> build() async {
-  //   final syncPlacesUseCase = await ref.watch(syncPlacesUseCaseProvider.future);
-  //   final getPlacesUseCase = await ref.watch(getPlacesUseCaseProvider.future);
-
-  //   await syncPlacesUseCase.call();
-  //   return getPlacesUseCase.call();
-  // }
-
-  Future<void> refreshData() async {
-    ref.invalidateSelf();
-  }
-
-
-
-  Future<void> addPlace({
-    required String country,
-    required String department,
-    required String province,
-    required String city,
-  }) async {
-    state = const AsyncValue.loading();
-    try {
-      final addPlaceUseCase = await ref.watch(addPlaceUseCaseProvider.future);
-      await addPlaceUseCase.call(
-        country: country,
-        department: department,
-        province: province,
-        city: city,
-      );
-      ref.invalidateSelf();
-    } catch (e, stack) {
-      state = AsyncValue.error('Error al agregar el lugar', stack);
-    }
-  }
-
-  Future<void> updatePlace(PlaceEntity updatedPlace) async {
-    state = const AsyncValue.loading();
-    try {
-      final updatePlaceUseCase = await ref.watch(updatePlaceUseCaseProvider.future);
-      await updatePlaceUseCase.call(updatedPlace);
-      ref.invalidateSelf();
-    } catch (e, stack) {
-      state = AsyncValue.error('Error al actualizar el lugar', stack);
-    }
-  }
-
-  Future<void> deletePlace(String placeId) async {
-    state = const AsyncValue.loading();
-    try {
-      final deletePlaceUseCase = await ref.watch(deletePlaceUseCaseProvider.future);
-      await deletePlaceUseCase.call(placeId);
-      ref.invalidateSelf();
-    } catch (e, stack) {
-      state = AsyncValue.error('Error al eliminar el lugar', stack);
-    }
-  }
-
-  Future<void> restorePlace(String placeId) async {
-    state = const AsyncValue.loading();
-    try {
-      final restorePlaceUseCase = await ref.watch(restorePlaceUseCaseProvider.future);
-      await restorePlaceUseCase.call(placeId);
-      ref.invalidateSelf();
-    } catch (e, stack) {
-      state = AsyncValue.error('Error al restaurar el lugar', stack);
-    }
-  }
-
-  Future<void> blockPlace(String placeId) async {
-    state = const AsyncValue.loading();
-    try {
-      final blockPlaceUseCase = await ref.watch(blockPlaceUseCaseProvider.future);
-      await blockPlaceUseCase.call(placeId);
-      ref.invalidateSelf();
-    } catch (e, stack) {
-      state = AsyncValue.error('Error al bloquear el lugar', stack);
-    }
-  }
-}
-
-final placeNotifierProvider = AsyncNotifierProvider<PlaceNotifier, List<PlaceEntity>>(() {
-  return PlaceNotifier();
+  // Si el repositorio está listo, se inyectan los casos de uso
+  return PlaceNotifier(
+    getPlacesUseCase: ref.read(getPlacesUseCaseProvider),
+    addPlaceUseCase: ref.read(addPlaceUseCaseProvider),
+    updatePlaceUseCase: ref.read(updatePlaceUseCaseProvider),
+    deletePlaceUseCase: ref.read(deletePlaceUseCaseProvider),
+    restorePlaceUseCase: ref.read(restorePlaceUseCaseProvider),
+    blockPlaceUseCase: ref.read(blockPlaceUseCaseProvider),
+  );
 });
 
 // -----------------------------------------------------------
 // Providers de la Vista (filtro de datos)
 // -----------------------------------------------------------
 
-final activePlacesProvider = Provider<AsyncValue<List<PlaceEntity>>>((ref) {
-  final placesState = ref.watch(placeNotifierProvider);
-  return placesState.when(
-    data: (places) => AsyncValue.data(
-      places.where((place) => place.state == PlaceState.active).toList(),
-    ),
-    loading: () => const AsyncValue.loading(),
-    error: (e, s) => AsyncValue.error(e, s),
-  );
+final activePlacesProvider = Provider<List<PlaceEntity>>((ref) {
+  final places = ref.watch(placeProvider);
+  return places.where((place) => place.state == PlaceState.active).toList();
 });
 
-final deletedPlacesProvider = Provider<AsyncValue<List<PlaceEntity>>>((ref) {
-  final placesState = ref.watch(placeNotifierProvider);
-  return placesState.when(
-    data: (places) => AsyncValue.data(
-      places.where((place) => place.state == PlaceState.deleted).toList(),
-    ),
-    loading: () => const AsyncValue.loading(),
-    error: (e, s) => AsyncValue.error(e, s),
-  );
+final deletedPlacesProvider = Provider<List<PlaceEntity>>((ref) {
+  final places = ref.watch(placeProvider);
+  return places.where((place) => place.state == PlaceState.deleted).toList();
 });
 
-final blockedPlacesProvider = Provider<AsyncValue<List<PlaceEntity>>>((ref) {
-  final placesState = ref.watch(placeNotifierProvider);
-  return placesState.when(
-    data: (places) => AsyncValue.data(
-      places.where((place) => place.state == PlaceState.blocked).toList(),
-    ),
-    loading: () => const AsyncValue.loading(),
-    error: (e, s) => AsyncValue.error(e, s),
-  );
+final blockedPlacesProvider = Provider<List<PlaceEntity>>((ref) {
+  final places = ref.watch(placeProvider);
+  return places.where((place) => place.state == PlaceState.blocked).toList();
 });
