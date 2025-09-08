@@ -2,8 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:pedidos_fundacion/features/authentication/presentation/screens/auth_screen.dart';
 import 'package:pedidos_fundacion/features/registro_beneficiarios/presentation/screens/lista_beneficiarios_screen.dart';
-import 'package:pedidos_fundacion/features/orders/presentation/screens/group_registration_screen.dart';
+import 'package:pedidos_fundacion/features/groups/presentation/screens/groups_screen.dart';
 import 'package:pedidos_fundacion/features/places/presentation/screens/place_registration_screen.dart';
+import 'package:pedidos_fundacion/features/orders/presentation/screens/orders_screen.dart';
+import 'package:pedidos_fundacion/features/orders/presentation/screens/place_selection_screen.dart';
+
 
 enum ScreenType {
   pedidos,
@@ -14,6 +17,7 @@ enum ScreenType {
   reportes,
   lugares,
   grupos,
+  registro_pedidos,
 }
 
 // Factory para crear las pantallas
@@ -29,8 +33,10 @@ class ScreenFactory {
     Map<String, dynamic>? arguments,
   }) {
     switch (screenType) {
+      case ScreenType.registro_pedidos:
+        return PlaceSelectionScreen();
       case ScreenType.pedidos:
-        return AuthScreen();
+        return OrdersScreen();
       case ScreenType.entregas:
         return PlaceRegistrationScreen();
       case ScreenType.personal:
@@ -44,7 +50,7 @@ class ScreenFactory {
       case ScreenType.lugares:
         return PlaceRegistrationScreen();
       case ScreenType.grupos:
-        return GroupRegistrationScreen();
+        return GroupsScreen();
       default:
         throw UnimplementedError('ScreenType $screenType no está implementado');
     }

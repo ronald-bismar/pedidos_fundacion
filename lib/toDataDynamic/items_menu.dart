@@ -3,17 +3,13 @@ import 'package:pedidos_fundacion/features/login/presentation/widgets/items_menu
 import 'package:pedidos_fundacion/presentation/screen_factory.dart';
 
 final menuItems = [
-  ItemMenu(title: 'Pedidos', 
-  icon: Icons.list, 
-    screenType: ScreenType.pedidos),
+  ItemMenu(title: 'Nuevo Pedidos', icon: Icons.list, screenType: ScreenType.registro_pedidos),
+
+  ItemMenu(title: 'Pedidos', icon: Icons.list, screenType: ScreenType.pedidos),
   //lugares
-  ItemMenu(title: 'Lugares', 
-  icon: Icons.place, 
-  screenType: ScreenType.lugares),
+  ItemMenu(title: 'Lugares', icon: Icons.place, screenType: ScreenType.lugares),
   //grupos
-  ItemMenu(title: 'Grupos', 
-  icon: Icons.group, 
-  screenType: ScreenType.grupos),
+  ItemMenu(title: 'Grupos', icon: Icons.group, screenType: ScreenType.grupos),
   //entregas
   ItemMenu(
     title: 'Entregas',
