@@ -28,7 +28,7 @@ class BeneficiaryRemoteDataSource {
       await service
           .collection(_collection)
           .doc(beneficiary.id)
-          .set(BeneficiaryMapper.toJson(beneficiary));
+          .set(BeneficiaryMapper.toMap(beneficiary));
     } catch (e) {
       throw Exception('Error creating coordinator: $e');
     }
@@ -43,7 +43,7 @@ class BeneficiaryRemoteDataSource {
 
       if (doc.exists && doc.data() != null) {
         log('Documento existe intentando mappear...');
-        return BeneficiaryMapper.fromJson(doc.data()!);
+        return BeneficiaryMapper.fromMap(doc.data()!);
       }
       return null;
     } catch (e) {
@@ -56,7 +56,7 @@ class BeneficiaryRemoteDataSource {
       final querySnapshot = await service.collection(_collection).get();
 
       return querySnapshot.docs.map((doc) {
-        return BeneficiaryMapper.fromJson(doc.data());
+        return BeneficiaryMapper.fromMap(doc.data());
       }).toList();
     } catch (e) {
       throw Exception('Error getting all beneficiaries: $e');
@@ -68,7 +68,7 @@ class BeneficiaryRemoteDataSource {
       await service
           .collection(_collection)
           .doc(beneficiary.id)
-          .update(BeneficiaryMapper.toJson(beneficiary));
+          .update(BeneficiaryMapper.toMap(beneficiary));
     } catch (e) {
       throw Exception('Error updating beneficiary: $e');
     }
@@ -172,14 +172,17 @@ class BeneficiaryRemoteDataSource {
 
   Future<List<Beneficiary>> getByGroup(String idGroup) async {
     try {
+      log('Consultando beneficiarios al servidor remoto');
       final querySnapshot = await service
           .collection(_collection)
           .where('idGroup', isEqualTo: idGroup)
           .get();
 
+      log('Retornando: ${querySnapshot.docs.length} beneficiarios');
+
       return querySnapshot.docs
           .where((doc) => doc.exists)
-          .map((doc) => BeneficiaryMapper.fromJson(doc.data()))
+          .map((doc) => BeneficiaryMapper.fromMap(doc.data()))
           .toList();
     } catch (e) {
       throw Exception('Error getting beneficiaries by group: $e');
@@ -215,8 +218,7 @@ class BeneficiaryRemoteDataSource {
     }
   }
 
-
-  //  NUEVO MÉTODO
+   //  NUEVO MÉTODO
   Stream<List<Beneficiary>> streamByGroup(String idGroup) {
     try {
       return service
@@ -231,5 +233,4 @@ class BeneficiaryRemoteDataSource {
       throw Exception('Error getting beneficiaries by group: $e');
     }
   }
-
 }

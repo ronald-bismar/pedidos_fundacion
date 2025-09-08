@@ -5,6 +5,7 @@ Widget textNormal(
   String texto, {
   Color textColor = white,
   FontWeight fontWeight = FontWeight.w500,
+  TextAlign textAlign = TextAlign.center
 }) {
   return Text(
     texto,

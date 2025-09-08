@@ -20,7 +20,7 @@ final beneficiaryRepoProvider = Provider(
     beneficiaryRemoteDataSource: ref.watch(beneficiaryRemoteDataSourceProvider),
     beneficiaryLocalDatasource: ref.watch(beneficiaryLocalDataSourceProvider),
     photoLocalDataSource: ref.watch(photoLocalDataSourceProvider),
-    photoRemoteDataSource: ref.watch(photoDataSourceProvider),
+    photoRemoteDataSource: ref.watch(photoRemoteDataSourceProvider),
     preferencesUsuario: ref.watch(preferencesUsuarioProvider),
   ),
 );
@@ -258,6 +258,34 @@ class BeneficiaryRepositoryImpl extends BeneficiaryRepository {
     } catch (e) {
       log('Error getting coordinator: $e');
       yield [];
+    }
+  }
+
+  @override
+  Future<List<Beneficiary>> getBeneficiariesByGroupFuture(
+    String idGroup,
+  ) async {
+    try {
+      final beneficiariesLocal = await beneficiaryLocalDatasource.listByGroup(
+        idGroup,
+      );
+
+      if (beneficiariesLocal.isNotEmpty) {
+        return beneficiariesLocal;
+      }
+
+      final beneficiariesRemote = await beneficiaryRemoteDataSource.getByGroup(
+        idGroup,
+      );
+
+      if (beneficiariesRemote.isNotEmpty) {
+        await beneficiaryLocalDatasource.insertOrUpdate(beneficiariesRemote);
+        return beneficiariesRemote;
+      }
+      return [];
+    } catch (e) {
+      log('Error getting beneficiaries by group: $e');
+      return [];
     }
   }
 }

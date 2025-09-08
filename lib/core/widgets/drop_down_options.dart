@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
+import 'package:pedidos_fundacion/core/widgets/snackbar.dart';
 
 class DropDownOptions extends StatefulWidget {
   final ValueChanged<String> onSelect;
@@ -9,6 +10,7 @@ class DropDownOptions extends StatefulWidget {
   final String itemInitial;
   final IconData? icon;
   final String? messageInfo;
+  final String? messageNotShow;
 
   const DropDownOptions({
     super.key,
@@ -17,6 +19,7 @@ class DropDownOptions extends StatefulWidget {
     this.itemInitial = '',
     this.icon,
     this.messageInfo,
+    this.messageNotShow,
   });
 
   @override
@@ -28,6 +31,7 @@ class DropDownOptionsState extends State<DropDownOptions>
   late String selectedValue;
   late AnimationController _controller;
   late Animation<double> _animation;
+  bool? showDropDown = true;
 
   bool _isExpanded = false;
   OverlayEntry? _overlayEntry;
@@ -166,6 +170,10 @@ class DropDownOptionsState extends State<DropDownOptions>
     );
   }
 
+  void enableDropDown(bool show) {
+    showDropDown = show;
+  }
+
   void _selectItem(String item) {
     setState(() => selectedValue = item);
     log('Seleccionaste: $item');
@@ -182,7 +190,13 @@ class DropDownOptionsState extends State<DropDownOptions>
           if (_isExpanded) _closeDropdown();
         },
         child: GestureDetector(
-          onTap: _toggleDropdown,
+          onTap: () {
+            if (showDropDown == false) {
+              MySnackBar.show(context, widget.messageNotShow ?? '');
+              return;
+            }
+            _toggleDropdown();
+          },
           child: Container(
             key: _buttonKey,
             height: 56,

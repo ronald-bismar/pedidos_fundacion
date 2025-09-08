@@ -24,7 +24,7 @@ final coordinatorRepoProvider = Provider(
     coordinatorRemoteDataSource: ref.watch(coordinatorDataSourceProvider),
     coordinatorLocalDatasource: ref.watch(localDataSourceProvider),
     photoLocalDataSource: ref.watch(photoLocalDataSourceProvider),
-    photoRemoteDataSource: ref.watch(photoDataSourceProvider),
+    photoRemoteDataSource: ref.watch(photoRemoteDataSourceProvider),
     preferencesUsuario: ref.watch(preferencesUsuarioProvider),
   ),
 );
@@ -289,5 +289,28 @@ class CoordinatorRepositoryImpl implements CoordinatorRepository {
     } else {
       return null;
     }
+  }
+
+  @override
+  Future<List<Coordinator>> getCoordinators() async {
+    try {
+      final coordinatorsLocal = await coordinatorLocalDatasource
+          .getCoordinators();
+
+      if (coordinatorsLocal.isNotEmpty) {
+        return coordinatorsLocal;
+      }
+
+      final coordinatorsRemote = await coordinatorRemoteDataSource
+          .getCoordinators();
+      if (coordinatorsRemote.isNotEmpty) {
+        await coordinatorLocalDatasource.insertOrUpdate(coordinatorsRemote);
+        return coordinatorsRemote;
+      }
+    } catch (e) {
+      log('Error getting coordinator: $e');
+      return [];
+    }
+    return [];
   }
 }

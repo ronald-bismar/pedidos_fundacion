@@ -1,7 +1,7 @@
 import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
 
 class BeneficiaryMapper {
-  static Beneficiary fromJson(Map<String, dynamic> json) {
+  static Beneficiary fromMap(Map<String, dynamic> json) {
     return Beneficiary(
       id: json['id'] as String,
       dni: json['dni'] as String,
@@ -26,7 +26,7 @@ class BeneficiaryMapper {
     );
   }
 
-  static Map<String, dynamic> toJson(Beneficiary beneficiary) {
+  static Map<String, dynamic> toMap(Beneficiary beneficiary) {
     return {
       'id': beneficiary.id,
       'dni': beneficiary.dni,
@@ -48,7 +48,10 @@ class BeneficiaryMapper {
   }
 
   static Map<String, dynamic> toJsonPhoto(Beneficiary beneficiary) {
-    return {'idPhoto': beneficiary.idPhoto, 'updateAt': DateTime.now().toIso8601String()};
+    return {
+      'idPhoto': beneficiary.idPhoto,
+      'updateAt': DateTime.now().toIso8601String(),
+    };
   }
 
   static Map<String, dynamic> toJsonLocationAndPhone(Beneficiary beneficiary) {
@@ -60,17 +63,23 @@ class BeneficiaryMapper {
   }
 
   static Map<String, dynamic> toJsonActive(Beneficiary beneficiary) {
-    return {'active': beneficiary.active, 'updateAt': DateTime.now().toIso8601String(),
+    return {
+      'active': beneficiary.active,
+      'updateAt': DateTime.now().toIso8601String(),
     };
   }
 
   static Map<String, dynamic> toJsonCode(Beneficiary beneficiary) {
-    return {'code': beneficiary.code, 'updateAt': DateTime.now().toIso8601String(),
+    return {
+      'code': beneficiary.code,
+      'updateAt': DateTime.now().toIso8601String(),
     };
   }
 
   static Map<String, dynamic> toJsonGroup(Beneficiary beneficiary) {
-    return {'idGroup': beneficiary.active, 'updateAt': DateTime.now().toIso8601String(),
+    return {
+      'idGroup': beneficiary.active,
+      'updateAt': DateTime.now().toIso8601String(),
     };
   }
 }
