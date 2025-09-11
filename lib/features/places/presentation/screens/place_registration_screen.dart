@@ -1,3 +1,5 @@
+// lib/features/orders/presentation/screens/place_registration_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,7 +7,7 @@ import '../../domain/entities/place_entity.dart';
 import '../providers/place_providers.dart';
 import '../../presentation/widgets/confirm_delete_dialog.dart';
 import '../../presentation/widgets/place_form_dialog.dart';
-import '../../presentation/widgets/place_list_item.dart'; 
+import '../../presentation/widgets/place_list_item.dart';
 
 class PlaceRegistrationScreen extends ConsumerStatefulWidget {
   const PlaceRegistrationScreen({super.key});
@@ -24,7 +26,7 @@ class _PlaceRegistrationScreenState
     );
 
     if (newPlaceData != null) {
-      ref.read(placeProvider.notifier).addPlace(
+      ref.read(placeNotifierProvider.notifier).addPlace(
             country: newPlaceData['country']!,
             department: newPlaceData['department']!,
             province: newPlaceData['province']!,
@@ -57,7 +59,7 @@ class _PlaceRegistrationScreenState
         city: updatedPlaceData['city'],
         lastModifiedDate: DateTime.now(),
       );
-      ref.read(placeProvider.notifier).updatePlace(updatedPlace);
+      ref.read(placeNotifierProvider.notifier).updatePlace(updatedPlace);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -79,7 +81,7 @@ class _PlaceRegistrationScreenState
     );
 
     if (confirm == true) {
-      ref.read(placeProvider.notifier).deletePlace(placeToDelete.id);
+      ref.read(placeNotifierProvider.notifier).deletePlace(placeToDelete.id);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -95,7 +97,7 @@ class _PlaceRegistrationScreenState
   }
 
   void _restorePlace(PlaceEntity placeToRestore) {
-    ref.read(placeProvider.notifier).restorePlace(placeToRestore);
+    ref.read(placeNotifierProvider.notifier).restorePlace(placeToRestore.id);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Lugar restaurado a activo.'),
@@ -105,7 +107,7 @@ class _PlaceRegistrationScreenState
   }
 
   void _blockPlace(PlaceEntity placeToBlock) {
-    ref.read(placeProvider.notifier).blockPlace(placeToBlock.id);
+    ref.read(placeNotifierProvider.notifier).blockPlace(placeToBlock.id);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Lugar bloqueado.'),
@@ -116,7 +118,10 @@ class _PlaceRegistrationScreenState
 
   @override
   Widget build(BuildContext context) {
-    final places = ref.watch(placeProvider);
+    final placesState =
+        ref.watch(placeNotifierProvider); 
+    final placesNotifier =
+        ref.read(placeNotifierProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(
@@ -143,7 +148,7 @@ class _PlaceRegistrationScreenState
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Text(
-                  'Lugares Registrados (${places.length}):',
+                  'Lugares Registrados:',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -152,31 +157,58 @@ class _PlaceRegistrationScreenState
                 ),
               ),
               const Divider(height: 20, thickness: 1.5, color: Colors.blue),
+
               Expanded(
-                child: places.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.location_off,
-                              size: 60,
-                              color: Colors.grey.shade400,
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              '¡Nada por aquí!\nRegistra tu primer lugar.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey.shade600,
-                                fontStyle: FontStyle.italic,
+                child: placesState.when(
+                  loading: () => const Center(
+                    child: CircularProgressIndicator(), 
+                  ),
+                  error: (error, stackTrace) => Center(
+                    child: Text('Error al cargar los datos: $error'), 
+                  ),
+                  data: (places) {
+                    if (places.isEmpty) {
+                      return RefreshIndicator(
+                        onRefresh: () => placesNotifier.refreshData(),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return SingleChildScrollView(
+                              physics:
+                                  const AlwaysScrollableScrollPhysics(),
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                    minHeight: constraints.maxHeight),
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.location_off,
+                                        size: 60,
+                                        color: Colors.grey.shade400,
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        '¡Nada por aquí!\nRegistra tu primer lugar.',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey.shade600,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
+                            );
+                          },
                         ),
-                      )
-                    : ListView.builder(
+                      );
+                    }
+                    return RefreshIndicator(
+                      onRefresh: () => placesNotifier.refreshData(),
+                      child: ListView.builder(
                         physics: const BouncingScrollPhysics(),
                         itemCount: places.length,
                         itemBuilder: (context, index) {
@@ -186,15 +218,19 @@ class _PlaceRegistrationScreenState
                             onEdit: () => _editPlace(place),
                             onDelete: () => _confirmDelete(place),
                             onRestore: () => _restorePlace(place),
-                            onBlock: () => _blockPlace(place),
-                          ); // Make sure PlaceListItem is a widget class, not a method
+                            onBlock: () => _blockPlace(place), // ✅ añadido
+                          );
                         },
                       ),
+                    );
+                  },
+                ),
               ),
             ],
           ),
         ),
       ),
+ 
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddPlaceDialog,
         icon: const Icon(Icons.add, color: Colors.white),

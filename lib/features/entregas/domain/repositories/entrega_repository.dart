@@ -13,10 +13,10 @@ import 'package:pedidos_fundacion/features/orders/domain/entities/order_entity.d
 abstract class EntregaRepository {
   Stream<List<Delivery>> getDeliveriesByGroups();
   List<String> getTypesOfDeliveries();
-  Stream<List<Order>> getOrdersForDelivery();
+  Stream<List<OrderEntity>> getOrdersForDelivery();
   Future<Result> generarEntregasParaPedidosDeCanastas(
     Delivery baseDelivery,
-    List<Order> orders,
+    List<OrderEntity> orders,
     List<Benefit> benefits,
   );
   Future<Result> generarEntregasDeAyudaEconomica(

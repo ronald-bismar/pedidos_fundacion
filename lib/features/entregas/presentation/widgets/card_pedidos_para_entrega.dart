@@ -8,7 +8,7 @@ import 'package:pedidos_fundacion/core/widgets/title.dart';
 import 'package:pedidos_fundacion/features/orders/domain/entities/order_entity.dart';
 
 class CardOrderByDelivery extends ConsumerStatefulWidget {
-  final Order order;
+  final OrderEntity order;
   final Function(bool)?
   onSelectionChanged; // Callback para manejar la selección
 
@@ -74,7 +74,7 @@ class _CardOrdersByDeliveryState extends ConsumerState<CardOrderByDelivery> {
                       textColor: secondary,
                     ),
                     textNormal(
-                      'Fecha del pedido ${dateFormat.format(widget.order.dateOrder)}',
+                      'Fecha del pedido ${dateFormat.format(widget.order.registrationDate)}',
                       fontWeight: FontWeight.w500,
                       textColor: dark.withAlpha(150),
                     ),
@@ -90,7 +90,7 @@ class _CardOrdersByDeliveryState extends ConsumerState<CardOrderByDelivery> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: title(
-                  widget.order.numberBeneficiaries.toString(),
+                  widget.order.beneficiaryCount.toString(),
                   textColor: secondary,
                 ),
               ),

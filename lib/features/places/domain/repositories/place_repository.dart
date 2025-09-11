@@ -9,5 +9,6 @@ abstract class PlaceRepository {
   Future<void> deletePlace(String id);
   Future<void> restorePlace(String id);
   Future<void> blockPlace(String id);
+  Future<void> syncPlaces(); 
 }
 

@@ -1,3 +1,5 @@
+// lib/features/orders/presentation/pages/register_order_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
@@ -11,6 +13,7 @@ import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/
 import 'package:pedidos_fundacion/features/entregas/presentation/screens/agregar_beneficios_screen.dart';
 import 'package:pedidos_fundacion/features/entregas/presentation/widgets/card_pedidos_para_entrega.dart';
 import 'package:pedidos_fundacion/features/orders/domain/entities/order_entity.dart';
+import 'package:pedidos_fundacion/features/orders/domain/entities/order_state.dart'; // Asegúrate de importar esto
 
 class OrdersByDeliveryScreen extends ConsumerStatefulWidget {
   final String nameDelivery;
@@ -28,7 +31,7 @@ class OrdersByDeliveryScreen extends ConsumerStatefulWidget {
 
 class _OrdersByDeliveryScreenState
     extends ConsumerState<OrdersByDeliveryScreen> {
-  final List<Order> selectedOrders = [];
+  final List<OrderEntity> selectedOrders = [];
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +39,6 @@ class _OrdersByDeliveryScreenState
       Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
-
         color: primary,
         child: SafeArea(
           child: Padding(
@@ -50,18 +52,6 @@ class _OrdersByDeliveryScreenState
                     title('Selecciona los pedidos'),
                     const SizedBox(height: 20),
                     Expanded(
-                      // child: monthlyAttendanceAsyncValue.when(
-                      //   loading: () => _loadingState(),
-
-                      //   error: (error, stackTrace) => _errorState(error),
-
-                      //   data: (monthlyAttendances) {
-                      //     if (monthlyAttendances.isEmpty) {
-                      //       return _emptyState();
-                      //     }
-                      //     return _loadedState(monthlyAttendances);
-                      //   },
-                      // ),
                       child: _loadedState(orderExamples),
                     ),
                   ],
@@ -111,7 +101,6 @@ class _OrdersByDeliveryScreenState
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: () {
-              // Refrescar los datos
               ref.invalidate(monthlyAttendanceProvider);
             },
             icon: const Icon(Icons.refresh),
@@ -146,7 +135,7 @@ class _OrdersByDeliveryScreenState
     );
   }
 
-  Widget _loadedState(List<Order> orders) {
+  Widget _loadedState(List<OrderEntity> orders) {
     return RefreshIndicator(
       onRefresh: () async {
         ref.invalidate(monthlyAttendanceProvider);
@@ -167,7 +156,8 @@ class _OrdersByDeliveryScreenState
     );
   }
 
-  void removeAddOrderSelected(bool isSelected, List<Order> orders, int index) {
+  void removeAddOrderSelected(
+      bool isSelected, List<OrderEntity> orders, int index) {
     if (isSelected) {
       selectedOrders.add(orders[index]);
     } else {
@@ -175,45 +165,107 @@ class _OrdersByDeliveryScreenState
     }
   }
 
-  List<Order> orderExamples = [
-    Order(
+  List<OrderEntity> orderExamples = [
+    OrderEntity(
       id: "order_001",
       nameGroup: "Restauradores",
       nameOrder: "Pedido Mes de Marzo",
-      dateOrder: DateTime(2025, 3, 19),
-      numberBeneficiaries: 20,
+      registrationDate: DateTime(2025, 3, 19),
+      beneficiaryCount: 20,
+      // Datos faltantes proporcionados con valores predeterminados
+      nameuser: '',
+      nameTutor: '',
+      namePlace: '',
+      dateOrderMonth: '',
+      nonBeneficiaryCount: 0,
+      observedBeneficiaryCount: 0,
+      totalOrder: 0,
+      itemQuantities: {},
+      observations: '',
+      state: OrderState.active,
+      placeId: '',
+      groupId: '',
+      lastModifiedDate: DateTime.now(),
     ),
-
-    Order(
+    OrderEntity(
       id: "order_002",
       nameGroup: "Triunfadores",
       nameOrder: "Pedido Mes de Marzo",
-      dateOrder: DateTime(2025, 3, 12),
-      numberBeneficiaries: 20,
+      registrationDate: DateTime(2025, 3, 12),
+      beneficiaryCount: 20,
+      nameuser: '',
+      nameTutor: '',
+      namePlace: '',
+      dateOrderMonth: '',
+      nonBeneficiaryCount: 0,
+      observedBeneficiaryCount: 0,
+      totalOrder: 0,
+      itemQuantities: {},
+      observations: '',
+      state: OrderState.active,
+      placeId: '',
+      groupId: '',
+      lastModifiedDate: DateTime.now(),
     ),
-
-    Order(
+    OrderEntity(
       id: "order_003",
       nameGroup: "Triunfadores",
       nameOrder: "Pedido Mes de Marzo",
-      dateOrder: DateTime(2025, 3, 10),
-      numberBeneficiaries: 20,
+      registrationDate: DateTime(2025, 3, 10),
+      beneficiaryCount: 20,
+      nameuser: '',
+      nameTutor: '',
+      namePlace: '',
+      dateOrderMonth: '',
+      nonBeneficiaryCount: 0,
+      observedBeneficiaryCount: 0,
+      totalOrder: 0,
+      itemQuantities: {},
+      observations: '',
+      state: OrderState.active,
+      placeId: '',
+      groupId: '',
+      lastModifiedDate: DateTime.now(),
     ),
-
-    Order(
+    OrderEntity(
       id: "order_004",
       nameGroup: "Restauradores",
       nameOrder: "Pedido Mes de Marzo",
-      dateOrder: DateTime(2025, 4, 12),
-      numberBeneficiaries: 20,
+      registrationDate: DateTime(2025, 4, 12),
+      beneficiaryCount: 20,
+      nameuser: '',
+      nameTutor: '',
+      namePlace: '',
+      dateOrderMonth: '',
+      nonBeneficiaryCount: 0,
+      observedBeneficiaryCount: 0,
+      totalOrder: 0,
+      itemQuantities: {},
+      observations: '',
+      state: OrderState.active,
+      placeId: '',
+      groupId: '',
+      lastModifiedDate: DateTime.now(),
     ),
-
-    Order(
+    OrderEntity(
       id: "order_005",
       nameGroup: "Restauradores",
       nameOrder: "Pedido Mes de Marzo",
-      dateOrder: DateTime(2025, 10, 12),
-      numberBeneficiaries: 20,
+      registrationDate: DateTime(2025, 10, 12),
+      beneficiaryCount: 20,
+      nameuser: '',
+      nameTutor: '',
+      namePlace: '',
+      dateOrderMonth: '',
+      nonBeneficiaryCount: 0,
+      observedBeneficiaryCount: 0,
+      totalOrder: 0,
+      itemQuantities: {},
+      observations: '',
+      state: OrderState.active,
+      placeId: '',
+      groupId: '',
+      lastModifiedDate: DateTime.now(),
     ),
   ];
 
