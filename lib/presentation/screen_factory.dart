@@ -1,15 +1,26 @@
 // Enum para identificar las pantallas
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/presentation/screens/asistencia_screen.dart';
 import 'package:pedidos_fundacion/features/beneficiarios/presentation/screens/lista_beneficiarios_screen.dart';
 import 'package:pedidos_fundacion/features/encargados/presentation/screens/auth_screen.dart';
 import 'package:pedidos_fundacion/features/encargados/presentation/screens/lista_encargados_screen.dart';
 import 'package:pedidos_fundacion/features/entregas/presentation/screens/lista_entregas_screen.dart';
-import 'package:pedidos_fundacion/features/orders/presentation/screens/group_registration_screen.dart';
+import 'package:pedidos_fundacion/features/orders/presentation/screens/group_selection_screen.dart';
 import 'package:pedidos_fundacion/features/places/presentation/screens/place_registration_screen.dart';
+import 'package:pedidos_fundacion/features/groups/presentation/screens/groups_screen.dart';
+import 'package:pedidos_fundacion/features/orders/presentation/screens/orders_screen.dart';
+import 'package:pedidos_fundacion/features/places/domain/entities/place_entity.dart';
+import 'package:pedidos_fundacion/features/orders/domain/entities/order_entity.dart';
+import 'package:pedidos_fundacion/features/orders/presentation/screens/place_selection_screen.dart';
+import 'package:pedidos_fundacion/features/orders/presentation/screens/group_selection_screen.dart';
+import 'package:pedidos_fundacion/features/orders/presentation/screens/orders_screen.dart';
+import 'package:pedidos_fundacion/features/entregas/presentation/screens/lista_entregas_screen.dart';
+import 'package:pedidos_fundacion/features/encargados/presentation/screens/lista_encargados_screen.dart';
 
 enum ScreenType {
   pedidos,
+  pedidos2,
   entregas,
   personal,
   asistenciaBeneficiarios,
@@ -33,7 +44,9 @@ class ScreenFactory {
   }) {
     switch (screenType) {
       case ScreenType.pedidos:
-        return AuthCoordinatorScreen();
+        return PlaceSelectionScreen();
+      case ScreenType.pedidos2:
+        // return OrderScreen();
       case ScreenType.entregas:
         return ListDeliveriesScreen();
       case ScreenType.personal:
@@ -47,7 +60,7 @@ class ScreenFactory {
       case ScreenType.lugares:
         return PlaceRegistrationScreen();
       case ScreenType.grupos:
-        return GroupRegistrationScreen();
+        return GroupsScreen();
     }
   }
 }

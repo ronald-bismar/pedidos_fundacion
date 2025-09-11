@@ -125,7 +125,7 @@ class EntregaRepositoryImpl extends EntregaRepository {
   }
 
   @override
-  Stream<List<Order>> getOrdersForDelivery() async* {
+  Stream<List<OrderEntity>> getOrdersForDelivery() async* {
     try {
       //TODO implement
       yield [];
@@ -138,7 +138,7 @@ class EntregaRepositoryImpl extends EntregaRepository {
   @override
   Future<Result> generarEntregasParaPedidosDeCanastas(
     Delivery baseDelivery,
-    List<Order> orders,
+    List<OrderEntity> orders,
     List<Benefit> benefits,
   ) async {
     try {

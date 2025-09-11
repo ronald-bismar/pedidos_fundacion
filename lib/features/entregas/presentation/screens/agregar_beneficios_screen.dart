@@ -12,7 +12,7 @@ import 'package:pedidos_fundacion/features/orders/domain/entities/order_entity.d
 class AddBenefitsScreen extends ConsumerStatefulWidget {
   final String nameDelivery;
   final DateTime dateDelivery;
-  final List<Order> selectedOrders;
+  final List<OrderEntity> selectedOrders;
   const AddBenefitsScreen(
     this.nameDelivery,
     this.dateDelivery,
