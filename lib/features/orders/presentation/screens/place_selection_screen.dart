@@ -42,7 +42,7 @@ class PlaceSelectionScreen extends ConsumerWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => GroupSelectionScreen(selectedPlace: place), // Aquí se corrigió el nombre del parámetro
+                        builder: (_) => GroupSelectionScreen(selectedPlace: place), 
                       ),
                     );
                   },

@@ -95,6 +95,7 @@ final placesProvider = FutureProvider<List<PlaceEntity>>((ref) async {
   return dataSource.getPlaces();
 });
 
+// ⛔️ ESTA ES LA DEFINICIÓN CORRECTA DE ALLGROUPSPROVIDER ⛔️
 final allGroupsProvider = StreamProvider<List<GroupEntity>>((ref) {
   final dataSource = ref.read(groupRemoteDataSourceProvider);
   return dataSource.getGroups();
@@ -128,3 +129,16 @@ final ordersListNotifierProvider =
     StreamNotifierProvider<OrdersListNotifier, List<OrderEntity>>(() {
       return OrdersListNotifier();
     });
+
+// Este proveedor ahora simplemente retorna la lista completa de grupos.
+// lib/features/orders/presentation/providers/order_providers.dart
+
+// ... (Resto de tu código)
+
+// ✅ ESTA ES LA CORRECCIÓN CORRECTA ✅
+final groupsByPlaceProvider = StreamProvider.family
+    .autoDispose<List<GroupEntity>, String>((ref, placeId) {
+      // ✅ Aquí accedes al stream del proveedor allGroupsProvider
+      return ref.watch(allGroupsProvider.stream);
+    });
+    

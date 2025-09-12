@@ -1,5 +1,3 @@
-// lib/features/orders/data/datasources/order_remote_datasource.dart
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/order_model.dart';
 import '../../domain/entities/order_state.dart';
@@ -7,8 +5,9 @@ import '../../domain/entities/order_state.dart';
 class OrderRemoteDataSource {
   final _ordersCollection = FirebaseFirestore.instance.collection('orders');
 
+  // Método para agregar un nuevo pedido. Recibe un OrderModel y lo convierte para Firestore.
   Future<void> addOrder(OrderModel order) async {
-    await _ordersCollection.doc(order.id).set(order.toFirestore());
+    await _ordersCollection.add(order.toFirestore());
   }
 
   Future<void> updateOrder(OrderModel order) async {

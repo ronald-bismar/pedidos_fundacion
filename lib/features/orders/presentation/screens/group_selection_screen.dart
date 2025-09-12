@@ -1,3 +1,5 @@
+// lib/features/orders/presentation/screens/group_selection_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -24,6 +26,7 @@ class _GroupSelectionScreenState extends ConsumerState<GroupSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 💡 CAMBIO: Usamos directamente el proveedor de todos los grupos.
     final groupsAsyncValue = ref.watch(allGroupsProvider);
     final currentMonth = _getCurrentMonth();
 
@@ -40,10 +43,7 @@ class _GroupSelectionScreenState extends ConsumerState<GroupSelectionScreen> {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             itemCount: groups.length,
             itemBuilder: (context, index) {
               final group = groups[index];
@@ -59,18 +59,14 @@ class _GroupSelectionScreenState extends ConsumerState<GroupSelectionScreen> {
                     elevation: 2,
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 8.0,
-                      ),
+                          horizontal: 16.0, vertical: 8.0),
                       leading: const Icon(
                         Icons.group,
                         color: Colors.black54,
                         size: 40,
                       ),
                       title: Text(group.name),
-                      subtitle: Text(
-                        hasOrder ? 'Pedido registrado' : 'Sin pedido',
-                      ),
+                      subtitle: Text(hasOrder ? 'Pedido registrado' : 'Sin pedido'),
                       trailing: hasOrder
                           ? const Icon(Icons.check_circle, color: Colors.green)
                           : const Icon(Icons.cancel, color: Colors.red),
@@ -88,14 +84,13 @@ class _GroupSelectionScreenState extends ConsumerState<GroupSelectionScreen> {
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, s) =>
-                    const Text('Error al verificar estado del pedido'),
+                error: (e, s) => const Text('Error al verificar estado del pedido'),
               );
             },
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, s) => Text('Error al cargar grupos: $e'),
+        error: (e, s) => Center(child: Text('Error al cargar grupos: $e')),
       ),
     );
   }

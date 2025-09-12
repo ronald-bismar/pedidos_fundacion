@@ -46,7 +46,8 @@ class ScreenFactory {
       case ScreenType.pedidos:
         return PlaceSelectionScreen();
       case ScreenType.pedidos2:
-        // return OrderScreen();
+      return PlaceSelectionScreen();
+      //   return OrderScreen();
       case ScreenType.entregas:
         return ListDeliveriesScreen();
       case ScreenType.personal:

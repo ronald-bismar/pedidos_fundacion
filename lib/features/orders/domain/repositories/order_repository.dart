@@ -9,6 +9,7 @@ abstract class OrderRepository {
   Future<void> deleteOrder(String id);
   Future<void> restoreOrder(String id);
   Future<void> blockOrder(String id);
+  
 
 }
 
