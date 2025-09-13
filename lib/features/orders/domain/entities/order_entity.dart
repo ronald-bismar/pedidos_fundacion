@@ -14,7 +14,7 @@ class OrderEntity {
   final int beneficiaryCount;
   final int nonBeneficiaryCount;
   final int observedBeneficiaryCount;
-  final double totalOrder;
+  final double? totalOrder;
   final Map<String, int> itemQuantities;
   final String observations;
   final OrderState state;
@@ -59,6 +59,9 @@ class OrderEntity {
       return null;
     }
 
+    // 💡 Corrección aquí: Usar un casteo a tipo nullable `as num?`
+    final totalOrderValue = data['total_order'] as num?;
+
     return OrderEntity(
       id: doc.id,
       nameuser: data['name_user'] ?? '',
@@ -70,7 +73,8 @@ class OrderEntity {
       beneficiaryCount: (data['beneficiary_count'] as num).toInt(),
       nonBeneficiaryCount: (data['non_beneficiary_count'] as num).toInt(),
       observedBeneficiaryCount: (data['observed_beneficiary_count'] as num).toInt(),
-      totalOrder: (data['total_order'] as num).toDouble(),
+      // ✅ Solución: Si el valor es nulo, `totalOrderValue` será nulo. Si no, se convierte a `double`.
+      totalOrder: totalOrderValue?.toDouble() ?? 0.0,
       itemQuantities: Map<String, int>.from(data['item_quantities'] ?? {}),
       observations: data['observations'] ?? '',
       state: OrderState.fromInt(data['state'] ?? 0),

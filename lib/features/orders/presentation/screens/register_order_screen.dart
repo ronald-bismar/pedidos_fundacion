@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import '../../../groups/domain/entities/group_entity.dart';
 import '../../../places/domain/entities/place_entity.dart';
 import '../providers/order_providers.dart';
+import '../../domain/entities/order_entity.dart';
+import '../../domain/entities/order_state.dart';
 
 class RegisterOrderScreen extends ConsumerStatefulWidget {
   final GroupEntity selectedGroup;
@@ -31,8 +33,8 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
   final _observationsController = TextEditingController();
   final _totalController = TextEditingController();
   final _orderForDateController = TextEditingController();
-  final _orderNameController = TextEditingController(); // Nuevo: nombre del pedido
-  final _observedBeneficiaryController = TextEditingController(); // Nuevo: cantidad de beneficiarios observados
+  final _orderNameController = TextEditingController();
+  final _observedBeneficiaryController = TextEditingController();
 
   @override
   void initState() {
@@ -42,7 +44,7 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
 
     _beneficiaryCountController.addListener(_updateTotal);
     _nonBeneficiaryCountController.addListener(_updateTotal);
-    _observedBeneficiaryController.addListener(_updateTotal); // Nuevo: escuchar cambios en beneficiarios observados
+    _observedBeneficiaryController.addListener(_updateTotal);
   }
 
   @override
@@ -64,8 +66,8 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
     final nonBeneficiaryCount =
         int.tryParse(_nonBeneficiaryCountController.text) ?? 0;
     final observedBeneficiaryCount =
-        int.tryParse(_observedBeneficiaryController.text) ?? 0; // Nuevo: obtener cantidad de observados
-        
+        int.tryParse(_observedBeneficiaryController.text) ?? 0;
+
     final total = beneficiaryCount + nonBeneficiaryCount + observedBeneficiaryCount;
     _totalController.text = total.toString();
   }
@@ -79,8 +81,8 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
     _observationsController.dispose();
     _totalController.dispose();
     _orderForDateController.dispose();
-    _orderNameController.dispose(); // Nuevo: limpiar el controlador
-    _observedBeneficiaryController.dispose(); // Nuevo: limpiar el controlador
+    _orderNameController.dispose();
+    _observedBeneficiaryController.dispose();
 
     super.dispose();
   }
@@ -91,23 +93,32 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
 
       // Usar los nuevos parámetros según la firma del método addOrder
       await notifier.addOrder(
-        nameuser: 'ID_DE_USUARIO_ACTUAL', // Este dato debe ser obtenido del estado de autenticación
+        nameuser: 'ID_DE_USUARIO_ACTUAL',
         nameTutor: _tutorController.text.trim(),
         nameGroup: widget.selectedGroup.name,
         namePlace: widget.selectedPlace.city,
-        nameOrder: _orderNameController.text.trim(), // Nuevo
+        nameOrder: _orderNameController.text.trim(),
         dateOrderMonth: _orderForDateController.text.trim(),
         beneficiaryCount: int.tryParse(_beneficiaryCountController.text.trim()) ?? 0,
         nonBeneficiaryCount: int.tryParse(_nonBeneficiaryCountController.text.trim()) ?? 0,
-        observedBeneficiaryCount: int.tryParse(_observedBeneficiaryController.text.trim()) ?? 0, // Nuevo
+        observedBeneficiaryCount: int.tryParse(_observedBeneficiaryController.text.trim()) ?? 0,
         totalOrder: double.tryParse(_totalController.text.trim()) ?? 0.0,
-        itemQuantities: {}, // Se asume un mapa vacío por ahora, ya que la UI no lo captura
+        itemQuantities: {},
         observations: _observationsController.text.trim(),
         placeId: widget.selectedPlace.id,
         groupId: widget.selectedGroup.id,
       );
 
+      // 💡 CORRECCIÓN: Agregar lógica de navegación después de que el pedido se ha guardado exitosamente.
       if (mounted) {
+        // Muestra un mensaje de éxito.
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('¡Pedido registrado con éxito!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Regresa a la pantalla anterior (la lista de pedidos).
         Navigator.of(context).pop();
       }
     }
@@ -146,7 +157,7 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
               ),
               const SizedBox(height: 16),
               _buildTextFormField(
-                _orderNameController, // Nuevo campo de texto
+                _orderNameController,
                 'Nombre del Pedido',
                 'Ej. Pedido Mensual',
               ),
@@ -163,7 +174,7 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
               ),
               const SizedBox(height: 16),
               _buildNumericalFormField(
-                _observedBeneficiaryController, // Nuevo campo numérico
+                _observedBeneficiaryController,
                 'Beneficiarios Observados',
               ),
               const SizedBox(height: 16),

@@ -81,7 +81,8 @@ class OrderListItem extends StatelessWidget {
                 style: TextStyle(color: Colors.grey.shade600)),
             Text('Grupo: ${order.nameGroup}',
                 style: TextStyle(color: Colors.grey.shade600)),
-            Text('Total: \$${order.totalOrder.toStringAsFixed(2)}',
+           
+            Text('Total: \$${order.totalOrder.toString()}',
                 style: TextStyle(color: Colors.grey.shade600)),
             Text(
               statusText,

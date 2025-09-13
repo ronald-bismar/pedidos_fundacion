@@ -40,7 +40,7 @@ class _OrderFormDialogState extends State<OrderFormDialog> {
     _observationsController =
         TextEditingController(text: widget.orderToEdit?.observations);
     _totalController =
-        TextEditingController(text: widget.orderToEdit?.totalOrder.toStringAsFixed(2));
+        TextEditingController(text: widget.orderToEdit?.totalOrder.toString());
   }
 
   @override

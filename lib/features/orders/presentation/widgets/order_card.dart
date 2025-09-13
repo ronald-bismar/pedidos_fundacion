@@ -1,3 +1,5 @@
+// lib/features/orders/presentation/pages/order_card.dart
+
 import 'package:flutter/material.dart';
 import '../../domain/entities/order_entity.dart';
 import '../../domain/entities/order_state.dart';
@@ -42,6 +44,9 @@ class OrderCard extends StatelessWidget {
         break;
     }
 
+    // 💡 Corrección: Manejar el valor nulo y usar toStringAsFixed(2)
+    final formattedTotal = order.totalOrder?.toStringAsFixed(2) ?? '0.00';
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
       elevation: 2,
@@ -60,7 +65,7 @@ class OrderCard extends StatelessWidget {
           children: [
             Text('Mes: ${order.dateOrderMonth}'),
             Text('Grupo: ${order.nameGroup}'),
-            Text('Total: \$${order.totalOrder.toStringAsFixed(2)}'),
+            Text('Total: \$$formattedTotal'), 
             const SizedBox(height: 4),
             Text(statusText, style: TextStyle(fontSize: 12, color: statusColor, fontWeight: FontWeight.bold)),
           ],
@@ -72,7 +77,7 @@ class OrderCard extends StatelessWidget {
               IconButton(icon: const Icon(Icons.edit, color: Colors.orange), onPressed: onEdit),
             if (order.state == OrderState.active && onBlock != null)
               IconButton(icon: const Icon(Icons.lock, color: Colors.orange), onPressed: onBlock),
-            if ((order.state == OrderState.blocked || order.state == OrderState.deleted) && onRestore != null) // ✅ Lógica corregida
+            if ((order.state == OrderState.blocked || order.state == OrderState.deleted) && onRestore != null)
               IconButton(icon: const Icon(Icons.restore, color: Colors.green), onPressed: onRestore),
             if (order.state != OrderState.deleted && onDelete != null)
               IconButton(icon: const Icon(Icons.delete_forever, color: Colors.red), onPressed: onDelete),

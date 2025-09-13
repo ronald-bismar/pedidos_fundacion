@@ -153,20 +153,22 @@ class _ViewDeliveryBeneficiaryScreenState
         ),
         const SizedBox(height: 8),
         textNormal(
-          'Programa: Triunfadores I',
-          textColor: primary,
+          'Grupo: Triunfadores I',
+          textColor: secondary,
           fontWeight: FontWeight.w600,
         ),
-        textNormal(
+        subTitle(
           'BO0345456647',
-          textColor: primary,
-          fontWeight: FontWeight.w600,
+          textColor: secondary,
+          fontWeight: FontWeight.w500,
         ),
-        const SizedBox(height: 8),
-        textNormal(
-          widget.deliveryBeneficiary.nameBeneficiary,
-          textColor: Colors.black,
-          fontWeight: FontWeight.w700,
+        const SizedBox(height: 4),
+        Center(
+          child: subTitle(
+            widget.deliveryBeneficiary.nameBeneficiary,
+            textColor: Colors.black,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ],
     );
@@ -176,7 +178,7 @@ class _ViewDeliveryBeneficiaryScreenState
     return Center(
       child: Container(
         width: 200,
-        height: 400,
+        height: 300,
         decoration: BoxDecoration(
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(12),

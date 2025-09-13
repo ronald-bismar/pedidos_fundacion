@@ -61,7 +61,7 @@ class MenuScreen extends StatelessWidget {
 
   Container contentMenu(BuildContext context, List<ItemMenu> listItems) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+      padding: const EdgeInsets.only(top: 40, right: 20, left: 20),
       height: MediaQuery.of(context).size.height,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,

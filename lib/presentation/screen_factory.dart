@@ -12,6 +12,7 @@ import 'package:pedidos_fundacion/features/groups/presentation/screens/groups_sc
 import 'package:pedidos_fundacion/features/orders/presentation/screens/orders_screen.dart';
 import 'package:pedidos_fundacion/features/places/domain/entities/place_entity.dart';
 import 'package:pedidos_fundacion/features/orders/domain/entities/order_entity.dart';
+import 'package:pedidos_fundacion/features/orders/presentation/screens/orders_list_screen.dart';
 import 'package:pedidos_fundacion/features/orders/presentation/screens/place_selection_screen.dart';
 import 'package:pedidos_fundacion/features/orders/presentation/screens/group_selection_screen.dart';
 import 'package:pedidos_fundacion/features/orders/presentation/screens/orders_screen.dart';
@@ -28,6 +29,7 @@ enum ScreenType {
   reportes,
   lugares,
   grupos,
+  listaPedidos,
 }
 
 // Factory para crear las pantallas
@@ -46,8 +48,12 @@ class ScreenFactory {
       case ScreenType.pedidos:
         return PlaceSelectionScreen();
       case ScreenType.pedidos2:
-      return PlaceSelectionScreen();
-      //   return OrderScreen();
+        return OrdersScreen();
+      case ScreenType.listaPedidos:
+        return OrdersListScreen();
+
+
+        
       case ScreenType.entregas:
         return ListDeliveriesScreen();
       case ScreenType.personal:
