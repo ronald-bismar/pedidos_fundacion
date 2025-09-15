@@ -26,7 +26,7 @@ class _GroupSelectionScreenState extends ConsumerState<GroupSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 💡 CAMBIO: Usamos directamente el proveedor de todos los grupos.
+   // Usamos directamente el proveedor de todos los grupos.
     final groupsAsyncValue = ref.watch(allGroupsProvider);
     final currentMonth = _getCurrentMonth();
 

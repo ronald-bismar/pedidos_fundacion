@@ -73,7 +73,6 @@ class OrderModel extends OrderEntity {
       namePlace: data['name_place'] ?? '',
       nameOrder: data['name_order'] ?? '',
       dateOrderMonth: data['date_order_month'] ?? '',
-      // ✅ Solución: Usa `as num?` para permitir valores nulos y `?? 0` para un valor por defecto.
       beneficiaryCount: (data['beneficiary_count'] as num?)?.toInt() ?? 0,
       nonBeneficiaryCount: (data['non_beneficiary_count'] as num?)?.toInt() ?? 0,
       observedBeneficiaryCount: (data['observed_beneficiary_count'] as num?)?.toInt() ?? 0,

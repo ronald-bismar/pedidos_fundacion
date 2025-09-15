@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/order_providers.dart';
-import 'order_details_screen.dart'; // 💡 Import the new screen
+import 'order_details_screen.dart'; 
 
 class OrdersListScreen extends ConsumerWidget {
   const OrdersListScreen({super.key});
@@ -49,7 +49,6 @@ class OrdersListScreen extends ConsumerWidget {
               final order = orders[index];
               final total = order.totalOrder ?? 0.0;
 
-              // ✅ Solución: Envuelve el Card en un InkWell
               return InkWell(
                 onTap: () {
                   Navigator.of(context).push(

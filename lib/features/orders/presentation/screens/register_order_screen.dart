@@ -109,7 +109,7 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
         groupId: widget.selectedGroup.id,
       );
 
-      // 💡 CORRECCIÓN: Agregar lógica de navegación después de que el pedido se ha guardado exitosamente.
+      // navegación después de que el pedido se ha guardado exitosamente.
       if (mounted) {
         // Muestra un mensaje de éxito.
         ScaffoldMessenger.of(context).showSnackBar(

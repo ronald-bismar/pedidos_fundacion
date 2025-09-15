@@ -63,8 +63,6 @@ class OrdersListNotifier extends StreamNotifier<List<OrderEntity>> {
       );
 
       await addOrderUseCase.call(newOrder);
-
-      // No es necesario retornar nada, el Stream se actualizará automáticamente
       return state.value!;
     });
   }
