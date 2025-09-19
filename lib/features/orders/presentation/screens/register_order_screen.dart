@@ -1,13 +1,13 @@
-// lib/features/orders/presentation/pages/register_order_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:pedidos_fundacion/domain/entities/encargado.dart';
 import '../../../groups/domain/entities/group_entity.dart';
 import '../../../places/domain/entities/place_entity.dart';
 import '../providers/order_providers.dart';
 import '../../domain/entities/order_entity.dart';
 import '../../domain/entities/order_state.dart';
+import '../../../encargados/presentation/providers/current_user_provider.dart';
 
 class RegisterOrderScreen extends ConsumerStatefulWidget {
   final GroupEntity selectedGroup;
@@ -36,11 +36,16 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
   final _orderNameController = TextEditingController();
   final _observedBeneficiaryController = TextEditingController();
 
+  // Variable para asegurar que el listener se ejecute una sola vez.
+  bool _isListenerSet = false;
+
   @override
   void initState() {
     super.initState();
-    _orderDateController.text =
-        DateFormat('dd MMMM yyyy', 'es').format(DateTime.now());
+    _orderDateController.text = DateFormat(
+      'dd MMMM yyyy',
+      'es',
+    ).format(DateTime.now());
 
     _beneficiaryCountController.addListener(_updateTotal);
     _nonBeneficiaryCountController.addListener(_updateTotal);
@@ -50,11 +55,12 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final beneficiariesAsyncValue =
-        ref.watch(beneficiariesByGroupProvider(widget.selectedGroup.id));
+    // Esta lógica también puede estar en didChangeDependencies, pero no causa el error de ref.listen
+    final beneficiariesAsyncValue = ref.watch(
+      beneficiariesByGroupProvider(widget.selectedGroup.id),
+    );
     beneficiariesAsyncValue.whenData((beneficiaries) {
-      final activeBeneficiaries =
-          beneficiaries.where((b) => b.active).toList();
+      final activeBeneficiaries = beneficiaries.where((b) => b.active).toList();
       _beneficiaryCountController.text = activeBeneficiaries.length.toString();
       _updateTotal();
     });
@@ -68,12 +74,14 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
     final observedBeneficiaryCount =
         int.tryParse(_observedBeneficiaryController.text) ?? 0;
 
-    final total = beneficiaryCount + nonBeneficiaryCount + observedBeneficiaryCount;
+    final total =
+        beneficiaryCount + nonBeneficiaryCount + observedBeneficiaryCount;
     _totalController.text = total.toString();
   }
 
   @override
   void dispose() {
+    // No se necesita `_listener.close()` porque `ref.listen` dentro de `build` se maneja automáticamente
     _tutorController.dispose();
     _orderDateController.dispose();
     _beneficiaryCountController.dispose();
@@ -90,18 +98,22 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final notifier = ref.read(ordersListNotifierProvider.notifier);
+      final currentUser = await ref.read(currentUserProvider.future);
+      final currentUserId = currentUser?.id ?? '';
 
-      // Usar los nuevos parámetros según la firma del método addOrder
       await notifier.addOrder(
-        nameuser: 'ID_DE_USUARIO_ACTUAL',
+        nameuser: currentUserId,
         nameTutor: _tutorController.text.trim(),
         nameGroup: widget.selectedGroup.name,
         namePlace: widget.selectedPlace.city,
         nameOrder: _orderNameController.text.trim(),
         dateOrderMonth: _orderForDateController.text.trim(),
-        beneficiaryCount: int.tryParse(_beneficiaryCountController.text.trim()) ?? 0,
-        nonBeneficiaryCount: int.tryParse(_nonBeneficiaryCountController.text.trim()) ?? 0,
-        observedBeneficiaryCount: int.tryParse(_observedBeneficiaryController.text.trim()) ?? 0,
+        beneficiaryCount:
+            int.tryParse(_beneficiaryCountController.text.trim()) ?? 0,
+        nonBeneficiaryCount:
+            int.tryParse(_nonBeneficiaryCountController.text.trim()) ?? 0,
+        observedBeneficiaryCount:
+            int.tryParse(_observedBeneficiaryController.text.trim()) ?? 0,
         totalOrder: double.tryParse(_totalController.text.trim()) ?? 0.0,
         itemQuantities: {},
         observations: _observationsController.text.trim(),
@@ -109,16 +121,13 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
         groupId: widget.selectedGroup.id,
       );
 
-      // navegación después de que el pedido se ha guardado exitosamente.
       if (mounted) {
-        // Muestra un mensaje de éxito.
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('¡Pedido registrado con éxito!'),
             backgroundColor: Colors.green,
           ),
         );
-        // Regresa a la pantalla anterior (la lista de pedidos).
         Navigator.of(context).pop();
       }
     }
@@ -126,11 +135,29 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ CORRECCIÓN: La lógica de ref.listen se mueve aquí para evitar el error
+    if (!_isListenerSet) {
+      ref.listen<AsyncValue<Coordinator?>>(currentUserProvider, (
+        _,
+        next,
+      ) {
+        next.when(
+          data: (currentUser) {
+            if (currentUser != null && _tutorController.text.isEmpty) {
+              _tutorController.text =
+                  '${currentUser.name} ${currentUser.lastName}';
+            }
+          },
+          loading: () {},
+          error: (error, stackTrace) {},
+        );
+      });
+      _isListenerSet = true;
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Registrar Nuevo Pedido'),
-        backgroundColor: Colors.blue.shade700,
-        foregroundColor: Colors.white,
+        title: const Text('Registrar Pedido'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -139,71 +166,78 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle('Datos Generales'),
-              _buildInfoDisplay('Lugar', widget.selectedPlace.city),
+              _buildSectionTitle('Información del Pedido'),
               _buildInfoDisplay('Grupo', widget.selectedGroup.name),
-              _buildInfoDisplay('Fecha del Pedido (hoy)', _orderDateController.text),
+              _buildInfoDisplay('Lugar', widget.selectedPlace.city),
+              _buildTextFormField(
+                _orderNameController,
+                'Nombre del Pedido',
+                'Escribe el nombre del pedido',
+              ),
               const SizedBox(height: 16),
               _buildTextFormField(
                 _tutorController,
-                'Tutor',
-                'Ej. Juan Pérez',
+                'Tutor / Encargado',
+                'Nombre del tutor o encargado',
+              ),
+              const SizedBox(height: 16),
+              _buildTextFormField(
+                _orderDateController,
+                'Fecha de Solicitud',
+                'dd/mm/yyyy',
+                isReadOnly: true,
               ),
               const SizedBox(height: 16),
               _buildTextFormField(
                 _orderForDateController,
-                'Fecha para el Pedido',
-                'Ej.Septiembre ',
+                'Fecha para el pedido',
+                'Escribe la fecha para la que se hace el pedido',
               ),
               const SizedBox(height: 16),
-              _buildTextFormField(
-                _orderNameController,
-                'Nombre del Pedido',
-                'Ej. Pedido Mensual',
-              ),
-              const SizedBox(height: 16),
+              _buildSectionTitle('Números de Personas'),
               _buildNumericalFormField(
                 _beneficiaryCountController,
-                'Cantidad de Beneficiarios',
+                'N° de Beneficiarios',
                 isReadOnly: true,
               ),
               const SizedBox(height: 16),
               _buildNumericalFormField(
                 _nonBeneficiaryCountController,
-                'Cantidad de No Beneficiarios',
+                'N° de No Beneficiarios',
               ),
               const SizedBox(height: 16),
               _buildNumericalFormField(
                 _observedBeneficiaryController,
-                'Beneficiarios Observados',
+                'N° de Beneficiarios Observados',
               ),
               const SizedBox(height: 16),
               _buildNumericalFormField(
                 _totalController,
-                'Total de Raciones',
+                'Total',
                 isReadOnly: true,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               _buildSectionTitle('Observaciones'),
               _buildTextFormField(
                 _observationsController,
                 'Observaciones',
-                '',
+                'Añade cualquier observación relevante',
                 isMultiLine: true,
               ),
-              const SizedBox(height: 24),
-              Center(
-                child: ElevatedButton.icon(
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
                   onPressed: _submitForm,
-                  icon: const Icon(Icons.save),
-                  label: const Text('Guardar Pedido'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 16),
-                    textStyle: const TextStyle(fontSize: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
+                  child: const Text('Registrar Pedido'),
                 ),
               ),
             ],
@@ -219,7 +253,10 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
       child: Text(
         title,
         style: const TextStyle(
-            fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.blue,
+        ),
       ),
     );
   }
@@ -231,31 +268,21 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
         children: [
           Text(
             '$label: ',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 16,
-              ),
-            ),
-          ),
+          Expanded(child: Text(value, style: const TextStyle(fontSize: 16))),
         ],
       ),
     );
   }
 
   Widget _buildTextFormField(
-      TextEditingController controller,
-      String labelText,
-      String hintText, {
-        bool isMultiLine = false,
-        bool isReadOnly = false,
-      }) {
+    TextEditingController controller,
+    String labelText,
+    String hintText, {
+    bool isMultiLine = false,
+    bool isReadOnly = false,
+  }) {
     return TextFormField(
       controller: controller,
       readOnly: isReadOnly,
@@ -275,11 +302,11 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
   }
 
   Widget _buildNumericalFormField(
-      TextEditingController controller,
-      String labelText, {
-        bool isDecimal = false,
-        bool isReadOnly = false,
-      }) {
+    TextEditingController controller,
+    String labelText, {
+    bool isDecimal = false,
+    bool isReadOnly = false,
+  }) {
     return TextFormField(
       controller: controller,
       readOnly: isReadOnly,
