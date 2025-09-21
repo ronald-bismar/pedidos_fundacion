@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -35,9 +36,10 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
   final _orderForDateController = TextEditingController();
   final _orderNameController = TextEditingController();
   final _observedBeneficiaryController = TextEditingController();
+  final _groupNameController = TextEditingController();
+  final _placeCityController = TextEditingController();
 
-  // Variable para asegurar que el listener se ejecute una sola vez.
-  bool _isListenerSet = false;
+  String? _selectedOrderType;
 
   @override
   void initState() {
@@ -47,15 +49,24 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
       'es',
     ).format(DateTime.now());
 
+    _groupNameController.text = widget.selectedGroup.name;
+    _placeCityController.text = widget.selectedPlace.city;
+
     _beneficiaryCountController.addListener(_updateTotal);
     _nonBeneficiaryCountController.addListener(_updateTotal);
     _observedBeneficiaryController.addListener(_updateTotal);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final currentUser = await ref.read(currentUserProvider.future);
+      if (currentUser != null && _tutorController.text.isEmpty) {
+        _tutorController.text = '${currentUser.name} ${currentUser.lastName}';
+      }
+    });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Esta lógica también puede estar en didChangeDependencies, pero no causa el error de ref.listen
     final beneficiariesAsyncValue = ref.watch(
       beneficiariesByGroupProvider(widget.selectedGroup.id),
     );
@@ -79,9 +90,85 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
     _totalController.text = total.toString();
   }
 
+  Future<void> _selectMonth(BuildContext context) async {
+    DateTime selectedDate = DateTime.now();
+    final int currentYear = DateTime.now().year;
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Fecha para el pedido"),
+          content: SizedBox(
+            height: 90,
+            child: CupertinoDatePicker(
+              mode: CupertinoDatePickerMode.monthYear,
+              initialDateTime: DateTime.now(),
+              minimumYear: currentYear,
+              maximumYear: currentYear + 1,
+              onDateTimeChanged: (DateTime date) {
+                selectedDate = date;
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  final formattedDate = DateFormat(
+                    'MMMM yyyy',
+                    'es',
+                  ).format(selectedDate);
+                  _orderForDateController.text =
+                      "$formattedDate";
+                });
+                Navigator.pop(context);
+              },
+              child: const Text("Confirmar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showOrderTypeDialog(BuildContext context) async {
+    final selectedType = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Selecciona el tipo de pedido'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text('Canasta'),
+                onTap: () => Navigator.pop(context, 'Canasta'),
+              ),
+              ListTile(
+                title: const Text('Otros'),
+                onTap: () => Navigator.pop(context, 'Otros'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (selectedType != null) {
+      setState(() {
+        _selectedOrderType = selectedType;
+        _orderNameController.text = selectedType;
+      });
+    }
+  }
+
   @override
   void dispose() {
-    // No se necesita `_listener.close()` porque `ref.listen` dentro de `build` se maneja automáticamente
     _tutorController.dispose();
     _orderDateController.dispose();
     _beneficiaryCountController.dispose();
@@ -91,6 +178,8 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
     _orderForDateController.dispose();
     _orderNameController.dispose();
     _observedBeneficiaryController.dispose();
+    _groupNameController.dispose();
+    _placeCityController.dispose();
 
     super.dispose();
   }
@@ -135,50 +224,41 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ CORRECCIÓN: La lógica de ref.listen se mueve aquí para evitar el error
-    if (!_isListenerSet) {
-      ref.listen<AsyncValue<Coordinator?>>(currentUserProvider, (
-        _,
-        next,
-      ) {
-        next.when(
-          data: (currentUser) {
-            if (currentUser != null && _tutorController.text.isEmpty) {
-              _tutorController.text =
-                  '${currentUser.name} ${currentUser.lastName}';
-            }
-          },
-          loading: () {},
-          error: (error, stackTrace) {},
-        );
-      });
-      _isListenerSet = true;
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Registrar Pedido'),
+        backgroundColor: Colors.blue.shade800,
+        foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
+
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSectionTitle('Información del Pedido'),
-              _buildInfoDisplay('Grupo', widget.selectedGroup.name),
-              _buildInfoDisplay('Lugar', widget.selectedPlace.city),
-              _buildTextFormField(
-                _orderNameController,
-                'Nombre del Pedido',
-                'Escribe el nombre del pedido',
-              ),
               const SizedBox(height: 16),
               _buildTextFormField(
                 _tutorController,
                 'Tutor / Encargado',
                 'Nombre del tutor o encargado',
+              ),
+              const SizedBox(height: 16),
+              _buildTextFormField(
+                _groupNameController,
+                'Grupo',
+                'Nombre del grupo',
+                isReadOnly: true,
+              ),
+              const SizedBox(height: 16),
+              _buildTextFormField(
+                _placeCityController,
+                'Lugar',
+                'Nombre del lugar',
+                isReadOnly: true,
               ),
               const SizedBox(height: 16),
               _buildTextFormField(
@@ -189,9 +269,19 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
               ),
               const SizedBox(height: 16),
               _buildTextFormField(
+                _orderNameController,
+                'Pedido de',
+                'Selecciona el tipo de pedido',
+                isReadOnly: true,
+                onTap: () => _showOrderTypeDialog(context),
+              ),
+              const SizedBox(height: 16),
+              _buildTextFormField(
                 _orderForDateController,
-                'Fecha para el pedido',
-                'Escribe la fecha para la que se hace el pedido',
+                'Selecciona el mes',
+                'Pedido para el mes de',
+                isReadOnly: true,
+                onTap: () => _selectMonth(context),
               ),
               const SizedBox(height: 16),
               _buildSectionTitle('Números de Personas'),
@@ -204,17 +294,6 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
               _buildNumericalFormField(
                 _nonBeneficiaryCountController,
                 'N° de No Beneficiarios',
-              ),
-              const SizedBox(height: 16),
-              _buildNumericalFormField(
-                _observedBeneficiaryController,
-                'N° de Beneficiarios Observados',
-              ),
-              const SizedBox(height: 16),
-              _buildNumericalFormField(
-                _totalController,
-                'Total',
-                isReadOnly: true,
               ),
               const SizedBox(height: 16),
               _buildSectionTitle('Observaciones'),
@@ -261,46 +340,6 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
     );
   }
 
-  Widget _buildInfoDisplay(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        children: [
-          Text(
-            '$label: ',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          Expanded(child: Text(value, style: const TextStyle(fontSize: 16))),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTextFormField(
-    TextEditingController controller,
-    String labelText,
-    String hintText, {
-    bool isMultiLine = false,
-    bool isReadOnly = false,
-  }) {
-    return TextFormField(
-      controller: controller,
-      readOnly: isReadOnly,
-      maxLines: isMultiLine ? 4 : 1,
-      decoration: InputDecoration(
-        labelText: labelText,
-        hintText: hintText,
-        border: const OutlineInputBorder(),
-      ),
-      validator: (value) {
-        if (!isReadOnly && (value == null || value.trim().isEmpty)) {
-          return 'Este campo es obligatorio.';
-        }
-        return null;
-      },
-    );
-  }
-
   Widget _buildNumericalFormField(
     TextEditingController controller,
     String labelText, {
@@ -325,13 +364,154 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
           if (double.tryParse(value!) == null) {
             return 'Introduce un número decimal válido.';
           }
-        } else {
-          if (int.tryParse(value!) == null) {
-            return 'Introduce un número entero válido.';
-          }
         }
         return null;
       },
+    );
+  }
+
+  Widget _buildTextFormField(
+    TextEditingController controller,
+    String labelText,
+    String hintText, {
+    bool isMultiLine = false,
+    bool isReadOnly = false,
+    VoidCallback? onTap,
+  }) {
+    return TextFormField(
+      controller: controller,
+      readOnly: isReadOnly,
+      maxLines: isMultiLine ? 4 : 1,
+      onTap: onTap,
+      decoration: InputDecoration(
+        labelText: labelText,
+        hintText: hintText,
+        border: const OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if (!isReadOnly && (value == null || value.trim().isEmpty)) {
+          return 'Este campo es obligatorio.';
+        }
+        return null;
+      },
+    );
+  }
+}
+
+class MonthYearPicker extends StatefulWidget {
+  final DateTime initialDate;
+  final DateTime firstDate;
+  final DateTime lastDate;
+
+  const MonthYearPicker({
+    super.key,
+    required this.initialDate,
+    required this.firstDate,
+    required this.lastDate,
+  });
+
+  @override
+  State<MonthYearPicker> createState() => _MonthYearPickerState();
+}
+
+class _MonthYearPickerState extends State<MonthYearPicker> {
+  late int _displayedYear;
+
+  @override
+  void initState() {
+    super.initState();
+    _displayedYear = widget.initialDate.year;
+  }
+
+  void _onMonthSelected(int month) {
+    final DateTime selectedDate = DateTime(_displayedYear, month);
+    Navigator.of(context).pop(selectedDate);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _buildHeader(),
+        Expanded(
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: 2.5,
+            ),
+            itemCount: 12,
+            itemBuilder: (context, monthIndex) {
+              final int month = monthIndex + 1;
+              final DateTime monthDate = DateTime(_displayedYear, month);
+
+              final bool isCurrentMonth =
+                  monthDate.year == DateTime.now().year &&
+                  monthDate.month == DateTime.now().month;
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: ElevatedButton(
+                  onPressed: () => _onMonthSelected(month),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isCurrentMonth ? Colors.blue : null,
+                    foregroundColor: isCurrentMonth ? Colors.white : null,
+                  ),
+                  child: Text(
+                    DateFormat('MMMM', 'es').format(monthDate),
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.chevron_left),
+              onPressed: () {
+                if (_displayedYear > widget.firstDate.year) {
+                  setState(() {
+                    _displayedYear--;
+                  });
+                }
+              },
+            ),
+            Text(
+              _displayedYear.toString(),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            IconButton(
+              icon: const Icon(Icons.chevron_right),
+              onPressed: () {
+                if (_displayedYear < widget.lastDate.year) {
+                  setState(() {
+                    _displayedYear++;
+                  });
+                }
+              },
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          const Text(
+            'Selecciona el Mes y Año',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
     );
   }
 }
