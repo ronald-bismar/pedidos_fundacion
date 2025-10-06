@@ -8,17 +8,18 @@ import 'package:pedidos_fundacion/features/entregas/presentation/screens/lista_e
 import 'package:pedidos_fundacion/features/groups/presentation/screens/groups_screen.dart';
 import 'package:pedidos_fundacion/features/orders/domain/entities/order_entity.dart';
 import 'package:pedidos_fundacion/features/orders/presentation/screens/orders_list_screen.dart';
-import 'package:pedidos_fundacion/features/orders/presentation/screens/orders_screen.dart';
 import 'package:pedidos_fundacion/features/orders/presentation/screens/place_selection_screen.dart';
 import 'package:pedidos_fundacion/features/orders/presentation/screens/supervisor_main_screen.dart';
 import 'package:pedidos_fundacion/features/orders/presentation/screens/supervisor_monthly_orders_screen.dart';
 import 'package:pedidos_fundacion/features/orders/presentation/screens/tutor_main_screen.dart';
 import 'package:pedidos_fundacion/features/orders/presentation/screens/tutor_monthly_orders_screen.dart';
 import 'package:pedidos_fundacion/features/places/presentation/screens/place_registration_screen.dart';
+import 'package:pedidos_fundacion/features/orders/presentation/screens/tutor_general_order_screen.dart';
+import 'package:pedidos_fundacion/features/orders/presentation/screens/register_general_order_screen.dart';
+import 'package:pedidos_fundacion/features/orders/presentation/screens/register_order_screen.dart';
 
 enum ScreenType {
   pedidos,
-  pedidos2,
   entregas,
   personal,
   asistenciaBeneficiarios,
@@ -46,16 +47,12 @@ class ScreenFactory {
     Map<String, dynamic>? arguments,
   }) {
     switch (screenType) {
-      case ScreenType.pedidos:
-        return PlaceSelectionScreen();
-      case ScreenType.pedidos2:
-        return OrdersScreen();
       case ScreenType.listaPedidos:
         return OrdersListScreen();
-
-      // Nuevos casos para las vistas del supervisor y tutor
+        
       case ScreenType.supervisorPedidos:
         return SupervisorMainScreen();
+
       case ScreenType.supervisorPedidosMes:
         final monthlyOrders =
             arguments?['monthlyOrders'] as List<OrderEntity>? ?? [];
@@ -64,17 +61,9 @@ class ScreenFactory {
           monthlyOrders: monthlyOrders,
           month: month,
         );
-      case ScreenType.tutorPedidos:
-        return TutorMainScreen();
-      case ScreenType.tutorPedidosMes:
-        final monthlyOrders =
-            arguments?['monthlyOrders'] as List<OrderEntity>? ?? [];
-        final month = arguments?['month'] as String? ?? '';
-        return TutorMonthlyOrdersScreen(
-          monthlyOrders: monthlyOrders,
-          month: month,
-        );
 
+      case ScreenType.tutorPedidosMes:
+        return TutorMainScreen();
       case ScreenType.entregas:
         return ListDeliveriesScreen();
       case ScreenType.personal:
@@ -89,6 +78,8 @@ class ScreenFactory {
         return PlaceRegistrationScreen();
       case ScreenType.grupos:
         return GroupsScreen();
+      default:
+        throw Exception('Screen type not supported: $screenType');
     }
   }
 }

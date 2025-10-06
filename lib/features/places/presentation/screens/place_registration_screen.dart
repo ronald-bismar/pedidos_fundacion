@@ -218,7 +218,7 @@ class _PlaceRegistrationScreenState
                             onEdit: () => _editPlace(place),
                             onDelete: () => _confirmDelete(place),
                             onRestore: () => _restorePlace(place),
-                            onBlock: () => _blockPlace(place), // ✅ añadido
+                            onBlock: () => _blockPlace(place), 
                           );
                         },
                       ),

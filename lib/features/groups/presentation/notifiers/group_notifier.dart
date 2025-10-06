@@ -1,5 +1,6 @@
 // lib/features/groups/presentation/notifiers/group_notifier.dart
 
+import 'dart:async';
 import 'dart:developer';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/group_entity.dart';
@@ -10,19 +11,49 @@ import '../../domain/usecases/delete_group_usecase.dart';
 import '../../domain/usecases/restore_group_usecase.dart';
 import '../../domain/usecases/block_group_usecase.dart';
 import '../providers/group_providers.dart';
+import '../../../places/domain/entities/place_entity.dart';
 
 // El Notifier que maneja el estado de los grupos de manera asíncrona.
 class GroupsNotifier extends AsyncNotifier<List<GroupEntity>> {
   @override
   Future<List<GroupEntity>> build() async {
-    log('Iniciando carga de grupos...');
+    log('Iniciando escucha de grupos...');
     final getGroupsUseCase = ref.read(getGroupsUseCaseProvider);
-    return getGroupsUseCase.call().first;
+    
+    final completer = Completer<List<GroupEntity>>();
+    
+    final subscription = getGroupsUseCase.call().listen(
+      (groups) {
+        state = AsyncValue.data(groups);
+        if (!completer.isCompleted) {
+          completer.complete(groups);
+        }
+      },
+      onError: (error, stackTrace) {
+        state = AsyncValue.error(error, stackTrace);
+        if (!completer.isCompleted) {
+          completer.completeError(error, stackTrace);
+        }
+      },
+      onDone: () {
+        if (!completer.isCompleted) {
+          completer.complete([]);
+        }
+      },
+    );
+
+    // Cancelar la suscripción cuando el notificador se destruya.
+    ref.onDispose(() {
+      subscription.cancel();
+    });
+
+    return completer.future;
   }
 
   Future<void> addGroup({
     required String name,
     required String idTutor,
+    required PlaceEntity place,
     required int minAge,
     required int maxAge,
   }) async {
@@ -31,7 +62,7 @@ class GroupsNotifier extends AsyncNotifier<List<GroupEntity>> {
       final newGroup = GroupEntity.newGroup(
         name: name,
         idTutor: idTutor,
-        placeIds: [],
+        place: place,
         minAge: minAge,
         maxAge: maxAge,
       );

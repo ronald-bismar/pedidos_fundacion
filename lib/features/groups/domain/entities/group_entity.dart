@@ -3,7 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'group_state.dart';
-
+import '../../../places/domain/entities/place_entity.dart'; 
 
 const _uuid = Uuid();
 
@@ -11,7 +11,7 @@ class GroupEntity {
   final String id;
   final String name;
   final String idTutor;
-  final List<String> placeIds; 
+  final PlaceEntity? place;
   final int minAge;
   final int maxAge;
   final GroupState state;
@@ -25,7 +25,7 @@ class GroupEntity {
     required this.id,
     required this.name,
     required this.idTutor,
-    required this.placeIds, 
+    this.place, 
     required this.minAge,
     required this.maxAge,
     required this.state,
@@ -39,7 +39,7 @@ class GroupEntity {
   factory GroupEntity.newGroup({
     required String name,
     required String idTutor,
-    required List<String> placeIds, 
+    required PlaceEntity place, 
     required int minAge,
     required int maxAge,
   }) {
@@ -47,7 +47,7 @@ class GroupEntity {
       id: _uuid.v4(),
       name: name,
       idTutor: idTutor,
-      placeIds: placeIds, 
+      place: place, 
       minAge: minAge,
       maxAge: maxAge,
       state: GroupState.active,
@@ -56,6 +56,7 @@ class GroupEntity {
     );
   }
 
+  // Este factory ya no se usa directamente en la UI, pero se mantiene para referencia
   factory GroupEntity.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     
@@ -70,7 +71,7 @@ class GroupEntity {
       id: doc.id,
       name: data['name'] ?? '',
       idTutor: data['id_tutor'] ?? '',
-      placeIds: List<String>.from(data['placeIds'] ?? []), 
+      place: null, 
       minAge: (data['min_age'] as num).toInt(),
       maxAge: (data['max_age'] as num).toInt(),
       state: GroupState.fromInt(data['state'] ?? 1),
@@ -86,7 +87,7 @@ class GroupEntity {
     return {
       'name': name,
       'id_tutor': idTutor,
-      'placeIds': placeIds, 
+      'placeId': place?.id, 
       'min_age': minAge,
       'max_age': maxAge,
       'state': state.value,

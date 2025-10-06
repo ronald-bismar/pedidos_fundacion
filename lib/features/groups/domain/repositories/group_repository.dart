@@ -8,6 +8,7 @@ abstract class GroupRepository {
   Future<GroupEntity?> getGroup(String groupId);
   Stream<List<GroupEntity>> getGroups();
   Stream<List<GroupEntity>> getGroupsByTutorId(String tutorId);
+  // Stream<List<GroupEntity>> getGroupsByTutor(String tutorId); 
   Future<void> updateGroup(GroupEntity group);
   Future<void> updateAgeRange(String groupId, AgeRange newAgeRange);
   Future<void> deleteGroup(String id);
@@ -15,4 +16,5 @@ abstract class GroupRepository {
   Future<void> blockGroup(String id);
   Future<GroupEntity?> getGroupByAge(int age);
   Future<List<GroupEntity>> getGroupsByPlaceId(String placeId);
+  
 }

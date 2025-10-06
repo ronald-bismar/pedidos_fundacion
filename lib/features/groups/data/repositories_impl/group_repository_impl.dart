@@ -26,7 +26,7 @@ class GroupRepositoryImpl implements GroupRepository {
         id: newId,
         name: group.name,
         idTutor: group.idTutor,
-        placeIds: group.placeIds,
+        place: group.place,
         minAge: group.minAge,
         maxAge: group.maxAge,
         state: GroupState.active,

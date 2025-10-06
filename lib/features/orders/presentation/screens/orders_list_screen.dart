@@ -103,8 +103,8 @@ class OrdersListScreen extends ConsumerWidget {
                                 color: Colors.black,
                               ),
                             ),
-                            Text(
-                              '\$${total.toStringAsFixed(2)}',
+                            Text( 
+                              '${total.toStringAsFixed(0)}',
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

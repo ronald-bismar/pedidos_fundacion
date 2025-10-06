@@ -27,6 +27,8 @@ class OrderModel extends OrderEntity {
     super.lastblockDate,
     super.lastdeleteDate,
     super.lastrestoreDate,
+    required super.dateOrderDay, 
+    required super.dateOrderYear, 
   });
 
   factory OrderModel.fromEntity(OrderEntity entity) {
@@ -52,6 +54,8 @@ class OrderModel extends OrderEntity {
       lastblockDate: entity.lastblockDate,
       lastdeleteDate: entity.lastdeleteDate,
       lastrestoreDate: entity.lastrestoreDate,
+      dateOrderDay: entity.dateOrderDay, 
+      dateOrderYear: entity.dateOrderYear, 
     );
   }
 
@@ -76,7 +80,7 @@ class OrderModel extends OrderEntity {
       beneficiaryCount: (data['beneficiary_count'] as num?)?.toInt() ?? 0,
       nonBeneficiaryCount: (data['non_beneficiary_count'] as num?)?.toInt() ?? 0,
       observedBeneficiaryCount: (data['observed_beneficiary_count'] as num?)?.toInt() ?? 0,
-      totalOrder: (data['total_order'] as num?)?.toDouble() ?? 0.0,
+      totalOrder: (data['total_order'] as num?)?.toInt() ?? 0,
       itemQuantities: Map<String, int>.from(data['item_quantities'] ?? {}),
       observations: data['observations'] ?? '',
       state: OrderState.fromInt(data['state'] ?? 0),
@@ -87,6 +91,9 @@ class OrderModel extends OrderEntity {
       lastblockDate: _getTimestampOrNull(data['last_block_date']),
       lastdeleteDate: _getTimestampOrNull(data['last_delete_date']),
       lastrestoreDate: _getTimestampOrNull(data['last_restore_date']),
+      dateOrderDay: data['date_order_day'] ?? '', 
+      dateOrderYear: data['date_order_year'] ?? '', 
+
     );
   }
 
@@ -112,6 +119,8 @@ class OrderModel extends OrderEntity {
       if (lastblockDate != null) 'last_block_date': Timestamp.fromDate(lastblockDate!),
       if (lastdeleteDate != null) 'last_delete_date': Timestamp.fromDate(lastdeleteDate!),
       if (lastrestoreDate != null) 'last_restore_date': Timestamp.fromDate(lastrestoreDate!),
+      'date_order_day': dateOrderDay, 
+      'date_order_year': dateOrderYear, 
     };
   }
 }

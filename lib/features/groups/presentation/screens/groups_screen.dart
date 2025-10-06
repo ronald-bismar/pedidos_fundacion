@@ -70,6 +70,7 @@ class GroupsScreen extends ConsumerWidget {
       await notifier.addGroup(
         name: result['name'],
         idTutor: result['idTutor'],
+        place: result['place'],
         minAge: result['minAge'],
         maxAge: result['maxAge'],
       );
@@ -90,7 +91,7 @@ class GroupsScreen extends ConsumerWidget {
         minAge: result['minAge'],
         maxAge: result['maxAge'],
         state: group.state,
-        placeIds: group.placeIds,
+        place: group.place,
         registrationDate: group.registrationDate,
         lastModifiedDate: DateTime.now(),
       );

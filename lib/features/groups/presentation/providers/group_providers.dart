@@ -6,11 +6,12 @@ import '../../domain/repositories/group_repository.dart';
 import '../../data/datasources/group_remote_datasource.dart';
 import '../../data/repositories_impl/group_repository_impl.dart';
 import '../../domain/usecases/add_group_usecase.dart';
-import '../../domain/usecases/get_groups_usecase.dart';
+import '../../domain/usecases/get_groups_usecase.dart'; 
 import '../../domain/usecases/delete_group_usecase.dart';
 import '../../domain/usecases/update_group_usecase.dart';
 import '../../domain/usecases/restore_group_usecase.dart';
 import '../../domain/usecases/block_group_usecase.dart';
+import '../../domain/usecases/get_groups_by_tutor_usecase.dart';
 import '../notifiers/group_notifier.dart';
 
 // -----------------------------------------------------------
@@ -60,6 +61,28 @@ final blockGroupUseCaseProvider = Provider((ref) {
   final repo = ref.read(groupRepositoryProvider);
   return BlockGroupUseCase(repo);
 });
+
+// Nuevo Provider para obtener grupos por tutor
+final getGroupsByTutorUseCaseProvider = Provider((ref) {
+  final repo = ref.read(groupRepositoryProvider);
+  return GetGroupsByTutorUseCase(repo);
+});
+
+final groupsByTutorProvider = StreamProvider.family<List<GroupEntity>, String>(
+  (ref, tutorId) {
+    final getGroupsByTutorUseCase = ref.read(getGroupsByTutorUseCaseProvider);
+    return getGroupsByTutorUseCase(tutorId);
+  },
+);
+
+// -----------------------------------------------------------
+// AÑADE PROVEEDOR PARA OBTENER TODOS LOS GRUPOS
+// -----------------------------------------------------------
+final allGroupsProvider = StreamProvider.autoDispose<List<GroupEntity>>((ref) {
+  final getGroupsUseCase = ref.watch(getGroupsUseCaseProvider);
+  return getGroupsUseCase.call();
+});
+
 
 // -----------------------------------------------------------
 // Provider del Notifier (La capa de Presentación)

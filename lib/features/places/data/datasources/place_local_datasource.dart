@@ -2,18 +2,18 @@
 
 import 'package:sqflite/sqflite.dart';
 import '../../domain/entities/place_entity.dart';
-import 'dart:developer'; // Necesario para los logs
+import 'dart:developer'; 
 
 abstract class PlaceLocalDataSource {
-  Future<List<PlaceEntity>> getPlaces(); // Obtiene todos los lugares almacenados localmente
-  Future<void> addPlace(PlaceEntity place); // Inserta un nuevo lugar en la base de datos local
-  Future<void> updatePlace(PlaceEntity place); // Actualiza los datos de un lugar existente
-  Future<void> deletePlace(String id); // Marca un lugar como eliminado (soft delete)
-  Future<void> hardDeletePlace(String id); // Elimina un lugar permanentemente de la base de datos
-  Future<void> blockPlace(PlaceEntity place); // Bloquea un lugar en la base de datos
-  Future<void> restorePlace(PlaceEntity place); // Restaura un lugar previamente eliminado o bloqueado
-  Future<List<PlaceEntity>> getPlacesToSync(); // Obtiene los lugares pendientes de sincronización con Firebase
-  Future<void> insertOrUpdate(List<PlaceEntity> places); // Inserta o actualiza en lote los lugares recibidos
+  Future<List<PlaceEntity>> getPlaces(); 
+  Future<void> addPlace(PlaceEntity place); 
+  Future<void> updatePlace(PlaceEntity place); 
+  Future<void> deletePlace(String id); 
+  Future<void> hardDeletePlace(String id); 
+  Future<void> blockPlace(PlaceEntity place); 
+  Future<void> restorePlace(PlaceEntity place); 
+  Future<List<PlaceEntity>> getPlacesToSync(); 
+  Future<void> insertOrUpdate(List<PlaceEntity> places); 
 }
 
 class PlaceLocalDataSourceImpl implements PlaceLocalDataSource {

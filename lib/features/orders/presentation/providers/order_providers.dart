@@ -134,4 +134,7 @@ final groupsByPlaceProvider = StreamProvider.family
     .autoDispose<List<GroupEntity>, String>((ref, placeId) {
       return ref.watch(allGroupsProvider.stream);
     });
-    
+    // Provider para el caso de uso de añadir orden
+final createOrderUseCaseProvider = Provider((ref) => AddOrderUseCase(
+  ref.read(orderRepositoryProvider),
+)); 

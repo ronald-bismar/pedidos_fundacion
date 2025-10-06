@@ -30,7 +30,7 @@ class OrdersListNotifier extends StreamNotifier<List<OrderEntity>> {
     required int beneficiaryCount,
     required int nonBeneficiaryCount,
     required int observedBeneficiaryCount,
-    required double totalOrder,
+    required int totalOrder,
     required Map<String, int> itemQuantities,
     required String observations,
     required String placeId,
@@ -60,6 +60,8 @@ class OrdersListNotifier extends StreamNotifier<List<OrderEntity>> {
         groupId: groupId,
         registrationDate: now,
         lastModifiedDate: now,
+        dateOrderDay: now.day.toString().padLeft(2, '0'),
+        dateOrderYear: now.year.toString(),
       );
 
       await addOrderUseCase.call(newOrder);

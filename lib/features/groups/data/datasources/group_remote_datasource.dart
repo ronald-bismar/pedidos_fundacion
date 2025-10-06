@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import '../../domain/entities/group_entity.dart';
 import '../models/group_model.dart';
 import '../../domain/entities/age_range.dart';
+import '../../../places/domain/entities/place_entity.dart';
 
 class GroupRemoteDataSource {
   final _groupsCollection = FirebaseFirestore.instance.collection('groups');
+  final _placesCollection = FirebaseFirestore.instance.collection('places');
 
   Future<int> getHighestGroupIdNumber() async {
     try {
@@ -76,58 +78,68 @@ class GroupRemoteDataSource {
     });
   }
 
-  Stream<List<GroupEntity>> getGroups() {
-    return _groupsCollection.snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) => GroupModel.fromFirestore(doc)).toList();
-    });
+  Future<GroupEntity> _getGroupEntityFromDoc(DocumentSnapshot doc) async {
+    final data = doc.data() as Map<String, dynamic>;
+    final placeId = data['placeId'] as String?;
+    
+    PlaceEntity? place;
+    if (placeId != null) {
+      final placeDoc = await _placesCollection.doc(placeId).get();
+      if (placeDoc.exists) {
+        place = PlaceEntity.fromFirestore(placeDoc);
+      }
+    }
+    
+    return GroupModel.fromFirestore(doc, place);
   }
   
-  
+  Stream<List<GroupEntity>> getGroups() {
+    return _groupsCollection.snapshots().asyncMap((snapshot) async {
+      return Future.wait(snapshot.docs.map((doc) => _getGroupEntityFromDoc(doc)).toList());
+    });
+  }
+    
   Stream<List<GroupEntity>> getGroupsByPlaceId(String placeId) {
-  
     return _groupsCollection
-        .where('placeIds', arrayContains: placeId) 
+        .where('placeId', isEqualTo: placeId) 
         .snapshots()
-        .map((snapshot) {
-          return snapshot.docs
-              .map((doc) => GroupModel.fromFirestore(doc))
-              .toList();
+        .asyncMap((snapshot) async {
+          return Future.wait(snapshot.docs.map((doc) => _getGroupEntityFromDoc(doc)).toList());
         });
   }
   
-
-  Future<GroupModel?> getGroup(String groupId) async {
+  Future<GroupEntity?> getGroup(String groupId) async {
     final docSnapshot = await _groupsCollection.doc(groupId).get();
     if (docSnapshot.exists) {
-      return GroupModel.fromFirestore(docSnapshot);
+      return await _getGroupEntityFromDoc(docSnapshot);
     }
     return null;
   }
 
-  Stream<List<GroupModel>> getGroupsByTutorId(String tutorId) {
+  Stream<List<GroupEntity>> getGroupsByTutorId(String tutorId) {
     return _groupsCollection
-        .where('idTutor', isEqualTo: tutorId)
+        .where('id_tutor', isEqualTo: tutorId)
         .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) => GroupModel.fromFirestore(doc)).toList();
+        .asyncMap((snapshot) async {
+          return Future.wait(snapshot.docs.map((doc) => _getGroupEntityFromDoc(doc)).toList());
         });
   }
 
   Future<void> updateAgeRange(String groupId, AgeRange newAgeRange) async {
     await _groupsCollection.doc(groupId).update({
-      'minAge': newAgeRange.minAge,
-      'maxAge': newAgeRange.maxAge,
+      'min_age': newAgeRange.minAge,
+      'max_age': newAgeRange.maxAge,
     });
   }
 
-  Future<GroupModel?> getGroupByAge(int age) async {
+  Future<GroupEntity?> getGroupByAge(int age) async {
     final querySnapshot = await _groupsCollection
-        .where('minAge', isLessThanOrEqualTo: age)
-        .where('maxAge', isGreaterThanOrEqualTo: age)
+        .where('min_age', isLessThanOrEqualTo: age)
+        .where('max_age', isGreaterThanOrEqualTo: age)
         .limit(1)
         .get();
     if (querySnapshot.docs.isNotEmpty) {
-      return GroupModel.fromFirestore(querySnapshot.docs.first);
+      return await _getGroupEntityFromDoc(querySnapshot.docs.first);
     }
     return null;
   }

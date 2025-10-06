@@ -49,6 +49,8 @@ class OrderService {
       lastblockDate: null,
       lastdeleteDate: null,
       lastrestoreDate: null,
+      dateOrderDay: order.dateOrderDay,
+      dateOrderYear: order.dateOrderYear,
     );
 
     await ordersCollection.doc(newOrder.id).set(newOrder.toFirestore());
@@ -78,6 +80,8 @@ class OrderService {
       'observations': order.observations,
       'state': order.state.value,
       'last_modified_date': FieldValue.serverTimestamp(),
+      'date_order_day': order.dateOrderDay, 
+      'date_order_year': order.dateOrderYear
     });
   }
 

@@ -11,10 +11,12 @@ class OrderEntity {
   final String namePlace;
   final String nameOrder;
   final String dateOrderMonth;
+  final String dateOrderDay;
+  final String dateOrderYear; 
   final int beneficiaryCount;
   final int nonBeneficiaryCount;
   final int observedBeneficiaryCount;
-  final double? totalOrder;
+  final int totalOrder;
   final Map<String, int> itemQuantities;
   final String observations;
   final OrderState state;
@@ -34,6 +36,8 @@ class OrderEntity {
     required this.namePlace,
     required this.nameOrder,
     required this.dateOrderMonth,
+    required this.dateOrderDay, 
+    required this.dateOrderYear, 
     required this.beneficiaryCount,
     required this.nonBeneficiaryCount,
     required this.observedBeneficiaryCount,
@@ -69,17 +73,29 @@ class OrderEntity {
       namePlace: data['name_place'] ?? '',
       nameOrder: data['name_order'] ?? '',
       dateOrderMonth: data['date_order_month'] ?? '',
-      beneficiaryCount: (data['beneficiary_count'] as num).toInt(),
-      nonBeneficiaryCount: (data['non_beneficiary_count'] as num).toInt(),
-      observedBeneficiaryCount: (data['observed_beneficiary_count'] as num).toInt(),
-      totalOrder: totalOrderValue?.toDouble() ?? 0.0,
+      dateOrderDay: data['date_order_day'] ?? '', 
+      dateOrderYear: data['date_order_year'] ?? '', 
+      beneficiaryCount:
+          (data['beneficiary_count'] as num?)?.toInt() ??
+          0, 
+      nonBeneficiaryCount:
+          (data['non_beneficiary_count'] as num?)?.toInt() ??
+          0, 
+      observedBeneficiaryCount:
+          (data['observed_beneficiary_count'] as num?)?.toInt() ??
+          0, 
+      totalOrder: totalOrderValue?.toInt() ?? 0,
       itemQuantities: Map<String, int>.from(data['item_quantities'] ?? {}),
       observations: data['observations'] ?? '',
       state: OrderState.fromInt(data['state'] ?? 0),
       placeId: data['place_id'] ?? '',
       groupId: data['group_id'] ?? '',
-      registrationDate: (data['registration_date'] as Timestamp).toDate(),
-      lastModifiedDate: (data['last_modified_date'] as Timestamp).toDate(),
+      registrationDate:
+          (data['registration_date'] as Timestamp?)?.toDate() ??
+          DateTime.now(), 
+      lastModifiedDate:
+          (data['last_modified_date'] as Timestamp?)?.toDate() ??
+          DateTime.now(), 
       lastblockDate: _getTimestampOrNull(data['last_block_date']),
       lastdeleteDate: _getTimestampOrNull(data['last_delete_date']),
       lastrestoreDate: _getTimestampOrNull(data['last_restore_date']),
@@ -94,6 +110,8 @@ class OrderEntity {
       'name_place': namePlace,
       'name_order': nameOrder,
       'date_order_month': dateOrderMonth,
+      'date_order_day': dateOrderDay, 
+      'date_order_year': dateOrderYear, 
       'beneficiary_count': beneficiaryCount,
       'non_beneficiary_count': nonBeneficiaryCount,
       'observed_beneficiary_count': observedBeneficiaryCount,
@@ -105,9 +123,39 @@ class OrderEntity {
       'group_id': groupId,
       'registration_date': Timestamp.fromDate(registrationDate),
       'last_modified_date': Timestamp.fromDate(lastModifiedDate),
-      if (lastblockDate != null) 'last_block_date': Timestamp.fromDate(lastblockDate!),
-      if (lastdeleteDate != null) 'last_delete_date': Timestamp.fromDate(lastdeleteDate!),
-      if (lastrestoreDate != null) 'last_restore_date': Timestamp.fromDate(lastrestoreDate!),
+      if (lastblockDate != null)
+        'last_block_date': Timestamp.fromDate(lastblockDate!),
+      if (lastdeleteDate != null)
+        'last_delete_date': Timestamp.fromDate(lastdeleteDate!),
+      if (lastrestoreDate != null)
+        'last_restore_date': Timestamp.fromDate(lastrestoreDate!),
     };
   }
+
+  @override
+  List<Object?> get props => [
+    id,
+    nameuser,
+    nameTutor,
+    nameGroup,
+    namePlace,
+    nameOrder,
+    dateOrderMonth,
+    dateOrderDay,
+    dateOrderYear,
+    beneficiaryCount,
+    nonBeneficiaryCount,
+    observedBeneficiaryCount,
+    totalOrder,
+    itemQuantities,
+    observations,
+    state,
+    placeId,
+    groupId,
+    registrationDate,
+    lastModifiedDate,
+    lastblockDate,
+    lastdeleteDate,
+    lastrestoreDate,
+  ];
 }

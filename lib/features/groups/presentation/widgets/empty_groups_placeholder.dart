@@ -14,7 +14,7 @@ class EmptyGroupsPlaceholder extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.group_outlined, // Icono de grupo más relevante
+              Icons.group_outlined, 
               size: 80,
               color: Colors.grey.shade400,
             ),

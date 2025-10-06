@@ -2,13 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:pedidos_fundacion/domain/entities/encargado.dart';
+
+import '../../../encargados/presentation/providers/current_user_provider.dart';
 import '../../../groups/domain/entities/group_entity.dart';
 import '../../../places/domain/entities/place_entity.dart';
 import '../providers/order_providers.dart';
-import '../../domain/entities/order_entity.dart';
-import '../../domain/entities/order_state.dart';
-import '../../../encargados/presentation/providers/current_user_provider.dart';
 
 class RegisterOrderScreen extends ConsumerStatefulWidget {
   final GroupEntity selectedGroup;
@@ -123,8 +121,7 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
                     'MMMM yyyy',
                     'es',
                   ).format(selectedDate);
-                  _orderForDateController.text =
-                      "$formattedDate";
+                  _orderForDateController.text = formattedDate;
                 });
                 Navigator.pop(context);
               },
@@ -203,7 +200,7 @@ class _RegisterOrderScreenState extends ConsumerState<RegisterOrderScreen> {
             int.tryParse(_nonBeneficiaryCountController.text.trim()) ?? 0,
         observedBeneficiaryCount:
             int.tryParse(_observedBeneficiaryController.text.trim()) ?? 0,
-        totalOrder: double.tryParse(_totalController.text.trim()) ?? 0.0,
+        totalOrder: int.tryParse(_totalController.text.trim()) ?? 0,
         itemQuantities: {},
         observations: _observationsController.text.trim(),
         placeId: widget.selectedPlace.id,
