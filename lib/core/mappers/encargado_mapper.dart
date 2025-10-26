@@ -57,7 +57,7 @@ class CoordinatorMapper {
 
   static Map<String, dynamic> toJsonActive(Coordinator coordinator) {
     return {
-      'active': coordinator.active,
+      'active': coordinator.active ? 1 : 0,
       'updateAt': DateTime.now().toIso8601String(),
     };
   }

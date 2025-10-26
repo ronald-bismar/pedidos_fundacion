@@ -1,14 +1,10 @@
 // lib/features/groups/presentation/notifiers/group_notifier.dart
 
 import 'dart:developer';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../domain/entities/group_entity.dart';
-import '../../domain/usecases/add_group_usecase.dart';
-import '../../domain/usecases/get_groups_usecase.dart';
-import '../../domain/usecases/update_group_usecase.dart';
-import '../../domain/usecases/delete_group_usecase.dart';
-import '../../domain/usecases/restore_group_usecase.dart';
-import '../../domain/usecases/block_group_usecase.dart';
 import '../providers/group_providers.dart';
 
 // El Notifier que maneja el estado de los grupos de manera asíncrona.
@@ -80,5 +76,5 @@ class GroupsNotifier extends AsyncNotifier<List<GroupEntity>> {
 
 final groupsNotifierProvider =
     AsyncNotifierProvider<GroupsNotifier, List<GroupEntity>>(() {
-  return GroupsNotifier();
-});
+      return GroupsNotifier();
+    });

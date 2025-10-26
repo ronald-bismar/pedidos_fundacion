@@ -267,7 +267,7 @@ class _RegisterDeliveryBeneficiaryScreenState
         onTap: _takePicture,
         child: Container(
           width: 120,
-          height: 120,
+          height: 160,
           decoration: BoxDecoration(
             color: _capturedImage != null
                 ? Colors.transparent

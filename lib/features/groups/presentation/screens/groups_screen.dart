@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../domain/entities/group_entity.dart';
 import '../providers/group_providers.dart';
-import '../widgets/group_list_item.dart';
-import '../widgets/group_form_dialog.dart';
 import '../widgets/confirm_delete_group_dialog.dart';
 import '../widgets/empty_groups_placeholder.dart';
-import '../../domain/entities/group_entity.dart';
-import '../../domain/entities/group_state.dart';
+import '../widgets/group_form_dialog.dart';
+import '../widgets/group_list_item.dart';
 
 class GroupsScreen extends ConsumerWidget {
   const GroupsScreen({super.key});
@@ -44,18 +44,15 @@ class GroupsScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, stack) => Center(
-          child: Text('Error: $e'),
-        ),
+        error: (e, stack) => Center(child: Text('Error: $e')),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _handleAdd(context, ref),
-        child: const Icon(Icons.add, color: Colors.white),
 
-        tooltip: 'Añadir nuevo grupo', 
-         backgroundColor: Colors.blue.shade700,
+        tooltip: 'Añadir nuevo grupo',
+        backgroundColor: Colors.blue.shade700,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
-   
     );
   }
 
@@ -76,7 +73,11 @@ class GroupsScreen extends ConsumerWidget {
     }
   }
 
-  void _handleEdit(BuildContext context, WidgetRef ref, GroupEntity group) async {
+  void _handleEdit(
+    BuildContext context,
+    WidgetRef ref,
+    GroupEntity group,
+  ) async {
     final result = await showDialog<Map<String, dynamic>?>(
       context: context,
       builder: (_) => GroupFormDialog(groupToEdit: group),
@@ -99,7 +100,11 @@ class GroupsScreen extends ConsumerWidget {
     }
   }
 
-  void _handleDelete(BuildContext context, WidgetRef ref, GroupEntity group) async {
+  void _handleDelete(
+    BuildContext context,
+    WidgetRef ref,
+    GroupEntity group,
+  ) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => ConfirmDeleteGroupDialog(groupToDelete: group),
@@ -111,12 +116,20 @@ class GroupsScreen extends ConsumerWidget {
     }
   }
 
-  void _handleRestore(BuildContext context, WidgetRef ref, GroupEntity group) async {
+  void _handleRestore(
+    BuildContext context,
+    WidgetRef ref,
+    GroupEntity group,
+  ) async {
     final notifier = ref.read(groupsNotifierProvider.notifier);
     await notifier.restoreGroup(group.id);
   }
 
-  void _handleBlock(BuildContext context, WidgetRef ref, GroupEntity group) async {
+  void _handleBlock(
+    BuildContext context,
+    WidgetRef ref,
+    GroupEntity group,
+  ) async {
     final notifier = ref.read(groupsNotifierProvider.notifier);
     await notifier.blockGroup(group.id);
   }

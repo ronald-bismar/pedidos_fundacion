@@ -294,10 +294,11 @@ class CoordinatorRepositoryImpl implements CoordinatorRepository {
   @override
   Future<List<Coordinator>> getCoordinators() async {
     try {
+      final hasInternet = await NetworkUtils.hasRealInternet();
       final coordinatorsLocal = await coordinatorLocalDatasource
           .getCoordinators();
 
-      if (coordinatorsLocal.isNotEmpty) {
+      if (coordinatorsLocal.isNotEmpty && !hasInternet) {
         return coordinatorsLocal;
       }
 

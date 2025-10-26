@@ -32,7 +32,7 @@ class GroupRemoteDataSource {
   }
 
   Future<void> addGroup(GroupEntity group) async {
-    final now = Timestamp.fromDate(DateTime.now());
+    final now = DateTime.now().toIso8601String();
     final groupData = GroupModel.fromEntity(group).toFirestore()
       ..['registration_date'] = now
       ..['last_modified_date'] = now;
@@ -41,7 +41,7 @@ class GroupRemoteDataSource {
   }
 
   Future<void> updateGroup(GroupEntity group) async {
-    final now = Timestamp.fromDate(DateTime.now());
+    final now = DateTime.now().toIso8601String();
     final groupData = GroupModel.fromEntity(group).toFirestore()
       ..['last_modified_date'] = now;
     
@@ -49,7 +49,7 @@ class GroupRemoteDataSource {
   }
 
   Future<void> deleteGroup(String id) async {
-    final now = Timestamp.fromDate(DateTime.now());
+    final now = DateTime.now().toIso8601String();
     await _groupsCollection.doc(id).update({
       'state': 0,
       'delete_date': now,
@@ -58,7 +58,7 @@ class GroupRemoteDataSource {
   }
 
   Future<void> blockGroup(String id) async {
-    final now = Timestamp.fromDate(DateTime.now());
+    final now = DateTime.now().toIso8601String();
     await _groupsCollection.doc(id).update({
       'state': 2,
       'block_date': now,
@@ -67,7 +67,7 @@ class GroupRemoteDataSource {
   }
 
   Future<void> restoreGroup(String id) async {
-    final now = Timestamp.fromDate(DateTime.now());
+    final now = DateTime.now().toIso8601String();
     await _groupsCollection.doc(id).update({
       'state': 1,
       'delete_date': null,

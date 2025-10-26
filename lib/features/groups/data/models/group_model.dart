@@ -1,6 +1,7 @@
 // lib/features/groups/data/models/group_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../domain/entities/group_entity.dart';
 import '../../domain/entities/group_state.dart';
 
@@ -43,17 +44,10 @@ class GroupModel extends GroupEntity {
       throw StateError('Document data is null for id: ${doc.id}');
     }
 
-    DateTime? _parseDate(dynamic value) {
-      if (value is String) {
-        return DateTime.tryParse(value);
-      } else if (value is Timestamp) {
-        return value.toDate();
-      }
-      return null;
-    }
-
     final int stateValue = (data['state'] as int?) ?? GroupState.active.value;
-    final DateTime firestoreUpdatedAt = _parseDate(data['updatedAt']) ?? DateTime.now();
+    final DateTime firestoreUpdatedAt = data['updatedAt'] != null
+        ? DateTime.parse(data['updatedAt'])
+        : DateTime.now();
 
     return GroupModel(
       id: doc.id,
@@ -71,6 +65,7 @@ class GroupModel extends GroupEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toFirestore() {
     return {
       'groupName': name,
@@ -78,11 +73,11 @@ class GroupModel extends GroupEntity {
       'minAge': minAge,
       'maxAge': maxAge,
       'state': state.value,
-      'updatedAt': Timestamp.fromDate(lastModifiedDate),
+      'updatedAt': DateTime.now().toIso8601String(),
       'placeIds': placeIds,
-      if (blockDate != null) 'block_date': Timestamp.fromDate(blockDate!),
-      if (deleteDate != null) 'delete_date': Timestamp.fromDate(deleteDate!),
-      if (restoreDate != null) 'restore_date': Timestamp.fromDate(restoreDate!),
+      if (blockDate != null) 'block_date': DateTime.now().toIso8601String(),
+      if (deleteDate != null) 'delete_date': DateTime.now().toIso8601String(),
+      if (restoreDate != null) 'restore_date': DateTime.now().toIso8601String(),
     };
   }
 }

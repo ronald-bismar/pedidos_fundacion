@@ -7,6 +7,7 @@ class Group {
   AgeRange ageRange;
   DateTime updatedAt;
 
+
   Group({
     this.id = '',
     this.idCoordinator = '',
