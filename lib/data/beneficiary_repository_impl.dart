@@ -221,6 +221,7 @@ class BeneficiaryRepositoryImpl extends BeneficiaryRepository {
 
       return await beneficiaryLocalDatasource.updateLocationAndPhone(
         beneficiary.id,
+        beneficiary.idLocation,
         beneficiary.location,
         beneficiary.phone,
       );

@@ -32,6 +32,7 @@ class BeneficiaryLocalDataSource {
       'username TEXT DEFAULT "", '
       'password TEXT DEFAULT "", '
       'phone TEXT DEFAULT "", '
+      'idLocation TEXT DEFAULT "", '
       'location TEXT DEFAULT "", '
       'updateAt TEXT DEFAULT "", '
       'active INTEGER DEFAULT 1, '
@@ -112,6 +113,7 @@ class BeneficiaryLocalDataSource {
   // Método privado que hace el trabajo real
   Future<bool> updateLocationAndPhone(
     String beneficiaryId,
+    String idLocation,
     String location,
     String phone,
   ) async {
@@ -120,6 +122,7 @@ class BeneficiaryLocalDataSource {
       await database.update(
         tableName,
         {
+          'idLocation': idLocation,
           'location': location,
           'phone': phone,
           'updateAt': DateTime.now().toIso8601String(),

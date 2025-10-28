@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/theme/colors.dart';
 import 'package:pedidos_fundacion/core/utils/change_screen.dart';
-import 'package:pedidos_fundacion/core/widgets/autocomplete_textfield.dart';
+import 'package:pedidos_fundacion/core/widgets/alert_dialog_options.dart';
 import 'package:pedidos_fundacion/core/widgets/background.dart';
 import 'package:pedidos_fundacion/core/widgets/boton_ancho.dart';
 import 'package:pedidos_fundacion/core/widgets/logo.dart';
@@ -14,7 +14,8 @@ import 'package:pedidos_fundacion/domain/entities/beneficiario.dart';
 import 'package:pedidos_fundacion/features/beneficiarios/presentation/providers/register_phone_location_notifier.dart';
 import 'package:pedidos_fundacion/features/beneficiarios/presentation/screens/grupo_asignado_screen.dart';
 import 'package:pedidos_fundacion/features/beneficiarios/presentation/states/register_beneficiary_state.dart';
-import 'package:pedidos_fundacion/toDataDynamic/places.dart';
+import 'package:pedidos_fundacion/features/places/domain/entities/place_entity.dart';
+import 'package:pedidos_fundacion/features/places/presentation/providers/place_providers.dart';
 
 class LocationPhoneAuthScreen extends ConsumerStatefulWidget {
   final Beneficiary beneficiary;
@@ -30,6 +31,7 @@ class _LocationPhoneAuthScreenState
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   String region = '';
+  String idLocation = '';
   bool checkedAddress = false;
 
   @override
@@ -59,6 +61,13 @@ class _LocationPhoneAuthScreenState
 
     final registerState = ref.watch(registerPhoneLocationBeneficiaryProvider);
 
+    final placesAsync = ref.watch(activePlacesProvider);
+
+    List<PlaceEntity> places = placesAsync.maybeWhen(
+      data: (places) => places,
+      orElse: () => [],
+    );
+
     return backgroundScreen(
       SizedBox(
         height: MediaQuery.of(context).size.height,
@@ -83,14 +92,27 @@ class _LocationPhoneAuthScreenState
                         marginVertical: 8,
                       ),
 
-                      AutoCompleteTextField(
-                        label: "Provincia/Comunidad",
-                        autocompleteOptions: places,
-                        prefixIcon: Icons.map_outlined,
-                        textInputType: TextInputType.name,
-                        marginVertical: 8,
-                        textCapitalization: TextCapitalization.words,
-                        onChanged: (value) => setState(() => region = value),
+                      Container(
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 20,
+                        ),
+                        child: AlertDialogOptions(
+                          titleAlertDialog: 'Provincia/Comunidad',
+                          widthAlertDialog: double.infinity,
+                          itemInitial: '',
+                          onSelect: (newPlace) => {
+                            assignNewPlace(newPlace, places),
+                          },
+                          items: places
+                              .map(
+                                (group) =>
+                                    "${group.city}, ${group.province}, ${group.department}",
+                              )
+                              .toList(),
+                          icon: Icons.group,
+                          messageInfo: 'Provincia/Comunidad',
+                        ),
                       ),
 
                       Padding(
@@ -169,6 +191,7 @@ class _LocationPhoneAuthScreenState
     final beneficiary = widget.beneficiary.copyWith(
       phone: phoneController.text,
       location: checkedAddress ? '$region, ${addressController.text}' : region,
+      idLocation: idLocation,
     );
 
     ref
@@ -176,8 +199,18 @@ class _LocationPhoneAuthScreenState
         .registerPhoneLocation(
           beneficiary: beneficiary,
           phone: phoneController.text.trim(),
+          idLocation: idLocation,
           region: region,
           address: addressController.text.trim(),
         );
+  }
+
+  assignNewPlace(String newPlace, List<PlaceEntity> places) {
+    final placeObject = places.firstWhere(
+      (p) => "${p.city}, ${p.province}, ${p.department}" == newPlace,
+    );
+    region = placeObject.province;
+    idLocation = placeObject.id;
+    setState(() {});
   }
 }

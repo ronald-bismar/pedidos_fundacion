@@ -25,6 +25,7 @@ class RegisterBeneficiaryNotifier
   Future<void> registerPhoneLocation({
     required Beneficiary beneficiary,
     required String phone,
+    required String idLocation,
     required String region,
     required String address,
   }) async {
@@ -34,6 +35,7 @@ class RegisterBeneficiaryNotifier
       final Result result = await registerPhoneLocationUseCase(
         beneficiary,
         phone,
+        idLocation,
         region,
         address,
       );
