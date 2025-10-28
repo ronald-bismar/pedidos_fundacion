@@ -9,6 +9,11 @@ import 'package:pedidos_fundacion/data/datasources/beneficiario/local_datasource
 import 'package:pedidos_fundacion/data/datasources/encargado/local_datasource.dart';
 import 'package:pedidos_fundacion/data/datasources/foto/local_datasource.dart';
 import 'package:pedidos_fundacion/data/datasources/grupo/local_datasources.dart';
+import 'package:pedidos_fundacion/features/entregas/data/datasources/ayuda_economica/local_datasource.dart';
+import 'package:pedidos_fundacion/features/entregas/data/datasources/beneficio/local_datasource.dart';
+import 'package:pedidos_fundacion/features/entregas/data/datasources/entrega/local_datasource.dart';
+import 'package:pedidos_fundacion/features/entregas/data/datasources/entrega_beneficiario/local_datasource.dart';
+import 'package:pedidos_fundacion/features/entregas/data/datasources/producto_beneficiario/local_datasource.dart';
 import 'package:sqflite/sqflite.dart';
 
 // Provider para la dependencia DatabaseHelper
@@ -33,6 +38,13 @@ class DatabaseHelper {
           AttendanceBeneficiaryLocalDataSource.attendanceBeneficiary,
         );
         await db.execute(MonthlyAttendanceLocalDataSource.monthlyAttendance);
+        await db.execute(FinancialAidLocalDataSource.financialAid);
+        await db.execute(BenefitLocalDataSource.benefits);
+        await db.execute(DeliveryLocalDataSource.delivery);
+        await db.execute(
+          DeliveryBeneficiaryLocalDataSource.deliveryBeneficiary,
+        );
+        await db.execute(ProductBeneficiaryLocalDataSource.productBeneficiary);
       },
     );
   }

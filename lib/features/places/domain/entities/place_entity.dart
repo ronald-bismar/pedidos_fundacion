@@ -1,8 +1,26 @@
 // lib/features/orders/domain/entities/place_entity.dart
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
-enum PlaceState { active, deleted, blocked }
+enum PlaceState {
+  deleted(0),
+  active(1),
+  blocked(2);
+
+  const PlaceState(this.value);
+  final int value;
+
+  static PlaceState fromInt(int value) {
+    return PlaceState.values.firstWhere(
+      (state) => state.value == value,
+      orElse: () => PlaceState.active, 
+    );
+  }
+}
+
+
+const _uuid = Uuid();
 
 class PlaceEntity {
   final String id;
@@ -43,7 +61,7 @@ class PlaceEntity {
   }) {
     final now = DateTime.now();
     return PlaceEntity(
-      id: const Uuid().v4(),
+      id: _uuid.v4(),
       country: country,
       department: department,
       province: province,
@@ -94,7 +112,7 @@ class PlaceEntity {
       department: map['department'] ?? '',
       province: map['province'] ?? '',
       city: map['city'] ?? '',
-      state: PlaceState.values[map['state'] ?? 0],
+      state: PlaceState.fromInt(map['state'] as int? ?? 0),
       registrationDate: DateTime.parse(map['registration_date']),
       lastModifiedDate: DateTime.parse(map['last_modified_date']),
       deletDate: map['delet_date'] != null ? DateTime.parse(map['delet_date']) : null,
@@ -112,7 +130,7 @@ class PlaceEntity {
       'department': department,
       'province': province,
       'city': city,
-      'state': state.index,
+      'state': state.value,
       'registration_date': registrationDate.toIso8601String(),
       'last_modified_date': lastModifiedDate.toIso8601String(),
       'delet_date': deletDate?.toIso8601String(),
@@ -124,21 +142,39 @@ class PlaceEntity {
   }
 
   // --- Métodos para Firestore ---
-  factory PlaceEntity.fromFirestore(Map<String, dynamic> map) {
+  factory PlaceEntity.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+  
+    DateTime? _getTimestampOrString(dynamic value) {
+      if (value == null) return null;
+      if (value is Timestamp) {
+        return value.toDate();
+      } else if (value is String) {
+        try {
+          return DateTime.parse(value);
+        } catch (e) {
+      
+          print('Error parsing date string: $value - $e');
+          return null;
+        }
+      }
+      return null; 
+    }
+    
     return PlaceEntity(
-      id: map['id'],
-      country: map['country'] ?? '',
-      department: map['department'] ?? '',
-      province: map['province'] ?? '',
-      city: map['city'] ?? '',
-      state: PlaceState.values[map['state'] ?? 0],
-      registrationDate: (map['registration_date'] as Timestamp).toDate(),
-      lastModifiedDate: (map['last_modified_date'] as Timestamp).toDate(),
-      deletDate: map['delet_date'] != null ? (map['delet_date'] as Timestamp).toDate() : null,
-      restorationDate: map['restoration_date'] != null ? (map['restoration_date'] as Timestamp).toDate() : null,
-      blockDate: map['block_date'] != null ? (map['block_date'] as Timestamp).toDate() : null,
-      isSyncedToLocal: map['is_synced_to_local'] ?? false,
-      isSyncedToFirebase: map['is_synced_to_firebase'] ?? false,
+      id: doc.id,
+      country: data['country'] ?? '',
+      department: data['department'] ?? '',
+      province: data['province'] ?? '',
+      city: data['city'] ?? '',
+      state: PlaceState.fromInt(data['state'] ?? 0),
+      registrationDate: _getTimestampOrString(data['registration_date'])!,
+      lastModifiedDate: _getTimestampOrString(data['last_modified_date'])!,
+      deletDate: _getTimestampOrString(data['delet_date']),
+      restorationDate: _getTimestampOrString(data['restoration_date']),
+      blockDate: _getTimestampOrString(data['block_date']),
+      isSyncedToLocal: (data['is_synced_to_local'] is bool) ? data['is_synced_to_local'] : (data['is_synced_to_local'] ?? 0) == 1,
+      isSyncedToFirebase: (data['is_synced_to_firebase'] is bool) ? data['is_synced_to_firebase'] : (data['is_synced_to_firebase'] ?? 0) == 1,
     );
   }
 
@@ -148,7 +184,7 @@ class PlaceEntity {
       'department': department,
       'province': province,
       'city': city,
-      'state': state.index,
+      'state': state.value,
       'registration_date': Timestamp.fromDate(registrationDate),
       'last_modified_date': Timestamp.fromDate(lastModifiedDate),
       'delet_date': deletDate != null ? Timestamp.fromDate(deletDate!) : null,

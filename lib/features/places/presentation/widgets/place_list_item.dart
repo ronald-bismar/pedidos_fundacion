@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../domain/entities/place_entity.dart';
 
 class PlaceListItem extends StatelessWidget {
@@ -43,10 +42,7 @@ class PlaceListItem extends StatelessWidget {
     }
 
     return Card(
-      margin: const EdgeInsets.symmetric(
-        vertical: 6,
-        horizontal: 2,
-      ),
+      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -79,18 +75,10 @@ class PlaceListItem extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'País: ${place.country}',
-              style: TextStyle(
-                color: Colors.grey.shade600,
-              ),
-            ),
-            Text(
-              'Provincia: ${place.province}',
-              style: TextStyle(
-                color: Colors.grey.shade600,
-              ),
-            ),
+            Text('País: ${place.country}',
+                style: TextStyle(color: Colors.grey.shade600)),
+            Text('Provincia: ${place.province}',
+                style: TextStyle(color: Colors.grey.shade600)),
             Text(
               statusText,
               style: TextStyle(
@@ -150,38 +138,26 @@ class PlaceListItem extends StatelessWidget {
           children: [
             if (place.state == PlaceState.active)
               IconButton(
-                icon: Icon(
-                  Icons.edit,
-                  color: Colors.orange.shade700,
-                ),
+                icon: const Icon(Icons.edit, color: Colors.orange),
                 onPressed: onEdit,
                 tooltip: 'Editar lugar',
               ),
             if (place.state == PlaceState.active)
               IconButton(
-                icon: const Icon(
-                  Icons.lock,
-                  color: Colors.orange,
-                ),
+                icon: const Icon(Icons.lock, color: Colors.orange),
                 onPressed: onBlock,
                 tooltip: 'Bloquear lugar',
               ),
             if (place.state == PlaceState.blocked ||
                 place.state == PlaceState.deleted)
               IconButton(
-                icon: const Icon(
-                  Icons.restore,
-                  color: Colors.green,
-                ),
+                icon: const Icon(Icons.restore, color: Colors.green),
                 onPressed: onRestore,
                 tooltip: 'Restaurar lugar',
               ),
             if (place.state != PlaceState.deleted)
               IconButton(
-                icon: const Icon(
-                  Icons.delete_forever,
-                  color: Colors.red,
-                ),
+                icon: const Icon(Icons.delete_forever, color: Colors.red),
                 onPressed: onDelete,
                 tooltip: 'Eliminar lugar',
               ),

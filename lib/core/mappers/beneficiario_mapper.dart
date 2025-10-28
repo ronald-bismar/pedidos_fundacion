@@ -12,6 +12,7 @@ class BeneficiaryMapper {
       username: json['username'] as String,
       password: json['password'] as String,
       phone: json['phone'] as String,
+      idLocation: json['idLocation'] as String? ?? '',
       location: json['location'] as String,
       updateAt: DateTime.parse(
         json['updateAt'] as String? ?? DateTime.now().toIso8601String(),
@@ -37,6 +38,7 @@ class BeneficiaryMapper {
       'username': beneficiary.username,
       'password': beneficiary.password,
       'phone': beneficiary.phone,
+      'idLocation': beneficiary.idLocation,
       'location': beneficiary.location,
       'updateAt': beneficiary.updateAt.toIso8601String(),
       'active': beneficiary.active == true ? 1 : 0,
@@ -56,6 +58,7 @@ class BeneficiaryMapper {
 
   static Map<String, dynamic> toJsonLocationAndPhone(Beneficiary beneficiary) {
     return {
+      'idLocation': beneficiary.idLocation,
       'location': beneficiary.location,
       'phone': beneficiary.phone,
       'updateAt': DateTime.now().toIso8601String(),

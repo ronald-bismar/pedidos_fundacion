@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/core/utils/uuid.dart';
-import 'package:pedidos_fundacion/data/asistencia_beneficiario_repository_impl.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/data/asistencia_beneficiario_repository_impl.dart';
 import 'package:pedidos_fundacion/data/beneficiary_repository_impl.dart';
-import 'package:pedidos_fundacion/domain/entities/asistencia_beneficiario.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/domain/entities/asistencia_beneficiario.dart';
 import 'package:pedidos_fundacion/domain/entities/programa.dart';
 import 'package:pedidos_fundacion/features/asistencia_beneficiario/model/estados_asistencia.dart';
 

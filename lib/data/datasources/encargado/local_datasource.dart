@@ -147,7 +147,7 @@ class CoordinatorLocalDataSource {
       Database database = await _dbHelper.openDB();
       await database.update(
         tableName,
-        {'active': active, 'updateAt': DateTime.now().toIso8601String()},
+        {'active': active? 1 : 0, 'updateAt': DateTime.now().toIso8601String()},
         where: 'id = ?',
         whereArgs: [coordinatorId],
       );

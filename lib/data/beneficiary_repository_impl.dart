@@ -20,7 +20,7 @@ final beneficiaryRepoProvider = Provider(
     beneficiaryRemoteDataSource: ref.watch(beneficiaryRemoteDataSourceProvider),
     beneficiaryLocalDatasource: ref.watch(beneficiaryLocalDataSourceProvider),
     photoLocalDataSource: ref.watch(photoLocalDataSourceProvider),
-    photoRemoteDataSource: ref.watch(photoDataSourceProvider),
+    photoRemoteDataSource: ref.watch(photoRemoteDataSourceProvider),
     preferencesUsuario: ref.watch(preferencesUsuarioProvider),
   ),
 );
@@ -221,6 +221,7 @@ class BeneficiaryRepositoryImpl extends BeneficiaryRepository {
 
       return await beneficiaryLocalDatasource.updateLocationAndPhone(
         beneficiary.id,
+        beneficiary.idLocation,
         beneficiary.location,
         beneficiary.phone,
       );

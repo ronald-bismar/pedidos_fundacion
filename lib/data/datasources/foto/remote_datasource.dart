@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/di/services_provider.dart';
 import 'package:pedidos_fundacion/domain/entities/foto.dart';
 
-final photoDataSourceProvider = Provider<PhotoRemoteDataSource>((ref) {
+final photoRemoteDataSourceProvider = Provider<PhotoRemoteDataSource>((ref) {
   final service = ref.watch(firestoreProvider);
   return PhotoRemoteDataSource(service);
 });
@@ -49,10 +49,7 @@ class PhotoRemoteDataSource {
 
   Future<void> updatePhoto(Photo photo) async {
     try {
-      await service
-          .collection(_collection)
-          .doc(photo.id)
-          .update(photo.toMap());
+      await service.collection(_collection).doc(photo.id).update(photo.toMap());
     } catch (e) {
       throw Exception('Error updating photo: $e');
     }

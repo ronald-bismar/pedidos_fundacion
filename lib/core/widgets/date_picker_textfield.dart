@@ -9,8 +9,9 @@ class DatePickerTextField extends StatefulWidget {
   final double marginVertical;
   final bool enabled;
   final Function(DateTime?) onDateSelected;
-  final int minAge; // Edad mínima permitida
-  final int maxAge; // Edad máxima permitida
+  final DateTime? firstDate;
+  final DateTime? lastDate;
+  final String titleAlertDialog;
 
   const DatePickerTextField({
     super.key,
@@ -20,8 +21,9 @@ class DatePickerTextField extends StatefulWidget {
     this.marginVertical = 10,
     this.enabled = true,
     required this.onDateSelected,
-    this.minAge = 0,
-    this.maxAge = 120,
+    this.firstDate,
+    this.lastDate,
+    this.titleAlertDialog = 'Seleccionar fecha',
   });
 
   @override
@@ -55,11 +57,21 @@ class _DatePickerTextFieldState extends State<DatePickerTextField> {
     return '${date.day} de ${months[date.month - 1]} de ${date.year}';
   }
 
-  // Calcular fechas límite basadas en edades
-  DateTime get _firstDate =>
-      DateTime.now().subtract(Duration(days: widget.maxAge * 365));
-  DateTime get _lastDate =>
-      DateTime.now().subtract(Duration(days: widget.minAge * 365));
+  DateTime get _firstDate {
+    if (widget.firstDate != null) {
+      return widget.firstDate!;
+    }
+    // Por defecto, 10 años atrás desde hoy
+    return DateTime.now().subtract(const Duration(days: 365 * 100));
+  }
+
+  DateTime get _lastDate {
+    if (widget.lastDate != null) {
+      return widget.lastDate!;
+    }
+    // Por defecto, hoy
+    return DateTime.now();
+  }
 
   Future<void> _showHoloDatePicker(BuildContext context) async {
     if (!widget.enabled) return;
@@ -72,7 +84,7 @@ class _DatePickerTextFieldState extends State<DatePickerTextField> {
       looping: false,
       locale: DateTimePickerLocale.es,
       textColor: Colors.black87,
-      titleText: 'Fecha de nacimiento',
+      titleText: widget.titleAlertDialog,
       confirmText: 'Confirmar',
       cancelText: 'Cancelar',
       itemTextStyle: TextStyle(fontSize: 20),

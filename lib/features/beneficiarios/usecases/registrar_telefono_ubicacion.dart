@@ -16,6 +16,7 @@ class RegisterPhoneLocationUseCase {
   Future<Result> call(
     Beneficiary beneficiary,
     String phone,
+    String idLocation,
     String region,
     String address,
   ) async {

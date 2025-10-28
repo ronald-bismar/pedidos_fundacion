@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedidos_fundacion/di/services_provider.dart';
-import 'package:pedidos_fundacion/domain/entities/asistencia_mensual.dart';
+import 'package:pedidos_fundacion/features/asistencia_beneficiario/domain/entities/asistencia_mensual.dart';
 
 final monthlyAttendanceRemoteDataSourceProvider =
     Provider<MonthlyAttendanceRemoteDataSource>((ref) {

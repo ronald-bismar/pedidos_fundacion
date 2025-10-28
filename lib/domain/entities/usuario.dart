@@ -9,6 +9,7 @@ class User {
   final String username;
   final String password;
   final String phone;
+  final String idLocation;
   final String location;
   final DateTime updateAt;
   final bool active;
@@ -23,6 +24,7 @@ class User {
     this.username,
     this.password,
     this.phone,
+    this.idLocation,
     this.location,
     this.updateAt,
     this.active,
@@ -30,6 +32,6 @@ class User {
 
   @override
   String toString() {
-    return 'User{id: $id, dni: $dni, name: $name, lastName: $lastName, email: $email, idPhoto: $idPhoto, username: $username, phone: $phone, ubicacion: $location, updateAt: $updateAt, active: $active}';
+    return 'User{id: $id, dni: $dni, name: $name, lastName: $lastName, email: $email, idPhoto: $idPhoto, username: $username, phone: $phone, idUbicacion: $idLocation, ubicacion: $location, updateAt: $updateAt, active: $active}';
   }
 }
